@@ -555,74 +555,88 @@ function onRandomizeColors() {
 }
 
 
-// Add this new helper function for capturing the timetable
 async function captureTimetable(backgroundColor) {
-    const node = document.getElementById('timetable-card'); // Capture the entire card for better context
-    const nodeStyles = {
-        width: node.style.width,
-        height: node.style.height,
-        transform: node.style.transform,
-        overflow: node.style.overflow,
-        padding: node.style.padding
-    };
-    
-    // Define a fixed, high-resolution size for export (e.g., A4 landscape ratio)
-    const exportWidth = 1400; 
-    const exportHeight = 850;
+    // 1. Create a container for the clone
+    const cloneContainer = document.createElement('div');
+    cloneContainer.style.position = 'absolute';
+    cloneContainer.style.left = '-9999px'; // Move it off-screen
+    cloneContainer.style.top = '0';
+    cloneContainer.style.width = '1400px'; // Fixed width for consistent export
+    document.body.appendChild(cloneContainer);
 
-    // Apply temporary styles for full capture
-    node.style.width = `${exportWidth}px`;
-    node.style.height = `${exportHeight}px`;
-    node.style.transform = 'scale(1)';
-    node.style.overflow = 'visible';
-    node.style.padding = '20px'; // Add padding for a clean border
+    // 2. Clone the timetable card
+    const originalNode = document.querySelector('.timetable-card');
+    const clonedNode = originalNode.cloneNode(true);
 
-    const canvas = await html2canvas(node, {
-        scale: 2, // Capture at a higher resolution
+    // 3. Reset styles for the clone to ensure it's fully visible for capture
+    const timetableEl = clonedNode.querySelector('.timetable');
+    if (timetableEl) {
+        timetableEl.style.transform = 'scale(1)'; // Reset any zoom
+        timetableEl.style.overflow = 'visible';
+    }
+    clonedNode.style.width = '100%';
+    clonedNode.style.height = 'auto';
+    clonedNode.style.boxShadow = 'none';
+
+    // Append the clone to the off-screen container
+    cloneContainer.appendChild(clonedNode);
+
+    // 4. Use html2canvas to capture the clone
+    const canvas = await html2canvas(clonedNode, {
+        scale: 2, // Higher resolution
         useCORS: true,
         backgroundColor: backgroundColor,
-        logging: false
+        logging: false,
+        width: clonedNode.offsetWidth,
+        height: clonedNode.offsetHeight,
     });
-    
-    // Restore original styles
-    node.style.width = nodeStyles.width;
-    node.style.height = nodeStyles.height;
-    node.style.transform = nodeStyles.transform;
-    node.style.overflow = nodeStyles.overflow;
-    node.style.padding = nodeStyles.padding;
+
+    // 5. Clean up by removing the off-screen container
+    document.body.removeChild(cloneContainer);
 
     return canvas;
 }
 
-// Update the exportPNG function
+// Updated exportPNG function
 async function exportPNG() {
-    const canvas = await captureTimetable(null); // No background for PNG
-    const dataUrl = canvas.toDataURL('image/png');
+    try {
+        const canvas = await captureTimetable(null); // Transparent background for PNG
+        const dataUrl = canvas.toDataURL('image/png');
 
-    const a = document.createElement('a');
-    a.href = dataUrl;
-    a.download = 'routine.png';
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    toast('Exported as PNG!');
+        const a = document.createElement('a');
+        a.href = dataUrl;
+        a.download = 'routine.png';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        toast('Exported as PNG!');
+    } catch (error) {
+        console.error('Error exporting PNG:', error);
+        toast('Failed to export PNG.');
+    }
 }
 
-// Update the exportPDF function
+// Updated exportPDF function
 async function exportPDF() {
-    const canvas = await captureTimetable('#ffffff'); // White background for PDF
-    const imgData = canvas.toDataURL('image/png');
-    const { jsPDF } = window.jspdf;
+    try {
+        const canvas = await captureTimetable('#ffffff'); // White background for PDF
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
 
-    const pdf = new jsPDF({
-        orientation: 'landscape',
-        unit: 'px',
-        format: [canvas.width, canvas.height]
-    });
-    
-    pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-    pdf.save('routine.pdf');
-    toast('Exported as PDF!');
+        // Use the canvas dimensions for the PDF
+        const pdf = new jsPDF({
+            orientation: 'landscape',
+            unit: 'px',
+            format: [canvas.width, canvas.height]
+        });
+
+        pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
+        pdf.save('routine.pdf');
+        toast('Exported as PDF!');
+    } catch (error) {
+        console.error('Error exporting PDF:', error);
+        toast('Failed to export PDF.');
+    }
 }
 
 // zoom helpers
