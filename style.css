@@ -342,6 +342,17 @@ input:focus, select:focus {
 /* timetable */
 .timetable-card {
     padding: 24px;
+    position: relative; /* Added for absolute positioning of watermark */
+}
+.watermark {
+    position: absolute;
+    bottom: 5px;
+    right: 20px;
+    color: rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+    font-weight: bold;
+    pointer-events: none; /* Allows interaction with elements beneath it */
+    z-index: 1;
 }
 .timetable-header {
     display: flex;

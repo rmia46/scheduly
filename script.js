@@ -1,11 +1,10 @@
 // app state
 const state = {
-    slots: [], // array of {id,label}
-    courses: [], // array of {id,name,section,room,day,slotId,color}
+    routines: [], // array of {id, name, slots, courses}
+    activeRoutineId: null,
     zoom: 1,
     editingCourseId: null,
-    isMenuOpen: true,
-    routineName: ''
+    isMenuOpen: true
 };
 
 // DOM refs
@@ -42,22 +41,76 @@ function uid(prefix = 'id') {
     return prefix + Math.random().toString(36).slice(2, 9);
 }
 
+function createRoutine(name) {
+    const newRoutine = {
+        id: uid('routine_'),
+        name: name,
+        slots: [],
+        courses: []
+    };
+    state.routines.push(newRoutine);
+    state.activeRoutineId = newRoutine.id;
+    renderUI();
+    saveStateToLocalStorage();
+}
+
+function getActiveRoutine() {
+    return state.routines.find(r => r.id === state.activeRoutineId);
+}
+
+function switchRoutine(routineId) {
+    state.activeRoutineId = routineId;
+    const activeRoutine = getActiveRoutine();
+    if (activeRoutine) {
+        document.getElementById('routine-name').value = activeRoutine.name;
+    }
+    renderUI();
+    saveStateToLocalStorage();
+    toast(`Switched to routine: ${activeRoutine ? activeRoutine.name : ''}`);
+}
+
+function deleteRoutine(routineId) {
+    if (state.routines.length === 1) {
+        toast('Cannot delete the last routine!');
+        return;
+    }
+    state.routines = state.routines.filter(r => r.id !== routineId);
+    if (state.activeRoutineId === routineId) {
+        state.activeRoutineId = state.routines[0].id;
+    }
+    const activeRoutine = getActiveRoutine();
+    if (activeRoutine) {
+        document.getElementById('routine-name').value = activeRoutine.name;
+    }
+    renderUI();
+    saveStateToLocalStorage();
+    toast('Routine deleted!');
+}
+
 // initialize
 function init() {
     loadStateFromLocalStorage();
-    if (state.slots.length === 0) {
-        loadPredefinedSlots(false);
-    }
+    // The initial routine creation is now handled by loadStateFromLocalStorage
+    // if (state.slots.length === 0) {
+    //     loadPredefinedSlots(false);
+    // }
     renderUI();
     setTheme(localStorage.getItem('theme') || 'grass');
     themeSelector.value = localStorage.getItem('theme') || 'grass';
 
     // Check for menu state
-    const savedMenuState = localStorage.getItem('isMenuOpen');
-    if (savedMenuState !== null) {
-        state.isMenuOpen = savedMenuState === 'true';
-    }
+    // The state.isMenuOpen is now loaded directly in loadStateFromLocalStorage
+    // const savedMenuState = localStorage.getItem('isMenuOpen');
+    // if (savedMenuState !== null) {
+    //     state.isMenuOpen = savedMenuState === 'true';
+    // }
     toggleMenu(state.isMenuOpen);
+
+    // Display the active routine's name
+    const activeRoutine = state.routines.find(r => r.id === state.activeRoutineId);
+    if (activeRoutine) {
+        document.getElementById('routine-name').value = activeRoutine.name;
+    }
 
     // attach handlers
     document.getElementById('add-course').addEventListener('click', onAddCourse);
@@ -84,7 +137,24 @@ function init() {
         }
     });
 
-    document.getElementById('routine-name').addEventListener('input', saveStateToLocalStorage);
+    // routine name is now updated via a dedicated function, not directly saved on input
+    // routine name is now updated via a dedicated function, not directly saved on input
+    // document.getElementById('routine-name').addEventListener('input', saveStateToLocalStorage);
+
+    // New routine management event listeners
+    document.getElementById('add-routine').addEventListener('click', () => {
+        const routineName = prompt('Enter a name for the new routine:', `Routine ${state.routines.length + 1}`);
+        if (routineName) {
+            createRoutine(routineName);
+        }
+    });
+    document.getElementById('delete-routine').addEventListener('click', () => {
+        if (confirm('Are you sure you want to delete this routine? This action cannot be undone.')) {
+            deleteRoutine(state.activeRoutineId);
+        }
+    });
+
+    document.getElementById('routine-name').addEventListener('input', onRoutineNameChange);
 
     // keyboard shortcuts
     window.addEventListener('keydown', (e) => {
@@ -96,7 +166,6 @@ function init() {
 }
 
 function saveStateToLocalStorage() {
-    state.routineName = document.getElementById('routine-name').value;
     localStorage.setItem('routineAppState', JSON.stringify(state));
 }
 
@@ -104,14 +173,27 @@ function loadStateFromLocalStorage() {
     try {
         const savedState = JSON.parse(localStorage.getItem('routineAppState'));
         if (savedState) {
-            state.slots = savedState.slots;
-            state.courses = savedState.courses;
+            // Load top-level state properties
             state.zoom = savedState.zoom || 1;
-            state.routineName = savedState.routineName || '';
-            document.getElementById('routine-name').value = state.routineName;
+            state.editingCourseId = savedState.editingCourseId || null;
+            state.isMenuOpen = savedState.isMenuOpen !== undefined ? savedState.isMenuOpen : true; // Ensure isMenuOpen is loaded
+
+            // Load routines and activeRoutineId
+            if (savedState.routines && savedState.routines.length > 0) {
+                state.routines = savedState.routines;
+                state.activeRoutineId = savedState.activeRoutineId || state.routines[0].id;
+            } else {
+                // If no routines, create a default one
+                createRoutine('My Routine');
+            }
+        } else {
+            // If no saved state at all, create a default routine
+            createRoutine('My Routine');
         }
     } catch (e) {
         console.error('Failed to load state from localStorage', e);
+        // Fallback to creating a default routine on error
+        createRoutine('My Routine');
     }
 }
 
@@ -123,15 +205,43 @@ function renderUI() {
     renderTimetable();
     renderColorPalette(courseColorPalette, document.getElementById('course-color'));
     renderColorPalette(editCourseColorPalette, document.getElementById('edit-course-color'));
+    renderRoutineSelector(); // New call
+}
+
+function renderRoutineSelector() {
+    const routineSelectorEl = document.getElementById('routine-selector');
+    if (!routineSelectorEl) return; // Ensure the element exists
+
+    routineSelectorEl.innerHTML = '';
+    state.routines.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r.id;
+        opt.textContent = r.name;
+        if (r.id === state.activeRoutineId) {
+            opt.selected = true;
+        }
+        routineSelectorEl.appendChild(opt);
+    });
+
+    // Add event listener if not already added
+    if (!routineSelectorEl.dataset.listenerAdded) {
+        routineSelectorEl.addEventListener('change', (e) => {
+            switchRoutine(e.target.value);
+        });
+        routineSelectorEl.dataset.listenerAdded = 'true';
+    }
 }
 
 function loadPredefinedSlots(refreshUI = true) {
-    state.slots = predefinedSlots.map(s => ({
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
+    activeRoutine.slots = predefinedSlots.map(s => ({
         id: uid('slot_'),
         label: s
     }));
     if (refreshUI) {
-        state.courses = state.courses.map(c => ({
+        activeRoutine.courses = activeRoutine.courses.map(c => ({
             ...c,
             slotId: null
         }));
@@ -142,9 +252,12 @@ function loadPredefinedSlots(refreshUI = true) {
 }
 
 function renderSlotOptions() {
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
     // populate <select> for adding courses
     courseSlotSelect.innerHTML = '';
-    state.slots.forEach(s => {
+    activeRoutine.slots.forEach(s => {
         const opt = document.createElement('option');
         opt.value = s.id;
         opt.textContent = s.label;
@@ -153,8 +266,11 @@ function renderSlotOptions() {
 }
 
 function renderEditSlotOptions() {
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
     editCourseSlotSelect.innerHTML = '';
-    state.slots.forEach(s => {
+    activeRoutine.slots.forEach(s => {
         const opt = document.createElement('option');
         opt.value = s.id;
         opt.textContent = s.label;
@@ -163,11 +279,14 @@ function renderEditSlotOptions() {
 }
 
 function renderSlotsList() {
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
     slotsListEl.innerHTML = '';
-    if (state.slots.length === 0) {
+    if (activeRoutine.slots.length === 0) {
         slotsListEl.innerHTML = '<div class="muted">No slots yet.</div>';
     }
-    state.slots.forEach(s => {
+    activeRoutine.slots.forEach(s => {
         const div = document.createElement('div');
         div.className = 'list-item slot-item';
         div.innerHTML = `
@@ -182,9 +301,9 @@ function renderSlotsList() {
     // attach remove handlers
     slotsListEl.querySelectorAll('button[data-action="remove"]').forEach(b => b.addEventListener('click', (ev) => {
         const id = ev.currentTarget.dataset.id;
-        state.slots = state.slots.filter(x => x.id !== id);
+        activeRoutine.slots = activeRoutine.slots.filter(x => x.id !== id);
         // also drop courses in that slot
-        state.courses = state.courses.map(c => c.slotId === id ? {
+        activeRoutine.courses = activeRoutine.courses.map(c => c.slotId === id ? {
             ...c,
             slotId: null
         } : c);
@@ -195,6 +314,9 @@ function renderSlotsList() {
 }
 
 function onAddSlot() {
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
     const startInput = document.getElementById('new-slot-start');
     const endInput = document.getElementById('new-slot-end');
     const start = startInput.value;
@@ -214,13 +336,13 @@ function onAddSlot() {
     }
 
     const label = `${start}-${end}`;
-    state.slots.push({
+    activeRoutine.slots.push({
         id: uid('slot_'),
         label
     });
 
     // Sort slots by time
-    state.slots.sort((a, b) => {
+    activeRoutine.slots.sort((a, b) => {
         const [aStart] = a.label.split('-');
         const [bStart] = b.label.split('-');
         return aStart.localeCompare(bStart);
@@ -233,6 +355,9 @@ function onAddSlot() {
 }
 
 function onAddCourse() {
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
     const name = document.getElementById('course-name').value.trim().toUpperCase();
     const section = document.getElementById('course-section').value.trim().toUpperCase();
     const room = document.getElementById('course-room').value.trim().toUpperCase();
@@ -240,7 +365,7 @@ function onAddCourse() {
     const slotId = document.getElementById('course-slot').value || null;
     const color = document.getElementById('course-color').value;
 
-    const isDuplicate = state.courses.some(c => 
+    const isDuplicate = activeRoutine.courses.some(c => 
         c.name === name && 
         c.section === section && 
         c.room === room && 
@@ -266,7 +391,7 @@ function onAddCourse() {
         slotId,
         color
     };
-    state.courses.push(c);
+    activeRoutine.courses.push(c);
     clearForm();
     renderUI();
     saveStateToLocalStorage();
@@ -286,15 +411,18 @@ function clearForm() {
 }
 
 function renderCoursesList() {
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
     coursesListEl.innerHTML = '';
-    if (state.courses.length === 0) {
+    if (activeRoutine.courses.length === 0) {
         coursesListEl.innerHTML = '<div class="muted">No courses yet</div>';
         return;
     }
 
     // Now, this list only shows a summary and a copy button
     const displayedCourses = {}; // Track courses by name and section to prevent duplicates
-    state.courses.forEach(c => {
+    activeRoutine.courses.forEach(c => {
         const uniqueKey = `${c.name}-${c.section}`;
         if (displayedCourses[uniqueKey]) {
             return; // Don't add if already displayed
@@ -303,7 +431,7 @@ function renderCoursesList() {
 
         const el = document.createElement('div');
         el.className = 'list-item course-item';
-        const slotLabel = state.slots.find(s => s.id === c.slotId)?.label || '<em>no slot</em>';
+        const slotLabel = activeRoutine.slots.find(s => s.id === c.slotId)?.label || '<em>no slot</em>';
         const dayName = getFullDayName(c.day);
         el.innerHTML = `
             <div class="course-meta">
@@ -322,13 +450,13 @@ function renderCoursesList() {
     // We only need the copy event listener here
     coursesListEl.querySelectorAll('button[data-action="copy"]').forEach(b => b.addEventListener('click', (ev) => {
         const originalId = ev.currentTarget.dataset.id;
-        const originalCourse = state.courses.find(x => x.id === originalId);
+        const originalCourse = activeRoutine.courses.find(x => x.id === originalId);
 
         if (originalCourse) {
             const newCourse = { ...originalCourse,
                 id: uid('course_')
             };
-            state.courses.push(newCourse);
+            activeRoutine.courses.push(newCourse);
             renderUI();
             saveStateToLocalStorage();
             toast('Course copied to timetable!');
@@ -338,7 +466,10 @@ function renderCoursesList() {
 }
 
 function openEditModal(courseId) {
-    const course = state.courses.find(x => x.id === courseId);
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
+    const course = activeRoutine.courses.find(x => x.id === courseId);
     if (!course) return;
 
     state.editingCourseId = courseId;
@@ -368,8 +499,11 @@ function closeEditModal() {
 }
 
 function onSaveEditedCourse() {
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
     const courseId = state.editingCourseId;
-    const course = state.courses.find(c => c.id === courseId);
+    const course = activeRoutine.courses.find(c => c.id === courseId);
     if (!course) return;
 
     course.name = document.getElementById('edit-course-name').value.trim().toUpperCase();
@@ -391,6 +525,9 @@ function onSaveEditedCourse() {
 }
 
 function renderTimetable() {
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     timetableEl.innerHTML = '';
 
@@ -403,7 +540,7 @@ function renderTimetable() {
     days.forEach((d, i) => headerRow.appendChild(cell(d + `<div class="day-number">${getFullDayName(i)}</div>`, 'day-head')));
     grid.appendChild(headerRow);
 
-    const slotOrder = state.slots;
+    const slotOrder = activeRoutine.slots;
     slotOrder.forEach(slot => {
         const row = document.createElement('div');
         row.className = 'grid-row';
@@ -415,7 +552,7 @@ function renderTimetable() {
             dcell.dataset.slotId = slot.id;
             dcell.dataset.day = day;
 
-            const coursesInCell = state.courses.filter(c => c.day === day && c.slotId === slot.id);
+            const coursesInCell = activeRoutine.courses.filter(c => c.day === day && c.slotId === slot.id);
 
             if (coursesInCell.length > 0) {
                 coursesInCell.forEach((course, index) => {
@@ -455,7 +592,7 @@ function renderTimetable() {
                     block.querySelector('.delete-btn').addEventListener('click', (e) => {
                         e.stopPropagation(); // Prevents drag start event
                         if (confirm('Are you sure you want to delete this course?')) {
-                            state.courses = state.courses.filter(c => c.id !== course.id);
+                            activeRoutine.courses = activeRoutine.courses.filter(c => c.id !== course.id);
                             renderUI();
                             saveStateToLocalStorage();
                             toast('Course deleted!');
@@ -473,7 +610,7 @@ function renderTimetable() {
             dcell.addEventListener('drop', (e) => {
                 e.preventDefault();
                 const courseId = e.dataTransfer.getData('text/plain');
-                const course = state.courses.find(c => c.id === courseId);
+                const course = activeRoutine.courses.find(c => c.id === courseId);
                 if (course) {
                     course.day = parseInt(dcell.dataset.day, 10);
                     course.slotId = dcell.dataset.slotId;
@@ -543,12 +680,15 @@ function shuffleArray(array) {
 }
 
 function onRandomizeColors() {
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
     const theme = localStorage.getItem('theme') || 'grass';
     const colors = themes[theme] || themes.grass;
     const shuffledColors = shuffleArray([...colors]);
 
     // Get unique course names
-    const uniqueCourseNames = [...new Set(state.courses.map(c => c.name))];
+    const uniqueCourseNames = [...new Set(activeRoutine.courses.map(c => c.name))];
 
     // Create a color map for each unique course name
     const courseColorMap = {};
@@ -557,7 +697,7 @@ function onRandomizeColors() {
     });
 
     // Apply the colors to all courses
-    state.courses.forEach(course => {
+    activeRoutine.courses.forEach(course => {
         course.color = courseColorMap[course.name];
     });
 
@@ -629,7 +769,8 @@ async function exportPNG() {
 
         const a = document.createElement('a');
         a.href = dataUrl;
-        const routineName = document.getElementById('routine-name').value.trim() || 'routine';
+        const activeRoutine = getActiveRoutine();
+        const routineName = activeRoutine ? activeRoutine.name.trim() : 'routine';
         a.download = `${routineName}.png`;
         document.body.appendChild(a);
         a.click();
@@ -656,7 +797,8 @@ async function exportPDF() {
         });
 
         pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-        const routineName = document.getElementById('routine-name').value.trim() || 'routine';
+        const activeRoutine = getActiveRoutine();
+        const routineName = activeRoutine ? activeRoutine.name.trim() : 'routine';
         pdf.save(`${routineName}.pdf`);
         toast('Exported as PDF!');
     } catch (error) {
@@ -696,6 +838,13 @@ function toggleMenu(forceState) {
     }, 300); // matches CSS transition duration
 }
 
+function onRoutineNameChange(event) {
+    const activeRoutine = getActiveRoutine();
+    if (activeRoutine) {
+        activeRoutine.name = event.target.value;
+        saveStateToLocalStorage();
+    }
+}
 
 // tiny toast
 function toast(msg) {
