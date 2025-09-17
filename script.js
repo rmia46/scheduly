@@ -589,6 +589,7 @@ async function captureTimetable(backgroundColor) {
     textDiv.style.height = input.offsetHeight + 'px';
     textDiv.style.lineHeight = input.offsetHeight + 'px';
     textDiv.style.textAlign = 'center';
+    textDiv.style.color = '#333';
     input.parentNode.replaceChild(textDiv, input);
 
     // 3. Reset styles for the clone to ensure it's fully visible for capture
