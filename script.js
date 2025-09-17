@@ -75,18 +75,56 @@ function deleteRoutine(routineId) {
         toast('Cannot delete the last routine!');
         return;
     }
-    state.routines = state.routines.filter(r => r.id !== routineId);
-    if (state.activeRoutineId === routineId) {
-        state.activeRoutineId = state.routines[0].id;
-    }
-    const activeRoutine = getActiveRoutine();
-    if (activeRoutine) {
-        document.getElementById('routine-name').value = activeRoutine.name;
-    }
-    renderUI();
-    saveStateToLocalStorage();
-    toast('Routine deleted!');
+    showConfirmModal('Are you sure you want to delete this routine? This action cannot be undone.', () => {
+        state.routines = state.routines.filter(r => r.id !== routineId);
+        if (state.activeRoutineId === routineId) {
+            state.activeRoutineId = state.routines[0].id;
+        }
+        const activeRoutine = getActiveRoutine();
+        if (activeRoutine) {
+            document.getElementById('routine-name').value = activeRoutine.name;
+        }
+        renderUI();
+        saveStateToLocalStorage();
+        toast('Routine deleted!');
+    });
 }
+
+// Custom Confirmation Modal Logic
+const confirmModal = document.getElementById('confirm-modal');
+const confirmMessage = document.getElementById('confirm-message');
+const confirmYesBtn = document.getElementById('confirm-yes');
+const confirmNoBtn = document.getElementById('confirm-no');
+
+let currentConfirmCallback = null;
+
+function showConfirmModal(message, onConfirmCallback) {
+    confirmMessage.textContent = message;
+    currentConfirmCallback = onConfirmCallback;
+    confirmModal.classList.add('visible');
+}
+
+function closeConfirmModal() {
+    confirmModal.classList.remove('visible');
+    currentConfirmCallback = null;
+}
+
+confirmYesBtn.addEventListener('click', () => {
+    if (currentConfirmCallback) {
+        currentConfirmCallback();
+    }
+    closeConfirmModal();
+});
+
+confirmNoBtn.addEventListener('click', () => {
+    closeConfirmModal();
+});
+
+confirmModal.addEventListener('click', (e) => {
+    if (e.target === confirmModal) {
+        closeConfirmModal();
+    }
+});
 
 // initialize
 function init() {
@@ -631,12 +669,12 @@ function renderTimetable() {
                     // Add click listener for delete button
                     block.querySelector('.delete-btn').addEventListener('click', (e) => {
                         e.stopPropagation(); // Prevents drag start event
-                        if (confirm('Are you sure you want to delete this course?')) {
+                        showConfirmModal('Are you sure you want to delete this course?', () => {
                             activeRoutine.courses = activeRoutine.courses.filter(c => c.id !== course.id);
                             renderUI();
                             saveStateToLocalStorage();
                             toast('Course deleted!');
-                        }
+                        });
                     });
 
                     // Original dblclick handler for editing
