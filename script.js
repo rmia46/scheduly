@@ -618,6 +618,15 @@ function renderTimetable() {
                         block.classList.remove('dragging');
                     });
                     
+                    // Add click listener for selection
+                    block.addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevent event from bubbling to parent cell
+                        // Remove 'selected' from any other course block
+                        document.querySelectorAll('.course-block.selected').forEach(b => b.classList.remove('selected'));
+                        // Add 'selected' to the clicked course block
+                        block.classList.add('selected');
+                    });
+
                     // Add click listener for delete button
                     block.querySelector('.delete-btn').addEventListener('click', (e) => {
                         e.stopPropagation(); // Prevents drag start event
@@ -636,9 +645,18 @@ function renderTimetable() {
                 });
             }
 
-            dcell.addEventListener('dragover', (e) => e.preventDefault());
+            dcell.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                if (!dcell.classList.contains('drag-over')) {
+                    dcell.classList.add('drag-over');
+                }
+            });
+            dcell.addEventListener('dragleave', () => {
+                dcell.classList.remove('drag-over');
+            });
             dcell.addEventListener('drop', (e) => {
                 e.preventDefault();
+                dcell.classList.remove('drag-over');
                 const courseId = e.dataTransfer.getData('text/plain');
                 const course = activeRoutine.courses.find(c => c.id === courseId);
                 if (course) {
