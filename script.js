@@ -31,9 +31,9 @@ const predefinedSlots = [
 ];
 
 const themes = {
-    lemon: ['#d6b911', '#ffc107', '#ffeb3b', '#ff9800', '#f44336', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3'],
-    grass: ['#4a9e4d', '#8bc34a', '#cddc39', '#ffc107', '#ffeb3b', '#ff9800', '#f44336', '#9c27b0', '#673ab7'],
-    ocean: ['#2196f3', '#03a9f4', '#00bcd4', '#00e5ff', '#ffeb3b', '#ff9800', '#f44336', '#9c27b0', '#673ab7']
+    lemon: ['#d6b911', '#ffc107', '#ff9800', '#f44336', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3'],
+    grass: ['#4a9e4d', '#8bc34a', '#cddc39', '#ffc107', '#ff9800', '#f44336', '#9c27b0', '#673ab7'],
+    ocean: ['#2196f3', '#03a9f4', '#00bcd4', '#00e5ff', '#ff9800', '#f44336', '#9c27b0', '#673ab7']
 };
 
 function uid(prefix = 'id') {
@@ -538,15 +538,20 @@ function shuffleArray(array) {
 function onRandomizeColors() {
     const theme = localStorage.getItem('theme') || 'grass';
     const colors = themes[theme] || themes.grass;
-    
-    // Create a shuffled copy of the color palette
     const shuffledColors = shuffleArray([...colors]);
-    
-    // Assign a unique color to each course, repeating if necessary
-    state.courses.forEach((course, index) => {
-        // Use the modulo operator (%) to loop through the colors
-        const colorIndex = index % shuffledColors.length;
-        course.color = shuffledColors[colorIndex];
+
+    // Get unique course names
+    const uniqueCourseNames = [...new Set(state.courses.map(c => c.name))];
+
+    // Create a color map for each unique course name
+    const courseColorMap = {};
+    uniqueCourseNames.forEach((name, index) => {
+        courseColorMap[name] = shuffledColors[index % shuffledColors.length];
+    });
+
+    // Apply the colors to all courses
+    state.courses.forEach(course => {
+        course.color = courseColorMap[course.name];
     });
 
     renderUI();
