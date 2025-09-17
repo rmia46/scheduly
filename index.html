@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Scheduly</title>
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+
+<body data-theme="grass">
+    <div class="app-shell">
+        <header class="app-bar">
+            <div class="app-bar-left">
+                <button id="menu-toggle" class="icon-btn"><span class="material-symbols-outlined">menu</span></button>
+                <h1>Routine Builder</h1>
+            </div>
+            <div class="app-bar-actions">
+                <select id="theme-selector" class="theme-select">
+                    <option value="lemon">🍋 Lemon</option>
+                    <option value="grass">🌿 Grass</option>
+                    <option value="ocean">🌊 Ocean</option>
+                </select>
+                <button id="randomize-colors" class="action-btn">Randomize Colors</button>
+                <button id="load-predefined" class="action-btn" title="Load university class slots">Load slots</button>
+                <button id="export-png" class="action-btn">Export PNG</button>
+                <button id="export-pdf" class="action-btn">Export PDF</button>
+            </div>
+        </header>
+
+        <main class="app-body">
+            <aside class="panel left-panel">
+                <section class="card form-card">
+                    <h2>Add Course</h2>
+                    <div class="field">
+                        <label>Course name</label>
+                        <input id="course-name" placeholder="e.g. Algorithms" />
+                    </div>
+                    <div class="field two">
+                        <div>
+                            <label>Section</label>
+                            <input id="course-section" placeholder="e.g. A" />
+                        </div>
+                        <div>
+                            <label>Room</label>
+                            <input id="course-room" placeholder="e.g. C-203" />
+                        </div>
+                    </div>
+
+                    <div class="field two">
+                        <div>
+                            <label>Day</label>
+                            <select id="course-day">
+                                <option value="0">Sunday</option>
+                                <option value="1">Monday</option>
+                                <option value="2">Tuesday</option>
+                                <option value="3">Wednesday</option>
+                                <option value="4">Thursday</option>
+                                <option value="5">Friday</option>
+                                <option value="6">Saturday</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Time slot</label>
+                            <select id="course-slot"></select>
+                        </div>
+                    </div>
+
+                    <div class="field">
+                        <label>Color (optional)</label>
+                        <div id="course-color-palette" class="color-palette"></div>
+                        <input type="hidden" id="course-color" value="#7c4dff" />
+                    </div>
+
+                    <div class="actions">
+                        <button id="add-course" class="primary">Add course</button>
+                        <button id="clear-form" class="muted">Clear</button>
+                    </div>
+                </section>
+
+                <section class="card small-card">
+                    <h3>Courses</h3>
+                    <div id="courses-list" class="list"></div>
+                </section>
+
+                <section class="card small-card">
+                    <h3>Slots</h3>
+                    <div id="slots-list" class="list small"></div>
+                    <div class="field">
+                        <label>Add Time Slot</label>
+                        <div class="slot-actions">
+                            <input id="new-slot-start" type="time" />
+                            <span class="time-separator">-</span>
+                            <input id="new-slot-end" type="time" />
+                            <button id="add-slot" class="small">Add</button>
+                        </div>
+                    </div>
+                </section>
+            </aside>
+
+            <section class="panel right-panel">
+                <div class="timetable-card card">
+                    <div class="timetable-header">
+                        <h2>Your Routine</h2>
+                        <p class="muted">First day: Sunday · Drag courses to change day/time</p>
+                    </div>
+
+                    <div id="timetable" class="timetable">
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <nav class="bottom-nav">
+            <button id="zoom-in" class="icon-btn"><span class="material-symbols-outlined">zoom_in</span></button>
+            <button id="reset-zoom" class="icon-btn"><span
+                    class="material-symbols-outlined">center_focus_strong</span></button>
+            <button id="zoom-out" class="icon-btn"><span class="material-symbols-outlined">zoom_out</span></button>
+        </nav>
+
+        <footer class="app-footer muted">Vibe Coded with Gemini 😉 @rmia46</footer>
+    </div>
+
+    <div id="edit-modal" class="modal-bg">
+        <div class="modal-card">
+            <h3>Edit Course</h3>
+            <div class="field">
+                <label>Course name</label>
+                <input id="edit-course-name" />
+            </div>
+            <div class="field two">
+                <div>
+                    <label>Section</label>
+                    <input id="edit-course-section" />
+                </div>
+                <div>
+                    <label>Room</label>
+                    <input id="edit-course-room" />
+                </div>
+            </div>
+            <div class="field two">
+                <div>
+                    <label>Day</label>
+                    <select id="edit-course-day">
+                        <option value="0">Sunday</option>
+                        <option value="1">Monday</option>
+                        <option value="2">Tuesday</option>
+                        <option value="3">Wednesday</option>
+                        <option value="4">Thursday</option>
+                        <option value="5">Friday</option>
+                        <option value="6">Saturday</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Time slot</label>
+                    <select id="edit-course-slot"></select>
+                </div>
+            </div>
+            <div class="field">
+                <label>Color</label>
+                <div id="edit-course-color-palette" class="color-palette"></div>
+                <input type="hidden" id="edit-course-color" />
+            </div>
+            <div class="actions">
+                <button id="save-edit-course" class="primary">Save</button>
+                <button id="cancel-edit-course" class="muted">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
