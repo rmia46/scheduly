@@ -158,6 +158,12 @@ function init() {
     document.getElementById('load-predefined').addEventListener('click', () => {
         loadPredefinedSlots(true);
     });
+    document.getElementById('clear-local-storage').addEventListener('click', () => {
+        showConfirmModal('Are you sure you want to clear all local storage data? This will reset the site in this browser.', () => {
+            localStorage.clear();
+            location.reload();
+        });
+    });
     document.getElementById('randomize-colors').addEventListener('click', onRandomizeColors);
     document.getElementById('export-png').addEventListener('click', exportPNG);
     document.getElementById('export-pdf').addEventListener('click', exportPDF);
