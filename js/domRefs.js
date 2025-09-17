@@ -1,0 +1,15 @@
+// DOM refs
+const body = document.body;
+const courseSlotSelect = document.getElementById('course-slot');
+const slotsListEl = document.getElementById('slots-list');
+const coursesListEl = document.getElementById('courses-list');
+const timetableEl = document.getElementById('timetable');
+const editModal = document.getElementById('edit-modal');
+const editCourseSlotSelect = document.getElementById('edit-course-slot');
+const themeSelector = document.getElementById('theme-selector');
+const courseColorPalette = document.getElementById('course-color-palette');
+const editCourseColorPalette = document.getElementById('edit-course-color-palette');
+const confirmModal = document.getElementById('confirm-modal');
+const confirmMessage = document.getElementById('confirm-message');
+const confirmYesBtn = document.getElementById('confirm-yes');
+const confirmNoBtn = document.getElementById('confirm-no');

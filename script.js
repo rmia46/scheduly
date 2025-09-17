@@ -1,25 +1,51 @@
-// app state
-const state = {
-    routines: [], // array of {id, name, slots, courses}
-    activeRoutineId: null,
-    zoom: 1,
-    editingCourseId: null,
-    isMenuOpen: true
-};
+function uid(prefix = 'id') {
+    return prefix + Math.random().toString(36).slice(2, 9);
+}
 
-// DOM refs
-const body = document.body;
-const courseSlotSelect = document.getElementById('course-slot');
-const slotsListEl = document.getElementById('slots-list');
-const coursesListEl = document.getElementById('courses-list');
-const timetableEl = document.getElementById('timetable');
-const editModal = document.getElementById('edit-modal');
-const editCourseSlotSelect = document.getElementById('edit-course-slot');
-const themeSelector = document.getElementById('theme-selector');
-const courseColorPalette = document.getElementById('course-color-palette');
-const editCourseColorPalette = document.getElementById('edit-course-color-palette');
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>"']/g, (c) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+    }[c] || c));
+}
 
-// Predefined university slots (user-provided):
+function getFullDayName(i) {
+    const names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return names[i];
+}
+
+function shuffleArray(array) {
+    for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+    }
+    return array;
+}
+
+function toast(msg) {
+    const container = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.textContent = msg;
+    container.appendChild(t);
+    setTimeout(() => t.classList.add('visible'), 20);
+    setTimeout(() => {
+        t.classList.remove('visible');
+        setTimeout(() => t.remove(), 300);
+    }, 2200);
+}
+
+function cell(html, cls = '') {
+    const d = document.createElement('div');
+    d.className = 'grid-cell ' + cls;
+    d.innerHTML = html;
+    return d;
+}
+
 const predefinedSlots = [
     '8:00-9:30',
     '9:40-11:10',
@@ -38,207 +64,30 @@ const themes = {
     grape: ['#8a2be2', '#9370db', '#ba55d3', '#da70d6', '#ff00ff', '#c71585', '#e0b0ff', '#dda0dd']
 };
 
-function uid(prefix = 'id') {
-    return prefix + Math.random().toString(36).slice(2, 9);
-}
-
-function createRoutine(name) {
-    const newRoutine = {
-        id: uid('routine_'),
-        name: name,
-        slots: [],
-        courses: []
-    };
-    state.routines.push(newRoutine);
-    state.activeRoutineId = newRoutine.id;
-    renderUI();
-    saveStateToLocalStorage();
-}
-
-function getActiveRoutine() {
-    return state.routines.find(r => r.id === state.activeRoutineId);
-}
-
-function switchRoutine(routineId) {
-    state.activeRoutineId = routineId;
-    const activeRoutine = getActiveRoutine();
-    if (activeRoutine) {
-        document.getElementById('routine-name').value = activeRoutine.name;
-    }
-    renderUI();
-    saveStateToLocalStorage();
-    toast(`Switched to routine: ${activeRoutine ? activeRoutine.name : ''}`);
-}
-
-function deleteRoutine(routineId) {
-    if (state.routines.length === 1) {
-        toast('Cannot delete the last routine!');
-        return;
-    }
-    showConfirmModal('Are you sure you want to delete this routine? This action cannot be undone.', () => {
-        state.routines = state.routines.filter(r => r.id !== routineId);
-        if (state.activeRoutineId === routineId) {
-            state.activeRoutineId = state.routines[0].id;
-        }
-        const activeRoutine = getActiveRoutine();
-        if (activeRoutine) {
-            document.getElementById('routine-name').value = activeRoutine.name;
-        }
-        renderUI();
-        saveStateToLocalStorage();
-        toast('Routine deleted!');
-    });
-}
-
-// Custom Confirmation Modal Logic
+// DOM refs
+const body = document.body;
+const courseSlotSelect = document.getElementById('course-slot');
+const slotsListEl = document.getElementById('slots-list');
+const coursesListEl = document.getElementById('courses-list');
+const timetableEl = document.getElementById('timetable');
+const editModal = document.getElementById('edit-modal');
+const editCourseSlotSelect = document.getElementById('edit-course-slot');
+const themeSelector = document.getElementById('theme-selector');
+const courseColorPalette = document.getElementById('course-color-palette');
+const editCourseColorPalette = document.getElementById('edit-course-color-palette');
 const confirmModal = document.getElementById('confirm-modal');
 const confirmMessage = document.getElementById('confirm-message');
 const confirmYesBtn = document.getElementById('confirm-yes');
 const confirmNoBtn = document.getElementById('confirm-no');
 
-let currentConfirmCallback = null;
-
-function showConfirmModal(message, onConfirmCallback) {
-    confirmMessage.textContent = message;
-    currentConfirmCallback = onConfirmCallback;
-    confirmModal.classList.add('visible');
-}
-
-function closeConfirmModal() {
-    confirmModal.classList.remove('visible');
-    currentConfirmCallback = null;
-}
-
-confirmYesBtn.addEventListener('click', () => {
-    if (currentConfirmCallback) {
-        currentConfirmCallback();
-    }
-    closeConfirmModal();
-});
-
-confirmNoBtn.addEventListener('click', () => {
-    closeConfirmModal();
-});
-
-confirmModal.addEventListener('click', (e) => {
-    if (e.target === confirmModal) {
-        closeConfirmModal();
-    }
-});
-
-// initialize
-function init() {
-    loadStateFromLocalStorage();
-    // The initial routine creation is now handled by loadStateFromLocalStorage
-    // if (state.slots.length === 0) {
-    //     loadPredefinedSlots(false);
-    // }
-    renderUI();
-    setTheme(localStorage.getItem('theme') || 'grass');
-    themeSelector.value = localStorage.getItem('theme') || 'grass';
-
-    // Check for menu state
-    // The state.isMenuOpen is now loaded directly in loadStateFromLocalStorage
-    // const savedMenuState = localStorage.getItem('isMenuOpen');
-    // if (savedMenuState !== null) {
-    //     state.isMenuOpen = savedMenuState === 'true';
-    // }
-    toggleMenu(state.isMenuOpen);
-
-    // Display the active routine's name
-    const activeRoutine = state.routines.find(r => r.id === state.activeRoutineId);
-    if (activeRoutine) {
-        document.getElementById('routine-name').value = activeRoutine.name;
-    }
-
-    // attach handlers
-    document.getElementById('add-course').addEventListener('click', onAddCourse);
-    document.getElementById('clear-form').addEventListener('click', clearForm);
-    document.getElementById('add-slot').addEventListener('click', onAddSlot);
-    document.getElementById('load-predefined').addEventListener('click', () => {
-        loadPredefinedSlots(true);
-    });
-    document.getElementById('clear-local-storage').addEventListener('click', () => {
-        showConfirmModal('Are you sure you want to clear all local storage data? This will reset the site in this browser.', () => {
-            localStorage.clear();
-            location.reload();
-        });
-    });
-    document.getElementById('randomize-colors').addEventListener('click', onRandomizeColors);
-    document.getElementById('export-png').addEventListener('click', exportPNG);
-    document.getElementById('export-pdf').addEventListener('click', exportPDF);
-
-    document.getElementById('zoom-in').addEventListener('click', () => changeZoom(0.1));
-    document.getElementById('zoom-out').addEventListener('click', () => changeZoom(-0.1));
-    document.getElementById('reset-zoom').addEventListener('click', () => setZoom(1));
-    document.getElementById('menu-toggle').addEventListener('click', () => toggleMenu());
-    themeSelector.addEventListener('change', (e) => setTheme(e.target.value));
-
-    document.getElementById('save-edit-course').addEventListener('click', onSaveEditedCourse);
-    document.getElementById('cancel-edit-course').addEventListener('click', closeEditModal);
-    editModal.addEventListener('click', (e) => {
-        if (e.target === editModal) {
-            closeEditModal();
-        }
-    });
-
-    // routine name is now updated via a dedicated function, not directly saved on input
-    // routine name is now updated via a dedicated function, not directly saved on input
-    // document.getElementById('routine-name').addEventListener('input', saveStateToLocalStorage);
-
-    // New routine management event listeners
-    document.getElementById('add-routine').addEventListener('click', () => {
-        const routineName = prompt('Enter a name for the new routine:', `Routine ${state.routines.length + 1}`);
-        if (routineName) {
-            createRoutine(routineName);
-        }
-    });
-    document.getElementById('delete-routine').addEventListener('click', () => {
-        if (confirm('Are you sure you want to delete this routine? This action cannot be undone.')) {
-            deleteRoutine(state.activeRoutineId);
-        }
-    });
-
-    document.getElementById('routine-name').addEventListener('input', onRoutineNameChange);
-
-    // Dropdown functionality
-    document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
-        toggle.addEventListener('click', function(event) {
-            event.stopPropagation(); // Prevent document click from closing immediately
-            const dropdownMenu = this.nextElementSibling;
-            // Close other open dropdowns
-            document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                if (menu !== dropdownMenu) {
-                    menu.style.display = 'none';
-                }
-            });
-            // Toggle current dropdown
-            dropdownMenu.style.display = dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
-        });
-    });
-
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function() {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-            menu.style.display = 'none';
-        });
-    });
-
-    // Prevent dropdown menu from closing when clicking inside it
-    document.querySelectorAll('.dropdown-menu').forEach(menu => {
-        menu.addEventListener('click', function(event) {
-            event.stopPropagation();
-        });
-    });
-
-    // keyboard shortcuts
-    window.addEventListener('keydown', (e) => {
-        if (e.ctrlKey && e.key === 's') {
-            e.preventDefault();
-            exportPDF();
-        }
-    });
-}
+// app state
+const state = {
+    routines: [], // array of {id, name, slots, courses}
+    activeRoutineId: null,
+    zoom: 1,
+    editingCourseId: null,
+    isMenuOpen: true
+};
 
 function saveStateToLocalStorage() {
     localStorage.setItem('routineAppState', JSON.stringify(state));
@@ -272,6 +121,103 @@ function loadStateFromLocalStorage() {
     }
 }
 
+function getActiveRoutine() {
+    return state.routines.find(r => r.id === state.activeRoutineId);
+}
+
+function createRoutine(name) {
+    const newRoutine = {
+        id: uid('routine_'),
+        name: name,
+        slots: [],
+        courses: []
+    };
+    state.routines.push(newRoutine);
+    state.activeRoutineId = newRoutine.id;
+    // renderUI(); // This will be called from main app logic
+    saveStateToLocalStorage();
+}
+
+function switchRoutine(routineId) {
+    state.activeRoutineId = routineId;
+    const activeRoutine = getActiveRoutine();
+    if (activeRoutine) {
+        document.getElementById('routine-name').value = activeRoutine.name;
+    }
+    // renderUI(); // This will be called from main app logic
+    saveStateToLocalStorage();
+    // toast(`Switched to routine: ${activeRoutine ? activeRoutine.name : ''}`); // Toast will be handled by main app logic
+}
+
+function deleteRoutine(routineId) {
+    if (state.routines.length === 1) {
+        // toast('Cannot delete the last routine!'); // Toast will be handled by main app logic
+        return false;
+    }
+    state.routines = state.routines.filter(r => r.id !== routineId);
+    if (state.activeRoutineId === routineId) {
+        state.activeRoutineId = state.routines[0].id;
+    }
+    const activeRoutine = getActiveRoutine();
+    if (activeRoutine) {
+        document.getElementById('routine-name').value = activeRoutine.name;
+    }
+    // renderUI(); // This will be called from main app logic
+    saveStateToLocalStorage();
+    // toast('Routine deleted!'); // Toast will be handled by main app logic
+    return true;
+}
+
+function onRoutineNameChange(event) {
+    const activeRoutine = getActiveRoutine();
+    if (activeRoutine) {
+        activeRoutine.name = event.target.value;
+        saveStateToLocalStorage();
+    }
+}
+
+let currentConfirmCallback = null;
+
+function showConfirmModal(message, onConfirmCallback) {
+    confirmMessage.textContent = message;
+    currentConfirmCallback = onConfirmCallback;
+    confirmModal.classList.add('visible');
+}
+
+function closeConfirmModal() {
+    confirmModal.classList.remove('visible');
+    currentConfirmCallback = null;
+}
+
+function setupConfirmModalListeners() {
+    confirmYesBtn.addEventListener('click', () => {
+        if (currentConfirmCallback) {
+            currentConfirmCallback();
+        }
+        closeConfirmModal();
+    });
+
+    confirmNoBtn.addEventListener('click', () => {
+        closeConfirmModal();
+    });
+
+    confirmModal.addEventListener('click', (e) => {
+        if (e.target === confirmModal) {
+            closeConfirmModal();
+        }
+    });
+}
+
+function openEditModal(courseId) {
+    // This function will need access to state and renderUI, which will be passed or imported later
+    editModal.classList.add('visible');
+}
+
+function closeEditModal() {
+    editModal.classList.remove('visible');
+    // state.editingCourseId = null; // This will be handled by the main app logic
+}
+
 function renderUI() {
     renderSlotOptions();
     renderEditSlotOptions();
@@ -301,29 +247,13 @@ function renderRoutineSelector() {
     // Add event listener if not already added
     if (!routineSelectorEl.dataset.listenerAdded) {
         routineSelectorEl.addEventListener('change', (e) => {
-            switchRoutine(e.target.value);
+            // switchRoutine(e.target.value); // This will be handled by eventHandlers
+            // renderUI(); // This will be handled by eventHandlers
+            // saveStateToLocalStorage(); // This will be handled by eventHandlers
+            // toast(`Switched to routine: ${activeRoutine ? activeRoutine.name : ''}`); // This will be handled by eventHandlers
         });
         routineSelectorEl.dataset.listenerAdded = 'true';
     }
-}
-
-function loadPredefinedSlots(refreshUI = true) {
-    const activeRoutine = getActiveRoutine();
-    if (!activeRoutine) return;
-
-    activeRoutine.slots = predefinedSlots.map(s => ({
-        id: uid('slot_'),
-        label: s
-    }));
-    if (refreshUI) {
-        activeRoutine.courses = activeRoutine.courses.map(c => ({
-            ...c,
-            slotId: null
-        }));
-        renderUI();
-        toast('Default slots loaded. Courses were unassigned.');
-    }
-    saveStateToLocalStorage();
 }
 
 function renderSlotOptions() {
@@ -388,103 +318,6 @@ function renderSlotsList() {
     }));
 }
 
-function onAddSlot() {
-    const activeRoutine = getActiveRoutine();
-    if (!activeRoutine) return;
-
-    const startInput = document.getElementById('new-slot-start');
-    const endInput = document.getElementById('new-slot-end');
-    const start = startInput.value;
-    const end = endInput.value;
-
-    if (!start || !end) {
-        toast('Select both start and end times.');
-        return;
-    }
-
-    const startObj = new Date(`2000/01/01 ${start}`);
-    const endObj = new Date(`2000/01/01 ${end}`);
-
-    if (endObj <= startObj) {
-        toast('End time must be after start time.');
-        return;
-    }
-
-    const label = `${start}-${end}`;
-    activeRoutine.slots.push({
-        id: uid('slot_'),
-        label
-    });
-
-    // Sort slots by time
-    activeRoutine.slots.sort((a, b) => {
-        const [aStart] = a.label.split('-');
-        const [bStart] = b.label.split('-');
-        return aStart.localeCompare(bStart);
-    });
-    startInput.value = '';
-    endInput.value = '';
-    renderUI();
-    saveStateToLocalStorage();
-    toast('New slot added!');
-}
-
-function onAddCourse() {
-    const activeRoutine = getActiveRoutine();
-    if (!activeRoutine) return;
-
-    const name = document.getElementById('course-name').value.trim().toUpperCase();
-    const section = document.getElementById('course-section').value.trim().toUpperCase();
-    const room = document.getElementById('course-room').value.trim().toUpperCase();
-    const day = parseInt(document.getElementById('course-day').value, 10);
-    const slotId = document.getElementById('course-slot').value || null;
-    const color = document.getElementById('course-color').value;
-
-    const isDuplicate = activeRoutine.courses.some(c => 
-        c.name === name && 
-        c.section === section && 
-        c.room === room && 
-        c.day === day && 
-        c.slotId === slotId
-    );
-
-    if (isDuplicate) {
-        toast('This exact course already exists!');
-        return;
-    }
-
-    if (!name) {
-        toast('Course name required');
-        return;
-    }
-    const c = {
-        id: uid('course_'),
-        name,
-        section,
-        room,
-        day,
-        slotId,
-        color
-    };
-    activeRoutine.courses.push(c);
-    clearForm();
-    renderUI();
-    saveStateToLocalStorage();
-    toast('Course added to timetable!');
-}
-
-function clearForm() {
-    document.getElementById('course-name').value = '';
-    document.getElementById('course-section').value = '';
-    document.getElementById('course-room').value = '';
-    document.getElementById('course-color').value = '#7c4dff';
-    const activeSwatch = courseColorPalette.querySelector('.color-swatch.active');
-    if (activeSwatch) {
-        activeSwatch.classList.remove('active');
-    }
-    courseColorPalette.querySelector(`[data-color="${themes[localStorage.getItem('theme') || 'grass'][0]}"]`).classList.add('active');
-}
-
 function renderCoursesList() {
     const activeRoutine = getActiveRoutine();
     if (!activeRoutine) return;
@@ -538,65 +371,6 @@ function renderCoursesList() {
         }
     }));
 
-}
-
-function openEditModal(courseId) {
-    const activeRoutine = getActiveRoutine();
-    if (!activeRoutine) return;
-
-    const course = activeRoutine.courses.find(x => x.id === courseId);
-    if (!course) return;
-
-    state.editingCourseId = courseId;
-    document.getElementById('edit-course-name').value = course.name;
-    document.getElementById('edit-course-section').value = course.section;
-    document.getElementById('edit-course-room').value = course.room;
-    document.getElementById('edit-course-day').value = course.day;
-    if (course.slotId) document.getElementById('edit-course-slot').value = course.slotId;
-    document.getElementById('edit-course-color').value = course.color;
-
-    // highlight the correct swatch in the edit modal
-    const currentTheme = localStorage.getItem('theme') || 'grass';
-    const colors = themes[currentTheme] || themes.grass;
-    const swatch = editCourseColorPalette.querySelector(`[data-color="${course.color}"]`);
-    if (swatch) {
-        const allSwatches = editCourseColorPalette.querySelectorAll('.color-swatch');
-        allSwatches.forEach(s => s.classList.remove('active'));
-        swatch.classList.add('active');
-    }
-
-    editModal.classList.add('visible');
-}
-
-function closeEditModal() {
-    editModal.classList.remove('visible');
-    state.editingCourseId = null;
-}
-
-function onSaveEditedCourse() {
-    const activeRoutine = getActiveRoutine();
-    if (!activeRoutine) return;
-
-    const courseId = state.editingCourseId;
-    const course = activeRoutine.courses.find(c => c.id === courseId);
-    if (!course) return;
-
-    course.name = document.getElementById('edit-course-name').value.trim().toUpperCase();
-    course.section = document.getElementById('edit-course-section').value.trim().toUpperCase();
-    course.room = document.getElementById('edit-course-room').value.trim().toUpperCase();
-    course.day = parseInt(document.getElementById('edit-course-day').value, 10);
-    course.slotId = document.getElementById('edit-course-slot').value || null;
-    course.color = document.getElementById('edit-course-color').value;
-
-    if (!course.name) {
-        toast('Course name cannot be empty');
-        return;
-    }
-
-    renderUI();
-    saveStateToLocalStorage();
-    closeEditModal();
-    toast('Course updated!');
 }
 
 function renderTimetable() {
@@ -721,30 +495,6 @@ function renderTimetable() {
     timetableEl.style.transform = `scale(${state.zoom})`;
 }
 
-// utility helpers
-function cell(html, cls = '') {
-    const d = document.createElement('div');
-    d.className = 'grid-cell ' + cls;
-    d.innerHTML = html;
-    return d;
-}
-
-function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>"']/g, (c) => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-    }[c] || c));
-}
-
-function getFullDayName(i) {
-    const names = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-    return names[i];
-}
-
 function renderColorPalette(paletteElement, inputElement) {
     const theme = localStorage.getItem('theme') || 'grass';
     const colors = themes[theme] || themes.grass;
@@ -763,42 +513,6 @@ function renderColorPalette(paletteElement, inputElement) {
         paletteElement.appendChild(swatch);
     });
 }
-
-function shuffleArray(array) {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-    }
-    return array;
-}
-
-function onRandomizeColors() {
-    const activeRoutine = getActiveRoutine();
-    if (!activeRoutine) return;
-
-    const theme = localStorage.getItem('theme') || 'grass';
-    const colors = themes[theme] || themes.grass;
-    const shuffledColors = shuffleArray([...colors]);
-
-    // Get unique course names
-    const uniqueCourseNames = [...new Set(activeRoutine.courses.map(c => c.name))];
-
-    // Create a color map for each unique course name
-    const courseColorMap = {};
-    uniqueCourseNames.forEach((name, index) => {
-        courseColorMap[name] = shuffledColors[index % shuffledColors.length];
-    });
-
-    // Apply the colors to all courses
-    activeRoutine.courses.forEach(course => {
-        course.color = courseColorMap[course.name];
-    });
-
-    renderUI();
-    saveStateToLocalStorage();
-    toast('Course colors randomized!');
-}
-
 
 async function captureTimetable(backgroundColor) {
     // 1. Create a container for the clone
@@ -854,7 +568,6 @@ async function captureTimetable(backgroundColor) {
     return canvas;
 }
 
-// Updated exportPNG function
 async function exportPNG() {
     try {
         const canvas = await captureTimetable(null); // Transparent background for PNG
@@ -875,7 +588,6 @@ async function exportPNG() {
     }
 }
 
-// Updated exportPDF function
 async function exportPDF() {
     try {
         const canvas = await captureTimetable('#ffffff'); // White background for PDF
@@ -900,18 +612,185 @@ async function exportPDF() {
     }
 }
 
-// zoom helpers
+function onAddSlot() {
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
+    const startInput = document.getElementById('new-slot-start');
+    const endInput = document.getElementById('new-slot-end');
+    const start = startInput.value;
+    const end = endInput.value;
+
+    if (!start || !end) {
+        toast('Select both start and end times.');
+        return;
+    }
+
+    const startObj = new Date(`2000/01/01 ${start}`);
+    const endObj = new Date(`2000/01/01 ${end}`);
+
+    if (endObj <= startObj) {
+        toast('End time must be after start time.');
+        return;
+    }
+
+    const label = `${start}-${end}`;
+    activeRoutine.slots.push({
+        id: uid('slot_'),
+        label
+    });
+
+    // Sort slots by time
+    activeRoutine.slots.sort((a, b) => {
+        const [aStart] = a.label.split('-');
+        const [bStart] = b.label.split('-');
+        return aStart.localeCompare(bStart);
+    });
+    startInput.value = '';
+    endInput.value = '';
+    renderUI();
+    saveStateToLocalStorage();
+    toast('New slot added!');
+}
+
+function onAddCourse() {
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
+    const name = document.getElementById('course-name').value.trim().toUpperCase();
+    const section = document.getElementById('course-section').value.trim().toUpperCase();
+    const room = document.getElementById('course-room').value.trim().toUpperCase();
+    const day = parseInt(document.getElementById('course-day').value, 10);
+    const slotId = document.getElementById('course-slot').value || null;
+    const color = document.getElementById('course-color').value;
+
+    const isDuplicate = activeRoutine.courses.some(c => 
+        c.name === name && 
+        c.section === section && 
+        c.room === room && 
+        c.day === day && 
+        c.slotId === slotId
+    );
+
+    if (isDuplicate) {
+        toast('This exact course already exists!');
+        return;
+    }
+
+    if (!name) {
+        toast('Course name required');
+        return;
+    }
+    const c = {
+        id: uid('course_'),
+        name,
+        section,
+        room,
+        day,
+        slotId,
+        color
+    };
+    activeRoutine.courses.push(c);
+    clearForm();
+    renderUI();
+    saveStateToLocalStorage();
+    toast('Course added to timetable!');
+}
+
+function clearForm() {
+    document.getElementById('course-name').value = '';
+    document.getElementById('course-section').value = '';
+    document.getElementById('course-room').value = '';
+    document.getElementById('course-color').value = '#7c4dff';
+    const activeSwatch = courseColorPalette.querySelector('.color-swatch.active');
+    if (activeSwatch) {
+        activeSwatch.classList.remove('active');
+    }
+    courseColorPalette.querySelector(`[data-color="${themes[localStorage.getItem('theme') || 'grass'][0]}"]`).classList.add('active');
+}
+
+function onSaveEditedCourse() {
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
+    const courseId = state.editingCourseId;
+    const course = activeRoutine.courses.find(c => c.id === courseId);
+    if (!course) return;
+
+    course.name = document.getElementById('edit-course-name').value.trim().toUpperCase();
+    course.section = document.getElementById('edit-course-section').value.trim().toUpperCase();
+    course.room = document.getElementById('edit-course-room').value.trim().toUpperCase();
+    course.day = parseInt(document.getElementById('edit-course-day').value, 10);
+    course.slotId = document.getElementById('edit-course-slot').value || null;
+    course.color = document.getElementById('edit-course-color').value;
+
+    if (!course.name) {
+        toast('Course name cannot be empty');
+        return;
+    }
+
+    renderUI();
+    saveStateToLocalStorage();
+    closeEditModal();
+    toast('Course updated!');
+}
+
+function onRandomizeColors() {
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
+    const theme = localStorage.getItem('theme') || 'grass';
+    const colors = themes[theme] || themes.grass;
+    const shuffledColors = shuffleArray([...colors]);
+
+    // Get unique course names
+    const uniqueCourseNames = [...new Set(activeRoutine.courses.map(c => c.name))];
+
+    // Create a color map for each unique course name
+    const courseColorMap = {};
+    uniqueCourseNames.forEach((name, index) => {
+        courseColorMap[name] = shuffledColors[index % shuffledColors.length];
+    });
+
+    // Apply the colors to all courses
+    activeRoutine.courses.forEach(course => {
+        course.color = courseColorMap[course.name];
+    });
+
+    renderUI();
+    saveStateToLocalStorage();
+    toast('Course colors randomized!');
+}
+
+function loadPredefinedSlots(refreshUI = true) {
+    const activeRoutine = getActiveRoutine();
+    if (!activeRoutine) return;
+
+    activeRoutine.slots = predefinedSlots.map(s => ({
+        id: uid('slot_'),
+        label: s
+    }));
+    if (refreshUI) {
+        activeRoutine.courses = activeRoutine.courses.map(c => ({
+            ...c,
+            slotId: null
+        }));
+        renderUI();
+        toast('Default slots loaded. Courses were unassigned.');
+    }
+    saveStateToLocalStorage();
+}
+
 function changeZoom(delta) {
     setZoom(state.zoom + delta);
 }
 
 function setZoom(v) {
     state.zoom = Math.max(0.6, Math.min(1.6, Number(v.toFixed(2))));
-    renderTimetable();
+    renderUI(); // Calls renderTimetable internally
     saveStateToLocalStorage();
 }
 
-// theme changer
 function setTheme(themeName) {
     body.setAttribute('data-theme', themeName);
     localStorage.setItem('theme', themeName);
@@ -919,7 +798,6 @@ function setTheme(themeName) {
     renderColorPalette(editCourseColorPalette, document.getElementById('edit-course-color'));
 }
 
-// menu toggle
 function toggleMenu(forceState) {
     state.isMenuOpen = forceState !== undefined ? forceState : !state.isMenuOpen;
     body.classList.toggle('menu-closed', !state.isMenuOpen);
@@ -931,26 +809,207 @@ function toggleMenu(forceState) {
     }, 300); // matches CSS transition duration
 }
 
-function onRoutineNameChange(event) {
-    const activeRoutine = getActiveRoutine();
-    if (activeRoutine) {
-        activeRoutine.name = event.target.value;
-        saveStateToLocalStorage();
-    }
+function setupEventListeners() {
+    document.getElementById('add-course').addEventListener('click', onAddCourse);
+    document.getElementById('clear-form').addEventListener('click', clearForm);
+    document.getElementById('add-slot').addEventListener('click', onAddSlot);
+    document.getElementById('load-predefined').addEventListener('click', () => {
+        loadPredefinedSlots(true);
+    });
+    document.getElementById('clear-local-storage').addEventListener('click', () => {
+        showConfirmModal('Are you sure you want to clear all local storage data? This will reset the site in this browser.', () => {
+            localStorage.clear();
+            location.reload();
+        });
+    });
+    document.getElementById('randomize-colors').addEventListener('click', onRandomizeColors);
+    // document.getElementById('export-png').addEventListener('click', exportPNG);
+    // document.getElementById('export-pdf').addEventListener('click', exportPDF);
+
+    document.getElementById('zoom-in').addEventListener('click', () => changeZoom(0.1));
+    document.getElementById('zoom-out').addEventListener('click', () => changeZoom(-0.1));
+    document.getElementById('reset-zoom').addEventListener('click', () => setZoom(1));
+    document.getElementById('menu-toggle').addEventListener('click', () => toggleMenu());
+    themeSelector.addEventListener('change', (e) => setTheme(e.target.value));
+
+    document.getElementById('save-edit-course').addEventListener('click', onSaveEditedCourse);
+    document.getElementById('cancel-edit-course').addEventListener('click', closeEditModal);
+    editModal.addEventListener('click', (e) => {
+        if (e.target === editModal) {
+            closeEditModal();
+        }
+    });
+
+    // New routine management event listeners
+    document.getElementById('add-routine').addEventListener('click', () => {
+        const routineName = prompt('Enter a name for the new routine:', `Routine ${state.routines.length + 1}`);
+        if (routineName) {
+            createRoutine(routineName);
+            renderUI();
+            toast('New routine created!');
+        }
+    });
+    document.getElementById('delete-routine').addEventListener('click', () => {
+        showConfirmModal('Are you sure you want to delete this routine? This action cannot be undone.', () => {
+            if (deleteRoutine(state.activeRoutineId)) {
+                renderUI();
+                toast('Routine deleted!');
+            }
+        });
+    });
+
+    document.getElementById('routine-name').addEventListener('input', onRoutineNameChange);
+
+    // Dropdown functionality
+    document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent document click from closing immediately
+            const dropdownMenu = this.nextElementSibling;
+            // Close other open dropdowns
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if (menu !== dropdownMenu) {
+                    menu.style.display = 'none';
+                }
+            });
+            // Toggle current dropdown
+            dropdownMenu.style.display = dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
+        });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            menu.style.display = 'none';
+        });
+    });
+
+    // Prevent dropdown menu from closing when clicking inside it
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+    });
+
+    // keyboard shortcuts
+    window.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            // exportPDF(); // Will be handled by export module
+        }
+    });
 }
 
-// tiny toast
-function toast(msg) {
-    const container = document.getElementById('toast-container');
-    const t = document.createElement('div');
-    t.className = 'toast';
-    t.textContent = msg;
-    container.appendChild(t);
-    setTimeout(() => t.classList.add('visible'), 20);
-    setTimeout(() => {
-        t.classList.remove('visible');
-        setTimeout(() => t.remove(), 300);
-    }, 2200);
+function init() {
+    loadStateFromLocalStorage();
+    renderUI();
+    setTheme(localStorage.getItem('theme') || 'grass');
+    themeSelector.value = localStorage.getItem('theme') || 'grass';
+
+    toggleMenu(state.isMenuOpen);
+
+    const activeRoutine = getActiveRoutine();
+    if (activeRoutine) {
+        document.getElementById('routine-name').value = activeRoutine.name;
+    }
+
+    setupEventListeners();
+    setupConfirmModalListeners();
+
+    // Attach export functions to buttons
+    document.getElementById('export-png').addEventListener('click', exportPNG);
+    document.getElementById('export-pdf').addEventListener('click', exportPDF);
+
+    // Keyboard shortcut for PDF export
+    window.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 's') {
+            e.preventDefault();
+            exportPDF();
+        }
+    });
+
+    // Event listener for routine selector (moved from render.js)
+    const routineSelectorEl = document.getElementById('routine-selector');
+    if (routineSelectorEl && !routineSelectorEl.dataset.listenerAdded) {
+        routineSelectorEl.addEventListener('change', (e) => {
+            switchRoutine(e.target.value);
+            renderUI();
+            toast(`Switched to routine: ${getActiveRoutine() ? getActiveRoutine().name : ''}`);
+        });
+        routineSelectorEl.dataset.listenerAdded = 'true';
+    }
+
+    // Event listener for course editing (moved from render.js)
+    // This needs to be attached to the timetable element and delegate events
+    timetableEl.addEventListener('click', (e) => {
+        const deleteBtn = e.target.closest('.delete-btn');
+        if (deleteBtn) {
+            e.stopPropagation(); // Prevents drag start event
+            const courseId = deleteBtn.closest('.course-block').dataset.id;
+            showConfirmModal('Are you sure you want to delete this course?', () => {
+                const activeRoutine = getActiveRoutine();
+                if (activeRoutine) {
+                    activeRoutine.courses = activeRoutine.courses.filter(c => c.id !== courseId);
+                    renderUI();
+                    saveStateToLocalStorage();
+                    toast('Course deleted!');
+                }
+            });
+        }
+    });
+
+    timetableEl.addEventListener('dblclick', (e) => {
+        const courseBlock = e.target.closest('.course-block');
+        if (courseBlock) {
+            openEditModal(courseBlock.dataset.id);
+        }
+    });
+
+    // Event listener for course list copy button (moved from render.js)
+    document.getElementById('courses-list').addEventListener('click', (ev) => {
+        const copyBtn = ev.target.closest('button[data-action="copy"]');
+        if (copyBtn) {
+            const originalId = copyBtn.dataset.id;
+            const activeRoutine = getActiveRoutine();
+            if (activeRoutine) {
+                const originalCourse = activeRoutine.courses.find(x => x.id === originalId);
+                if (originalCourse) {
+                    const newCourse = { ...originalCourse,
+                        id: uid('course_')
+                    };
+                    activeRoutine.courses.push(newCourse);
+                    renderUI();
+                    saveStateToLocalStorage();
+                    toast('Course copied to timetable!');
+                }
+            }
+        }
+    });
+
+    // Event listener for slot list remove button (moved from render.js)
+    document.getElementById('slots-list').addEventListener('click', (ev) => {
+        const removeBtn = ev.target.closest('button[data-action="remove"]');
+        if (removeBtn) {
+            const id = removeBtn.dataset.id;
+            const activeRoutine = getActiveRoutine();
+            if (activeRoutine) {
+                activeRoutine.slots = activeRoutine.slots.filter(x => x.id !== id);
+                activeRoutine.courses = activeRoutine.courses.map(c => c.slotId === id ? {
+                    ...c,
+                    slotId: null
+                } : c);
+                renderUI();
+                saveStateToLocalStorage();
+                toast('Slot removed.');
+            }
+        }
+    });
+
+    // Event listener for edit modal close (moved from eventHandlers.js)
+    editModal.addEventListener('click', (e) => {
+        if (e.target === editModal) {
+            closeEditModal();
+        }
+    });
 }
 
 document.addEventListener('DOMContentLoaded', init);
