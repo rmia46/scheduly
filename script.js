@@ -33,7 +33,8 @@ const predefinedSlots = [
 const themes = {
     lemon: ['#d6b911', '#ffc107', '#ff9800', '#f44336', '#9c27b0', '#673ab7', '#3f51b5', '#2196f3'],
     grass: ['#4a9e4d', '#8bc34a', '#cddc39', '#ffc107', '#ff9800', '#f44336', '#9c27b0', '#673ab7'],
-    ocean: ['#2196f3', '#03a9f4', '#00bcd4', '#00e5ff', '#ff9800', '#f44336', '#9c27b0', '#673ab7']
+    ocean: ['#2196f3', '#03a9f4', '#00bcd4', '#00e5ff', '#ff9800', '#f44336', '#9c27b0', '#673ab7'],
+    cherry: ['#ffc0cb', '#ffb6c1', '#ff69b4', '#ff1493', '#db7093', '#c71585', '#e75480', '#f08080']
 };
 
 function uid(prefix = 'id') {

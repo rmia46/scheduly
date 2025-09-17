@@ -1,4 +1,4 @@
-/* Base & Reset */
+
 :root {
     --card: #ffffff;
     --muted: #6b7280;
@@ -55,6 +55,16 @@ body[data-theme="ocean"] {
     background-color: var(--bg);
 }
 
+body[data-theme="cherry"] {
+    --bg: #fff0f5;
+    --accent-1: #ff69b4;
+    --accent-2: #db7093;
+    --surface-tint: #fff5f8;
+    --course-block-border: #db7093;
+    --time-block-border: #db7093;
+    background-color: var(--bg);
+}
+
 .app-bar {
     display: flex;
     justify-content: space-between;
@@ -98,7 +108,7 @@ body[data-theme="ocean"] {
     cursor: pointer;
     font-weight: 500;
     appearance: none;
-    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>');
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="black"><path d="M7 10l5 5 5-5z"/></svg>');
     background-repeat: no-repeat;
     background-position: right 8px center;
     background-size: 16px;
