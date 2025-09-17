@@ -62,3 +62,13 @@ function closeEditModal() {
     editModal.classList.remove('visible');
     state.editingCourseId = null;
 }
+
+function showNewRoutineModal() {
+    newRoutineModal.classList.add('visible');
+    newRoutineNameInput.value = `Routine ${state.routines.length + 1}`;
+    newRoutineNameInput.focus();
+}
+
+function closeNewRoutineModal() {
+    newRoutineModal.classList.remove('visible');
+}

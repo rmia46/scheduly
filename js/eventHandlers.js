@@ -230,11 +230,28 @@ function setupEventListeners() {
 
     // New routine management event listeners
     document.getElementById('add-routine').addEventListener('click', () => {
-        const routineName = prompt('Enter a name for the new routine:', `Routine ${state.routines.length + 1}`);
+        showNewRoutineModal();
+    });
+
+    createRoutineBtn.addEventListener('click', () => {
+        const routineName = newRoutineNameInput.value.trim();
         if (routineName) {
             createRoutine(routineName);
             renderUI();
             toast('New routine created!');
+            closeNewRoutineModal();
+        } else {
+            toast('Routine name cannot be empty.');
+        }
+    });
+
+    cancelNewRoutineBtn.addEventListener('click', () => {
+        closeNewRoutineModal();
+    });
+
+    newRoutineModal.addEventListener('click', (e) => {
+        if (e.target === newRoutineModal) {
+            closeNewRoutineModal();
         }
     });
     document.getElementById('delete-routine').addEventListener('click', () => {

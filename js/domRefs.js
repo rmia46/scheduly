@@ -13,3 +13,7 @@ const confirmModal = document.getElementById('confirm-modal');
 const confirmMessage = document.getElementById('confirm-message');
 const confirmYesBtn = document.getElementById('confirm-yes');
 const confirmNoBtn = document.getElementById('confirm-no');
+const newRoutineModal = document.getElementById('new-routine-modal');
+const newRoutineNameInput = document.getElementById('new-routine-name');
+const createRoutineBtn = document.getElementById('create-routine-btn');
+const cancelNewRoutineBtn = document.getElementById('cancel-new-routine-btn');
