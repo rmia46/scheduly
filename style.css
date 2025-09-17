@@ -340,6 +340,30 @@ input:focus, select:focus {
     gap: 10px;
     margin-bottom: 12px;
 }
+
+
+.routine-name-input {
+    font-size: 1.8rem;
+    font-weight: 700;
+    border: none;
+    background: transparent;
+    width: 100%;
+    padding: 8px;
+    border-radius: 0;
+    transition: background-color 0.2s ease;
+    text-align: center;
+    color: #333;
+}
+
+.routine-name-input::placeholder {
+    color: #ccc;
+}
+
+.routine-name-input:focus {
+    outline: none;
+    background-color: transparent;
+}
+
 .timetable-header h2 {
     font-size: 1.8rem;
     font-weight: 700;

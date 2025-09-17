@@ -5,6 +5,7 @@ const state = {
     zoom: 1,
     editingCourseId: null,
     isMenuOpen: true,
+    routineName: ''
 };
 
 // DOM refs
@@ -83,6 +84,8 @@ function init() {
         }
     });
 
+    document.getElementById('routine-name').addEventListener('input', saveStateToLocalStorage);
+
     // keyboard shortcuts
     window.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 's') {
@@ -93,6 +96,7 @@ function init() {
 }
 
 function saveStateToLocalStorage() {
+    state.routineName = document.getElementById('routine-name').value;
     localStorage.setItem('routineAppState', JSON.stringify(state));
 }
 
@@ -103,6 +107,8 @@ function loadStateFromLocalStorage() {
             state.slots = savedState.slots;
             state.courses = savedState.courses;
             state.zoom = savedState.zoom || 1;
+            state.routineName = savedState.routineName || '';
+            document.getElementById('routine-name').value = state.routineName;
         }
     } catch (e) {
         console.error('Failed to load state from localStorage', e);
@@ -574,6 +580,17 @@ async function captureTimetable(backgroundColor) {
     const originalNode = document.querySelector('.timetable-card');
     const clonedNode = originalNode.cloneNode(true);
 
+    // Replace input with a div for capture
+    const input = clonedNode.querySelector('#routine-name');
+    const routineName = input.value || input.placeholder;
+    const textDiv = document.createElement('div');
+    textDiv.textContent = routineName;
+    textDiv.className = input.className;
+    textDiv.style.height = input.offsetHeight + 'px';
+    textDiv.style.lineHeight = input.offsetHeight + 'px';
+    textDiv.style.textAlign = 'center';
+    input.parentNode.replaceChild(textDiv, input);
+
     // 3. Reset styles for the clone to ensure it's fully visible for capture
     const timetableEl = clonedNode.querySelector('.timetable');
     if (timetableEl) {
@@ -611,7 +628,8 @@ async function exportPNG() {
 
         const a = document.createElement('a');
         a.href = dataUrl;
-        a.download = 'routine.png';
+        const routineName = document.getElementById('routine-name').value.trim() || 'routine';
+        a.download = `${routineName}.png`;
         document.body.appendChild(a);
         a.click();
         document.body.removeChild(a);
@@ -637,7 +655,8 @@ async function exportPDF() {
         });
 
         pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
-        pdf.save('routine.pdf');
+        const routineName = document.getElementById('routine-name').value.trim() || 'routine';
+        pdf.save(`${routineName}.pdf`);
         toast('Exported as PDF!');
     } catch (error) {
         console.error('Error exporting PDF:', error);
