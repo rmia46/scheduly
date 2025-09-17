@@ -406,9 +406,7 @@ input:focus, select:focus {
     align-items: center;
 }
 .grid-cell {
-    /* flex: 1; */
-    flex-grow: 0;
-    flex-shrink: 0;
+    flex: 1; /* Changed from flex-grow: 0; flex-shrink: 0; */
     border-radius: 10px;
     border: 1px solid #e8f0ff;
     background: linear-gradient(180deg, #fff, #fafcff);
@@ -432,12 +430,12 @@ input:focus, select:focus {
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
 }
 .grid-cell.corner {
-    flex: 0 0 120px;
+    flex: 0 0 120px; /* Maintain fixed width for corner */
     background: transparent;
     border: none;
 }
 .grid-cell.day-head {
-    /* flex: 1; */
+    flex: 1; /* Changed from flex: 1; */
     font-weight: 700;
     background: var(--accent-1);
     color: white;
@@ -450,7 +448,7 @@ input:focus, select:focus {
     font-weight: 400;
 }
 .grid-cell.time-cell {
-    flex: 0 0 160px;
+    flex: 0 0 160px; /* Maintain fixed width for time cell */
     font-weight: 600;
     background: linear-gradient(90deg, #fafbfe, #fbfdff);
     border: 1px solid var(--time-block-border);
