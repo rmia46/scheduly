@@ -302,8 +302,8 @@ function renderCoursesList() {
             <div class="course-meta">
                 <div class="course-dot" style="background:${c.color}"></div>
                 <div>
-                    <div class="course-name">${escapeHtml(c.name)} <span class="muted">${escapeHtml(c.section)}</span></div>
-                    <div class="course-details muted">Original: ${dayName} · ${slotLabel}</div>
+                    <div class="course-name">${escapeHtml(c.name)} <span>${escapeHtml(c.section)}</span></div>
+                    <div class="course-details">Original: ${dayName} · ${slotLabel}</div>
                 </div>
             </div>
             <div class="row-actions">
