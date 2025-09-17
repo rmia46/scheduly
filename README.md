@@ -27,13 +27,12 @@ This tool helps students and educators organize their weekly routines with ease.
 
 1. ⏰ **Add Time Slots:** Use the *Add Time Slot* section to create your desired time slots.
 2. 📚 **Add Courses:** Fill in the course details in the *Add Course* section and click *Add course*.
-3. 🖱️ **Arrange Your Routine:** Drag and drop the courses on the timetable to arrange your schedule.
-4. ✏️ **Edit Courses:**
-
+3. 🖱️ **Arrange Your Routine:** Drag and drop the courses on the timetable to arrange your schedule, with visual feedback for drop locations.
+4. ✏️ **Edit & Delete Courses:**
+   * **Single click** a course block to select it and reveal the **Delete** button.
    * **Double click / tap** a course block to open edit mode and update details.
-   * **Single click or hover** over a course block to reveal a **Delete** button.
-5. 🎨 **Customize:** Choose a theme, randomize colors, and name your routine.
-6. 💾 **Export:** Click *Export PNG* or *Export PDF* to save your routine.
+5. 🎨 **Customize:** Choose a theme (including the new **Grape** theme), randomize colors, and name your routine.
+6. 💾 **Export:** Use the **Export** dropdown to save as **PNG** or **PDF**.
 
 ---
 
@@ -41,15 +40,17 @@ Do you also want me to create a **visual "Tips & Tricks" section** (maybe with s
 
 ## ✨ Features
 
-* ⏱️ **Customizable Time Slots** – Add, remove, and sort time slots.
+* ⏱️ **Customizable Time Slots** – Add, remove, sort, and load default time slots.
 * 📖 **Course Management** – Add, edit, and delete courses with details like name, section, and room.
-* 🔄 **Interactive Timetable** – Drag & drop courses across slots.
-* 🎨 **Multiple Themes** – Personalize your routine’s look & feel.
+* 🔄 **Interactive Timetable** – Drag & drop courses across slots with visual feedback for drop locations.
+* ✨ **Visual Feedback** - Highlight selected course blocks and drop targets.
+* 🎨 **Multiple Themes** – Personalize your routine’s look & feel, including the new **Grape** theme.
 * 🌈 **Color-Coded Courses** – Assign or randomize course colors.
-* 📤 **Export Options** – Save as **PNG** or **PDF**.
+* 📤 **Export Options** – Save as **PNG** or **PDF** via a convenient dropdown menu.
 * 💾 **Persistent Storage** – Auto-saved to browser’s local storage.
-* 🏷️ **Custom Routine Name** – Organize multiple schedules easily.
+* 🏷️ **Multiple Routine Support** – Organize and switch between various schedules easily.
 * 📱 **Responsive Design** – Works smoothly on desktop & mobile.
+* 🧹 **Clean UI** - Grouped header actions for a less cluttered interface.
 
 ---
 
