@@ -1,5 +1,5 @@
 .app-shell {
-    /* max-width: var(--content-max-width); */
+    max-width: var(--content-max-width);
     margin: 18px auto;
     border-radius: 20px;
     overflow: hidden;
@@ -61,16 +61,15 @@
     min-width: 0;
 }
 body.menu-closed .left-panel {
-    transform: translateX(-100%);
-    opacity: 0;
-    width: 0;
-    padding: 0;
+    display: none;
 }
+
 body.menu-closed .app-body {
     padding-left: 0;
     padding-right: 0;
     gap: 0;
 }
+
 
 .bottom-nav {
     display: flex;
