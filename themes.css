@@ -1,0 +1,40 @@
+/* Theme Definitions */
+body[data-theme="lemon"] {
+    --bg: #fdfae7;
+    --accent-1: #d6b911;
+    --accent-2: #845e2a;
+    --surface-tint: #ffffe0;
+    --course-block-border: #ffcc00; /* Lemon theme border color */
+    --time-block-border: #845e2a;
+    background-color: var(--bg);
+}
+
+body[data-theme="grass"] {
+    --bg: #e5f6e5;
+    --accent-1: #4a9e4d;
+    --accent-2: #2e6b30;
+    --surface-tint: #f0fff0;
+    --course-block-border: #2e6b30; /* Grass theme border color */
+    --time-block-border: #2e6b30;
+    background-color: var(--bg);
+}
+
+body[data-theme="ocean"] {
+    --bg: #e6f7ff;
+    --accent-1: #2196f3;
+    --accent-2: #0d47a1;
+    --surface-tint: #f0f8ff;
+    --course-block-border: #0d47a1; /* Ocean theme border color */
+    --time-block-border: #0d47a1;
+    background-color: var(--bg);
+}
+
+body[data-theme="cherry"] {
+    --bg: #fff0f5;
+    --accent-1: #ff69b4;
+    --accent-2: #db7093;
+    --surface-tint: #fff5f8;
+    --course-block-border: #db7093;
+    --time-block-border: #db7093;
+    background-color: var(--bg);
+}

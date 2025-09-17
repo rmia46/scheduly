@@ -10,7 +10,13 @@
         href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         rel="stylesheet">
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="base.css">
+    <link rel="stylesheet" href="themes.css">
+    <link rel="stylesheet" href="layout.css">
+    <link rel="stylesheet" href="components.css">
+    <link rel="stylesheet" href="timetable.css">
+    <link rel="stylesheet" href="modal.css">
+    <link rel="stylesheet" href="toast.css">
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -27,19 +33,34 @@
                 </div>
             </div>
             <div class="app-bar-actions">
-                <select id="routine-selector" class="theme-select"></select>
-                <button id="add-routine" class="action-btn">New Routine</button>
-                <button id="delete-routine" class="action-btn">Delete Routine</button>
                 <select id="theme-selector" class="theme-select">
                     <option value="lemon">🍋 Lemon</option>
                     <option value="grass">🌿 Grass</option>
                     <option value="ocean">🌊 Ocean</option>
                     <option value="cherry">🌸 Cherry</option>
                 </select>
-                <button id="randomize-colors" class="action-btn">Randomize Colors</button>
-                <button id="load-predefined" class="action-btn" title="Load university class slots">Load slots</button>
-                <button id="export-png" class="action-btn">Export PNG</button>
-                <button id="export-pdf" class="action-btn">Export PDF</button>
+                <select id="routine-selector" class="theme-select"></select>
+                <div class="dropdown">
+                    <button class="action-btn dropdown-toggle">Routine <span class="material-symbols-outlined">arrow_drop_down</span></button>
+                    <div class="dropdown-menu">
+                        <button id="add-routine" class="action-btn">New Routine</button>
+                        <button id="delete-routine" class="action-btn">Delete Routine</button>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <button class="action-btn dropdown-toggle">Tools <span class="material-symbols-outlined">arrow_drop_down</span></button>
+                    <div class="dropdown-menu">
+                        <button id="randomize-colors" class="action-btn">Randomize Colors</button>
+                        <button id="load-predefined" class="action-btn">Load default slots</button>
+                    </div>
+                </div>
+                <div class="dropdown">
+                    <button class="action-btn dropdown-toggle">Export <span class="material-symbols-outlined">arrow_drop_down</span></button>
+                    <div class="dropdown-menu">
+                        <button id="export-png" class="action-btn">Export PNG</button>
+                        <button id="export-pdf" class="action-btn">Export PDF</button>
+                    </div>
+                </div>
             </div>
         </header>
 

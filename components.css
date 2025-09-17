@@ -1,0 +1,278 @@
+.theme-select {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white; /* Set displayed text to white */
+    padding: 8px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    appearance: none;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M7 10l5 5 5-5z"/></svg>'); /* Set arrow to white */
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 16px;
+    padding-right: 28px;
+    transition: background-color 0.3s ease;
+}
+
+#routine-selector {
+    padding: 10px 14px;
+    font-size: 1rem;
+    min-width: 150px; /* Ensure it's wide enough */
+}
+
+.theme-select option {
+    color: black; /* Attempt to force options text to black */
+}
+
+.icon-btn, .action-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+#menu-toggle {
+    width: 44px;
+    height: 44px;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0; /* Remove padding to center the icon perfectly */
+}
+.icon-btn:hover, .action-btn:hover { background: rgba(255,255,255,0.2); transform: translateY(-2px); }
+
+/* cards */
+.card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: var(--surface-elev);
+    border: 1px solid #e0e0e0;
+}
+.form-card h2 {
+    margin: 0 0 12px 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+.small-card {
+    margin-top: 16px;
+    padding: 16px;
+}
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+.field.two {
+    display: flex;
+    gap: 12px;
+}
+.field.two > div {
+    flex: 1;
+}
+label {
+    font-size: 12px;
+    color: var(--muted);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+input, select {
+    padding: 10px;
+    border-radius: 12px;
+    border: 1px solid #dcdcdc;
+    background: var(--surface-tint);
+    font-size: 1rem;
+    color: #333;
+    width: 100%;
+    box-sizing: border-box;
+}
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--accent-1);
+    box-shadow: 0 0 0 3px rgba(214, 185, 17, 0.2);
+}
+.actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 16px;
+}
+.primary {
+    background: var(--accent-1);
+    color: white;
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+.primary:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 12px rgba(214, 185, 17, 0.3);
+}
+.muted {
+    background: #f0f0f0;
+    color: var(--muted);
+    border: none;
+    padding: 12px 20px;
+    border-radius: 12px;
+    cursor: pointer;
+}
+.small {
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: none;
+    background: #f1f6ff;
+    cursor: pointer;
+    font-size: 14px;
+}
+.color-palette {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding-top: 6px;
+}
+.color-swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.color-swatch:hover {
+    transform: scale(1.1);
+}
+.color-swatch.active {
+    border-color: var(--accent-2);
+}
+.list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px; /* Reduced space between items */
+    padding-top: 12px;
+}
+.list-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px; /* Reduced padding to make items more compact */
+    border-radius: 16px;
+    background: linear-gradient(180deg, #fff, var(--surface-tint));
+    border: 1px solid #f0f0f0;
+}
+.slot-item {
+    font-weight: 600;
+}
+.slot-actions {
+    display: flex;
+    gap: 8px; /* Adds space between elements */
+    align-items: center; /* Aligns items vertically */
+    margin-top: 8px;
+}
+.slot-actions.two {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.time-separator {
+    font-weight: bold;
+    color: var(--muted);
+    font-size: 1.2rem;
+}
+.row-actions {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.row-actions button {
+    margin-left: 0;
+}
+.course-meta {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+.course-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 6px;
+    flex-shrink: 0;
+}
+.course-name {
+    font-weight: 600;
+    font-size: 1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.course-details {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 4px; /* A small margin to separate from the course name */
+}
+
+/* Dropdown Styles */
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown-toggle {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background-color: var(--card);
+    box-shadow: var(--surface-elev);
+    border-radius: var(--radius);
+    min-width: 160px;
+    z-index: 100;
+    display: none;
+    flex-direction: column;
+    padding: 8px;
+    margin-top: 8px;
+}
+
+.dropdown-menu .action-btn {
+    background: none;
+    border: none;
+    color: #333;
+    text-align: left;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 400;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.dropdown-menu .action-btn:hover {
+    background-color: #f0f0f0;
+    transform: none;
+}
+
+.dropdown:hover .dropdown-menu {
+    display: flex;
+}
+
+@media (min-width: 1024px) {
+    .action-btn, .icon-btn {
+        min-width: 120px; /* Adjust as needed */
+        justify-content: center;
+    }
+    .dropdown-menu .action-btn {
+        min-width: unset; /* Reset for dropdown items */
+    }
+}

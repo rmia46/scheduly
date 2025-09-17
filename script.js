@@ -156,6 +156,36 @@ function init() {
 
     document.getElementById('routine-name').addEventListener('input', onRoutineNameChange);
 
+    // Dropdown functionality
+    document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
+        toggle.addEventListener('click', function(event) {
+            event.stopPropagation(); // Prevent document click from closing immediately
+            const dropdownMenu = this.nextElementSibling;
+            // Close other open dropdowns
+            document.querySelectorAll('.dropdown-menu').forEach(menu => {
+                if (menu !== dropdownMenu) {
+                    menu.style.display = 'none';
+                }
+            });
+            // Toggle current dropdown
+            dropdownMenu.style.display = dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
+        });
+    });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', function() {
+        document.querySelectorAll('.dropdown-menu').forEach(menu => {
+            menu.style.display = 'none';
+        });
+    });
+
+    // Prevent dropdown menu from closing when clicking inside it
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+        menu.addEventListener('click', function(event) {
+            event.stopPropagation();
+        });
+    });
+
     // keyboard shortcuts
     window.addEventListener('keydown', (e) => {
         if (e.ctrlKey && e.key === 's') {
@@ -246,7 +276,7 @@ function loadPredefinedSlots(refreshUI = true) {
             slotId: null
         }));
         renderUI();
-        toast('Predefined slots loaded. Courses were unassigned.');
+        toast('Default slots loaded. Courses were unassigned.');
     }
     saveStateToLocalStorage();
 }

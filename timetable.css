@@ -1,0 +1,200 @@
+/* timetable */
+.timetable-card {
+    padding: 24px;
+    position: relative; /* Added for absolute positioning of watermark */
+}
+.watermark {
+    position: absolute;
+    bottom: 5px;
+    right: 20px;
+    color: rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
+    font-weight: bold;
+    pointer-events: none; /* Allows interaction with elements beneath it */
+    z-index: 1;
+}
+.timetable-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+
+.routine-name-input {
+    font-size: 1.8rem;
+    font-weight: 700;
+    border: none;
+    background: transparent;
+    width: 100%;
+    padding: 8px;
+    border-radius: 0;
+    transition: background-color 0.2s ease;
+    text-align: center;
+    color: #333;
+}
+
+.routine-name-input::placeholder {
+    color: #ccc;
+}
+
+.routine-name-input:focus {
+    outline: none;
+    background-color: transparent;
+}
+
+.timetable-header h2 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin: 0;
+}
+.timetable-header p {
+    font-size: 14px;
+}
+.grid {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.grid-row {
+    display: flex;
+}
+.grid-row.header-row {
+    align-items: center;
+}
+.grid-cell {
+    flex: 1; /* Changed from flex-grow: 0; flex-shrink: 0; */
+    border-radius: 10px;
+    border: 1px solid #e8f0ff;
+    background: linear-gradient(180deg, #fff, #fafcff);
+    min-width: 160px;
+    min-height: 60px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    position: relative;
+    transition: all 0.2s ease;
+    padding: 0;
+    transition: all 0.2s ease;
+}
+.grid-cell:not(.time-cell):not(.day-head) {
+    cursor: pointer;
+}
+.grid-cell:not(.time-cell):not(.day-head):hover {
+    background: linear-gradient(180deg, #f8f9ff, #f3f5f8);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+.grid-cell.corner {
+    flex: 0 0 120px; /* Maintain fixed width for corner */
+    background: transparent;
+    border: none;
+}
+.grid-cell.day-head {
+    flex: 1; /* Changed from flex: 1; */
+    font-weight: 700;
+    background: var(--accent-1);
+    color: white;
+    min-height: 60px;
+    cursor: default;
+}
+.day-head .day-number {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    font-weight: 400;
+}
+.grid-cell.time-cell {
+    flex: 0 0 160px; /* Maintain fixed width for time cell */
+    font-weight: 600;
+    background: linear-gradient(90deg, #fafbfe, #fbfdff);
+    border: 1px solid var(--time-block-border);
+    cursor: default;
+}
+.grid-row .grid-cell + .grid-cell {
+    margin-left: 6px;
+}
+.course-block {
+    width: 100%;
+    height: 100%;
+    padding: 8px;
+    border-radius: 8px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    cursor: grab;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.2s ease;
+    box-sizing: border-box; /* Add this line */
+}
+.course-block:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 14px rgba(0,0,0,0.15);
+}
+.course-block.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+.course-block.stacked-course {  
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1), -2px -2px 5px rgba(0,0,0,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+}
+.course-title {
+    font-weight: 700;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.course-meta.small {
+    font-size: 11px;
+    color: rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.course-info.small {
+    font-size: 11px;
+    color: rgba(0, 0, 0, 0.7);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.timetable {
+    overflow: auto;
+    overflow-x: auto;
+    padding: 16px;
+    border-radius: 16px;
+    background-color: var(--surface-tint);
+    transition: background-color 0.3s ease;
+}
+/* Update the .delete-btn rule to ensure it's not a block-level element by default */
+.delete-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff5252;
+    color: white;
+    border: 2px solid white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: none; /* Initially hidden */
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    line-height: 1;
+    z-index: 10;
+}
+
+/* This is the key fix: Use a more specific selector to ensure the hover state works */
+.timetable-card .course-block:hover .delete-btn {
+    display: flex; /* Show the button on hover */
+}
