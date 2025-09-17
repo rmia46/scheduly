@@ -38,3 +38,13 @@ body[data-theme="cherry"] {
     --time-block-border: #db7093;
     background-color: var(--bg);
 }
+
+body[data-theme="grape"] {
+    --bg: #f8f0ff;
+    --accent-1: #8a2be2;
+    --accent-2: #6a0dad;
+    --surface-tint: #f0e6fa;
+    --course-block-border: #6a0dad;
+    --time-block-border: #6a0dad;
+    background-color: var(--bg);
+}
