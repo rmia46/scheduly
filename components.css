@@ -167,7 +167,14 @@ input:focus, select:focus {
     border-radius: 16px;
     background: linear-gradient(180deg, #fff, var(--surface-tint));
     border: 1px solid #f0f0f0;
+    transition: border-color 0.2s ease;
 }
+
+.list-item:hover {
+    border-color: var(--accent-1);
+    background: transparent; /* Remove background fill on hover */
+}
+
 .slot-item {
     font-weight: 600;
 }
@@ -259,9 +266,12 @@ input:focus, select:focus {
 }
 
 .dropdown-menu .action-btn:hover {
-    background-color: #f0f0f0;
+    background: transparent;
+    border: 1px solid var(--accent-1);
+    color: var(--accent-1); /* Optional: change text color to match accent */
     transform: none;
 }
+
 
 .dropdown:hover .dropdown-menu {
     display: flex;
