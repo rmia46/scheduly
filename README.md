@@ -28,10 +28,16 @@ This tool helps students and educators organize their weekly routines with ease.
 1. ⏰ **Add Time Slots:** Use the *Add Time Slot* section to create your desired time slots.
 2. 📚 **Add Courses:** Fill in the course details in the *Add Course* section and click *Add course*.
 3. 🖱️ **Arrange Your Routine:** Drag and drop the courses on the timetable to arrange your schedule.
-4. 🎨 **Customize:** Choose a theme, randomize colors, and name your routine.
-5. 💾 **Export:** Click *Export PNG* or *Export PDF* to save your routine.
+4. ✏️ **Edit Courses:**
+
+   * **Double click / tap** a course block to open edit mode and update details.
+   * **Single click or hover** over a course block to reveal a **Delete** button.
+5. 🎨 **Customize:** Choose a theme, randomize colors, and name your routine.
+6. 💾 **Export:** Click *Export PNG* or *Export PDF* to save your routine.
 
 ---
+
+Do you also want me to create a **visual "Tips & Tricks" section** (maybe with small GIFs or screenshots) so users can quickly see how these interactions (edit/delete/drag) work?
 
 ## ✨ Features
 
