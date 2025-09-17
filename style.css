@@ -343,7 +343,6 @@ input:focus, select:focus {
 .grid-cell {
     flex: 1;
     border-radius: 10px;
-    padding: 6px;
     border: 1px solid #e8f0ff;
     background: linear-gradient(180deg, #fff, #fafcff);
     min-width: 100px;
@@ -354,6 +353,8 @@ input:focus, select:focus {
     justify-content: center;
     text-align: center;
     position: relative;
+    transition: all 0.2s ease;
+    padding: 0;
     transition: all 0.2s ease;
 }
 .grid-cell:not(.time-cell):not(.day-head) {
@@ -392,19 +393,20 @@ input:focus, select:focus {
 .grid-row .grid-cell + .grid-cell {
     margin-left: 6px;
 }
-
 .course-block {
     width: 100%;
     height: 100%;
+    padding: 8px;
     border-radius: 8px;
     color: white;
-    padding: 8px;
-    display: flex; /* Make it a flex container */
-    flex-direction: column; /* Stack children vertically */
-    justify-content: center; /* Vertically center the stacked children */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
     cursor: grab;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     transition: all 0.2s ease;
+    border: 1px solid var(--course-block-border);
+    box-sizing: border-box; /* Add this line */
 }
 .course-block:hover {
     transform: translateY(-2px);
@@ -413,6 +415,13 @@ input:focus, select:focus {
 .course-block.dragging {
     opacity: 0.5;
     transform: scale(0.95);
+}
+.course-block.stacked-course {
+    width: calc(100% - 10px); /* Adjust for the offset */
+    height: calc(100% - 10px);
+    
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1), -2px -2px 5px rgba(0,0,0,0.05);
+    border: 1px solid rgba(255, 255, 255, 0.4);
 }
 .course-title {
     font-weight: 700;
@@ -435,6 +444,7 @@ input:focus, select:focus {
     overflow: hidden;
     text-overflow: ellipsis;
 }
+
 .timetable {
     overflow: auto;
     overflow-x: auto;
@@ -443,7 +453,32 @@ input:focus, select:focus {
     background-color: var(--surface-tint);
     transition: background-color 0.3s ease;
 }
+/* Update the .delete-btn rule to ensure it's not a block-level element by default */
+.delete-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #ff5252;
+    color: white;
+    border: 2px solid white;
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    display: none; /* Initially hidden */
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    line-height: 1;
+    z-index: 10;
+}
 
+/* This is the key fix: Use a more specific selector to ensure the hover state works */
+.timetable-card .course-block:hover .delete-btn {
+    display: flex; /* Show the button on hover */
+}
 .bottom-nav {
     display: flex;
     justify-content: center;

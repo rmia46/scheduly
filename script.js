@@ -227,11 +227,25 @@ function onAddSlot() {
 
 function onAddCourse() {
     const name = document.getElementById('course-name').value.trim().toUpperCase();
-    const section = document.getElementById('course-section').value.trim();
-    const room = document.getElementById('course-room').value.trim();
+    const section = document.getElementById('course-section').value.trim().toUpperCase();
+    const room = document.getElementById('course-room').value.trim().toUpperCase();
     const day = parseInt(document.getElementById('course-day').value, 10);
     const slotId = document.getElementById('course-slot').value || null;
     const color = document.getElementById('course-color').value;
+
+    const isDuplicate = state.courses.some(c => 
+        c.name === name && 
+        c.section === section && 
+        c.room === room && 
+        c.day === day && 
+        c.slotId === slotId
+    );
+
+    if (isDuplicate) {
+        toast('This exact course already exists!');
+        return;
+    }
+
     if (!name) {
         toast('Course name required');
         return;
@@ -249,7 +263,7 @@ function onAddCourse() {
     clearForm();
     renderUI();
     saveStateToLocalStorage();
-    toast('Course added!');
+    toast('Course added to timetable!');
 }
 
 function clearForm() {
@@ -270,7 +284,16 @@ function renderCoursesList() {
         coursesListEl.innerHTML = '<div class="muted">No courses yet</div>';
         return;
     }
+
+    // Now, this list only shows a summary and a copy button
+    const displayedCourses = {}; // Track courses by name and section to prevent duplicates
     state.courses.forEach(c => {
+        const uniqueKey = `${c.name}-${c.section}`;
+        if (displayedCourses[uniqueKey]) {
+            return; // Don't add if already displayed
+        }
+        displayedCourses[uniqueKey] = true;
+
         const el = document.createElement('div');
         el.className = 'list-item course-item';
         const slotLabel = state.slots.find(s => s.id === c.slotId)?.label || '<em>no slot</em>';
@@ -279,30 +302,32 @@ function renderCoursesList() {
             <div class="course-meta">
                 <div class="course-dot" style="background:${c.color}"></div>
                 <div>
-                    <div class="course-name">${escapeHtml(c.name)} <span>${escapeHtml(c.section)}</span></div>
-                    <div class="course-details">${dayName} · ${slotLabel} · ${escapeHtml(c.room || '')}</div>
+                    <div class="course-name">${escapeHtml(c.name)} <span class="muted">${escapeHtml(c.section)}</span></div>
+                    <div class="course-details muted">Original: ${dayName} · ${slotLabel}</div>
                 </div>
             </div>
             <div class="row-actions">
-                <button class="small" data-id="${c.id}" data-action="edit">Edit</button>
-                <button class="small" data-id="${c.id}" data-action="remove">Remove</button>
+                <button class="small" data-id="${c.id}" data-action="copy">Copy</button>
             </div>`;
         coursesListEl.appendChild(el);
     });
 
-    // attach handlers
-    coursesListEl.querySelectorAll('button').forEach(b => b.addEventListener('click', (ev) => {
-        const id = ev.currentTarget.dataset.id;
-        const act = ev.currentTarget.dataset.action;
-        if (act === 'remove') {
-            state.courses = state.courses.filter(x => x.id !== id);
+    // We only need the copy event listener here
+    coursesListEl.querySelectorAll('button[data-action="copy"]').forEach(b => b.addEventListener('click', (ev) => {
+        const originalId = ev.currentTarget.dataset.id;
+        const originalCourse = state.courses.find(x => x.id === originalId);
+
+        if (originalCourse) {
+            const newCourse = { ...originalCourse,
+                id: uid('course_')
+            };
+            state.courses.push(newCourse);
             renderUI();
             saveStateToLocalStorage();
-            toast('Course removed.');
-        } else if (act === 'edit') {
-            openEditModal(id);
+            toast('Course copied to timetable!');
         }
     }));
+
 }
 
 function openEditModal(courseId) {
@@ -341,8 +366,8 @@ function onSaveEditedCourse() {
     if (!course) return;
 
     course.name = document.getElementById('edit-course-name').value.trim().toUpperCase();
-    course.section = document.getElementById('edit-course-section').value.trim();
-    course.room = document.getElementById('edit-course-room').value.trim();
+    course.section = document.getElementById('edit-course-section').value.trim().toUpperCase();
+    course.room = document.getElementById('edit-course-room').value.trim().toUpperCase();
     course.day = parseInt(document.getElementById('edit-course-day').value, 10);
     course.slotId = document.getElementById('edit-course-slot').value || null;
     course.color = document.getElementById('edit-course-color').value;
@@ -383,28 +408,57 @@ function renderTimetable() {
             dcell.dataset.slotId = slot.id;
             dcell.dataset.day = day;
 
-            const course = state.courses.find(c => c.day === day && c.slotId === slot.id);
-            if (course) {
-                const block = document.createElement('div');
-                block.className = 'course-block';
-                block.draggable = true;
-                block.dataset.id = course.id;
-                block.innerHTML = `
-                    <div class="course-title">${escapeHtml(course.name)}</div>
-                    <div class="course-info small">${escapeHtml(course.section)} · ${escapeHtml(course.room || '')}</div>
-                `;
-                block.style.background = course.color || '#7c4dff';
-                dcell.appendChild(block);
+            const coursesInCell = state.courses.filter(c => c.day === day && c.slotId === slot.id);
 
-                block.addEventListener('dragstart', (e) => {
-                    e.dataTransfer.setData('text/plain', course.id);
-                    setTimeout(() => block.classList.add('dragging'), 0);
-                });
-                block.addEventListener('dragend', () => {
-                    block.classList.remove('dragging');
-                });
-                block.addEventListener('dblclick', () => {
-                    openEditModal(course.id);
+            if (coursesInCell.length > 0) {
+                coursesInCell.forEach((course, index) => {
+                    const block = document.createElement('div');
+                    block.className = 'course-block';
+                    block.draggable = true;
+                    block.dataset.id = course.id;
+                    block.innerHTML = `
+                        <div class="course-title">${escapeHtml(course.name)}</div>
+                        <div class="course-info small">${escapeHtml(course.section)} · ${escapeHtml(course.room || '')}</div>
+                        <button class="delete-btn">&times;</button>
+                    `;
+                    block.style.background = course.color || '#7c4dff';
+
+                    // Add a class for stacked courses and apply cascade effect
+                    if (coursesInCell.length > 1) {
+                        const offset = index * 5; // Adjust this value for a more or less pronounced cascade
+                        block.style.position = 'absolute';
+                        block.style.top = `${offset}px`;
+                        block.style.left = `${offset}px`;
+                        block.style.zIndex = coursesInCell.length - index;
+                        block.classList.add('stacked-course');
+                    }
+
+                    dcell.appendChild(block);
+
+                    // Add event listeners for the new block
+                    block.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', course.id);
+                        setTimeout(() => block.classList.add('dragging'), 0);
+                    });
+                    block.addEventListener('dragend', () => {
+                        block.classList.remove('dragging');
+                    });
+                    
+                    // Add click listener for delete button
+                    block.querySelector('.delete-btn').addEventListener('click', (e) => {
+                        e.stopPropagation(); // Prevents drag start event
+                        if (confirm('Are you sure you want to delete this course?')) {
+                            state.courses = state.courses.filter(c => c.id !== course.id);
+                            renderUI();
+                            saveStateToLocalStorage();
+                            toast('Course deleted!');
+                        }
+                    });
+
+                    // Original dblclick handler for editing
+                    block.addEventListener('dblclick', () => {
+                        openEditModal(course.id);
+                    });
                 });
             }
 
@@ -472,7 +526,7 @@ function renderColorPalette(paletteElement, inputElement) {
         paletteElement.appendChild(swatch);
     });
 }
-// Random color generation
+
 function shuffleArray(array) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
@@ -481,7 +535,6 @@ function shuffleArray(array) {
     return array;
 }
 
-// Update the `onRandomizeColors` function in script.js.
 function onRandomizeColors() {
     const theme = localStorage.getItem('theme') || 'grass';
     const colors = themes[theme] || themes.grass;
@@ -501,17 +554,49 @@ function onRandomizeColors() {
     toast('Course colors randomized!');
 }
 
-// export functions
-async function exportPNG() {
-    const node = timetableEl;
-    const origTransform = node.style.transform;
+
+// Add this new helper function for capturing the timetable
+async function captureTimetable(backgroundColor) {
+    const node = document.getElementById('timetable-card'); // Capture the entire card for better context
+    const nodeStyles = {
+        width: node.style.width,
+        height: node.style.height,
+        transform: node.style.transform,
+        overflow: node.style.overflow,
+        padding: node.style.padding
+    };
+    
+    // Define a fixed, high-resolution size for export (e.g., A4 landscape ratio)
+    const exportWidth = 1400; 
+    const exportHeight = 850;
+
+    // Apply temporary styles for full capture
+    node.style.width = `${exportWidth}px`;
+    node.style.height = `${exportHeight}px`;
     node.style.transform = 'scale(1)';
+    node.style.overflow = 'visible';
+    node.style.padding = '20px'; // Add padding for a clean border
+
     const canvas = await html2canvas(node, {
-        scale: 2,
+        scale: 2, // Capture at a higher resolution
         useCORS: true,
-        backgroundColor: null
+        backgroundColor: backgroundColor,
+        logging: false
     });
-    node.style.transform = origTransform;
+    
+    // Restore original styles
+    node.style.width = nodeStyles.width;
+    node.style.height = nodeStyles.height;
+    node.style.transform = nodeStyles.transform;
+    node.style.overflow = nodeStyles.overflow;
+    node.style.padding = nodeStyles.padding;
+
+    return canvas;
+}
+
+// Update the exportPNG function
+async function exportPNG() {
+    const canvas = await captureTimetable(null); // No background for PNG
     const dataUrl = canvas.toDataURL('image/png');
 
     const a = document.createElement('a');
@@ -523,25 +608,18 @@ async function exportPNG() {
     toast('Exported as PNG!');
 }
 
+// Update the exportPDF function
 async function exportPDF() {
-    const node = timetableEl;
-    const origTransform = node.style.transform;
-    node.style.transform = 'scale(1)';
-    const canvas = await html2canvas(node, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: '#ffffff'
-    });
-    node.style.transform = origTransform;
+    const canvas = await captureTimetable('#ffffff'); // White background for PDF
     const imgData = canvas.toDataURL('image/png');
-    const {
-        jsPDF
-    } = window.jspdf;
+    const { jsPDF } = window.jspdf;
+
     const pdf = new jsPDF({
         orientation: 'landscape',
         unit: 'px',
         format: [canvas.width, canvas.height]
     });
+    
     pdf.addImage(imgData, 'PNG', 0, 0, canvas.width, canvas.height);
     pdf.save('routine.pdf');
     toast('Exported as PDF!');
