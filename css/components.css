@@ -167,7 +167,17 @@ input:focus, select:focus {
     border-radius: 16px;
     background: linear-gradient(180deg, #fff, var(--surface-tint));
     border: 1px solid #f0f0f0;
-    transition: border-color 0.2s ease;
+    transition: opacity 0.3s ease, transform 0.3s ease, border-color 0.2s ease;
+}
+
+.list-item.entering {
+    opacity: 0;
+    transform: translateY(10px);
+}
+
+.list-item.leaving {
+    opacity: 0;
+    transform: translateY(-10px);
 }
 
 .list-item:hover {
@@ -247,10 +257,19 @@ input:focus, select:focus {
     border-radius: var(--radius);
     min-width: 160px;
     z-index: 100;
-    display: none;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: opacity 0.2s ease, transform 0.2s ease, visibility 0.2s ease;
     flex-direction: column;
     padding: 8px;
     margin-top: 8px;
+}
+
+.dropdown-menu.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
 }
 
 .dropdown-menu .action-btn {

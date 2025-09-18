@@ -35,7 +35,8 @@ function toast(msg) {
     setTimeout(() => t.classList.add('visible'), 20);
     setTimeout(() => {
         t.classList.remove('visible');
-        setTimeout(() => t.remove(), 300);
+        t.classList.add('hide'); // Add the hide class
+        setTimeout(() => t.remove(), 300); // Remove after animation
     }, 2200);
 }
 

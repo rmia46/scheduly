@@ -47,6 +47,7 @@
     padding: 20px;
     width: 100%;
     box-sizing: border-box;
+    transition: gap 0.3s ease;
 }
 .panel {
     display: block;
@@ -61,12 +62,14 @@
     min-width: 0;
 }
 body.menu-closed .left-panel {
-    display: none;
+    transform: translateX(-100%);
+    opacity: 0;
+    visibility: hidden;
+    width: 0;
+    margin-right: 0;
 }
 
 body.menu-closed .app-body {
-    padding-left: 0;
-    padding-right: 0;
     gap: 0;
 }
 
@@ -93,12 +96,14 @@ body.menu-closed .app-body {
     }
     .left-panel {
         width: 100%;
-        transform: none !important; /* override the menu toggle transform */
-        opacity: 1 !important; /* override the menu toggle opacity */
-        transition: none !important;
+        transform: none; /* override the menu toggle transform */
+        opacity: 1; /* override the menu toggle opacity */
+        transition: transform 0.3s ease, opacity 0.3s ease, visibility 0.3s ease;
     }
     body.menu-closed .left-panel {
-        display: none;
+        transform: translateX(-100%);
+        opacity: 0;
+        visibility: hidden;
     }
     .app-bar {
         flex-direction: row;

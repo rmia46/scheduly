@@ -273,18 +273,18 @@ function setupEventListeners() {
             // Close other open dropdowns
             document.querySelectorAll('.dropdown-menu').forEach(menu => {
                 if (menu !== dropdownMenu) {
-                    menu.style.display = 'none';
+                    menu.classList.remove('show');
                 }
             });
             // Toggle current dropdown
-            dropdownMenu.style.display = dropdownMenu.style.display === 'flex' ? 'none' : 'flex';
+            dropdownMenu.classList.toggle('show');
         });
     });
 
     // Close dropdowns when clicking outside
     document.addEventListener('click', function() {
         document.querySelectorAll('.dropdown-menu').forEach(menu => {
-            menu.style.display = 'none';
+            menu.classList.remove('show');
         });
     });
 

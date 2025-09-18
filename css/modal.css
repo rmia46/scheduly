@@ -10,7 +10,7 @@
     z-index: 1000;
     opacity: 0;
     visibility: hidden;
-    transition: opacity 0.3s ease;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 .modal-bg.visible {
     opacity: 1;
@@ -23,11 +23,13 @@
     box-shadow: 0 12px 30px rgba(0,0,0,0.2);
     width: 90%;
     max-width: 450px;
-    transform: translateY(20px);
-    transition: transform 0.3s ease;
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 .modal-bg.visible .modal-card {
-    transform: translateY(0);
+    opacity: 1;
+    transform: translateY(0) scale(1);
 }
 .modal-card h3 {
     margin: 0 0 16px 0;

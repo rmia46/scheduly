@@ -68,17 +68,27 @@ function renderSlotsList() {
     if (activeRoutine.slots.length === 0) {
         slotsListEl.innerHTML = '<div class="muted">No slots yet.</div>';
     }
+
+    const fragment = document.createDocumentFragment();
     activeRoutine.slots.forEach(s => {
         const div = document.createElement('div');
-        div.className = 'list-item slot-item';
+        div.className = 'list-item slot-item entering'; // Add 'entering' class
         div.innerHTML = `
             <div>${escapeHtml(s.label)}</div>
             <div class="row-actions">
                 <button class="small" data-id="${s.id}" data-action="remove">Remove</button>
             </div>
         `;
-        slotsListEl.appendChild(div);
+        fragment.appendChild(div);
     });
+    slotsListEl.appendChild(fragment);
+
+    // Trigger animation
+    setTimeout(() => {
+        slotsListEl.querySelectorAll('.list-item.entering').forEach(item => {
+            item.classList.remove('entering');
+        });
+    }, 50);
 
     // attach remove handlers
     slotsListEl.querySelectorAll('button[data-action="remove"]').forEach(b => b.addEventListener('click', (ev) => {
@@ -105,6 +115,7 @@ function renderCoursesList() {
         return;
     }
 
+    const fragment = document.createDocumentFragment();
     // Now, this list only shows a summary and a copy button
     const displayedCourses = {}; // Track courses by name and section to prevent duplicates
     activeRoutine.courses.forEach(c => {
@@ -115,7 +126,7 @@ function renderCoursesList() {
         displayedCourses[uniqueKey] = true;
 
         const el = document.createElement('div');
-        el.className = 'list-item course-item';
+        el.className = 'list-item course-item entering'; // Add 'entering' class
         const slotLabel = activeRoutine.slots.find(s => s.id === c.slotId)?.label || '<em>no slot</em>';
         const dayName = getFullDayName(c.day);
         el.innerHTML = `
@@ -129,8 +140,16 @@ function renderCoursesList() {
             <div class="row-actions">
                 <button class="small" data-id="${c.id}" data-action="copy">Copy</button>
             </div>`;
-        coursesListEl.appendChild(el);
+        fragment.appendChild(el);
     });
+    coursesListEl.appendChild(fragment);
+
+    // Trigger animation
+    setTimeout(() => {
+        coursesListEl.querySelectorAll('.list-item.entering').forEach(item => {
+            item.classList.remove('entering');
+        });
+    }, 50);
 
     // We only need the copy event listener here
     coursesListEl.querySelectorAll('button[data-action="copy"]').forEach(b => b.addEventListener('click', (ev) => {
