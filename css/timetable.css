@@ -171,7 +171,7 @@
 }
 .course-info.small {
     font-size: 11px;
-    color: rgba(0, 0, 0, 0.7);
+    color: #333; /* Changed from rgba(0, 0, 0, 0.7) */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -185,29 +185,138 @@
     background-color: var(--surface-tint);
     transition: background-color 0.3s ease;
 }
-/* Update the .delete-btn rule to ensure it's not a block-level element by default */
-.delete-btn {
+/* timetable */
+.timetable-card {
+    padding: 24px;
+    position: relative;
+}
+.watermark {
     position: absolute;
-    top: -8px;
-    right: -8px;
-    background: #ff5252;
-    color: white;
-    border: 2px solid white;
-    border-radius: 50%;
-    width: 24px;
-    height: 24px;
-    display: none; /* Initially hidden */
-    justify-content: center;
-    align-items: center;
-    font-size: 16px;
+    bottom: 5px;
+    right: 20px;
+    color: rgba(0, 0, 0, 0.1);
+    font-size: 1rem;
     font-weight: bold;
-    cursor: pointer;
-    transition: background-color 0.2s;
-    line-height: 1;
-    z-index: 10;
+    pointer-events: none;
+    z-index: 1;
+}
+.timetable-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 12px;
 }
 
-/* This is the key fix: Use a more specific selector to ensure the hover state works */
-.timetable-card .course-block:hover .delete-btn {
-    display: flex; /* Show the button on hover */
+.routine-name-input {
+    font-size: 1.8rem;
+    font-weight: 700;
+    border: none;
+    background: transparent;
+    width: 100%;
+    padding: 8px;
+    border-radius: 0;
+    transition: background-color 0.2s ease;
+    text-align: center;
+    color: #333;
+}
+
+.routine-name-input::placeholder {
+    color: #ccc;
+}
+
+.routine-name-input:focus {
+    outline: none;
+    background-color: transparent;
+}
+
+.timetable {
+    overflow: visible;
+    padding: 16px;
+    border-radius: 16px;
+    background-color: var(--surface-tint);
+    transition: background-color 0.3s ease;
+}
+
+.grid-cell {
+    fill: #fafcff;
+    stroke: #e8f0ff;
+    stroke-width: 1;
+    transition: all 0.2s ease;
+}
+
+.grid-cell:hover {
+    fill: #f3f5f8;
+}
+
+.grid-cell.drag-over {
+    stroke: var(--accent-1);
+    stroke-width: 2;
+    stroke-dasharray: 5;
+    fill: var(--surface-tint);
+}
+
+.day-head rect {
+    fill: var(--accent-1);
+}
+
+.day-head text {
+    fill: white;
+    font-weight: 700;
+}
+
+.day-head .day-number {
+    font-size: 0.75rem;
+    opacity: 0.8;
+    font-weight: 400;
+}
+
+.time-cell rect {
+    fill: #fbfdff;
+    stroke: var(--time-block-border);
+    stroke-width: 1;
+}
+
+.time-cell text {
+    font-weight: 600;
+}
+
+.course-block {
+    cursor: grab;
+    transition: all 0.2s ease;
+}
+
+.course-block:hover {
+    transform: translateY(-2px);
+}
+
+.course-block.dragging {
+    opacity: 0.5;
+    transform: scale(0.95);
+}
+
+.course-title {
+    font-weight: 700;
+    font-size: 14px;
+    fill: white;
+}
+
+.course-info.small {
+    font-size: 11px;
+    fill: rgba(255, 255, 255, 0.8);
+}
+
+.delete-btn {
+    cursor: pointer;
+    display: none;
+}
+
+.course-block:hover .delete-btn {
+    display: block;
+}
+
+.stacked-course rect {
+    stroke: rgba(255, 255, 255, 0.4);
+    stroke-width: 1;
 }

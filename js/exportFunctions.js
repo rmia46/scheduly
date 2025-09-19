@@ -1,59 +1,55 @@
 async function captureTimetable(backgroundColor) {
-    // 1. Create a container for the clone
-    const cloneContainer = document.createElement('div');
-    cloneContainer.style.position = 'absolute';
-    cloneContainer.style.left = '-9999px'; // Move it off-screen
-    cloneContainer.style.top = '0';
-    document.body.appendChild(cloneContainer);
+  // Clone container (off-screen)
+  const cloneContainer = document.createElement('div');
+  cloneContainer.style.position = 'absolute';
+  cloneContainer.style.left = '-9999px';
+  cloneContainer.style.top = '0';
+  document.body.appendChild(cloneContainer);
 
-    // 2. Clone the timetable card
-    const originalNode = document.querySelector('.timetable-card');
-    const clonedNode = originalNode.cloneNode(true);
+  const originalNode = document.querySelector('.timetable-card');
+  const clonedNode = originalNode.cloneNode(true);
 
-    // Replace input with a div for capture
-    const input = clonedNode.querySelector('#routine-name');
-    if (input) {
-        const routineName = input.value || input.placeholder;
-        const textDiv = document.createElement('div');
-        textDiv.textContent = routineName;
-        textDiv.className = input.className;
-        textDiv.style.height = input.offsetHeight + 'px';
-        textDiv.style.lineHeight = input.offsetHeight + 'px';
-        textDiv.style.textAlign = 'center';
-        textDiv.style.color = '#333';
-        input.parentNode.replaceChild(textDiv, input);
-    }
+  // Replace input with text for clean capture
+  const input = clonedNode.querySelector('#routine-name');
+  if (input) {
+    const routineName = input.value || input.placeholder;
+    const textDiv = document.createElement('div');
+    textDiv.textContent = routineName;
+    textDiv.className = input.className;
+    textDiv.style.height = input.offsetHeight + 'px';
+    textDiv.style.lineHeight = input.offsetHeight + 'px';
+    textDiv.style.textAlign = 'center';
+    textDiv.style.color = '#333';
+    input.parentNode.replaceChild(textDiv, input);
+  }
 
-    // Reset styles for clean capture
-    const timetableEl = clonedNode.querySelector('.timetable');
-    if (timetableEl) {
-        timetableEl.style.transform = 'scale(1)'; // Reset zoom
-        timetableEl.style.overflow = 'visible';
-    }
-    clonedNode.style.boxShadow = 'none';
+  // Reset transforms
+  const timetableEl = clonedNode.querySelector('.timetable');
+  if (timetableEl) {
+    timetableEl.style.transform = 'none';
+    timetableEl.style.overflow = 'visible';
+  }
+  clonedNode.style.boxShadow = 'none';
 
-    // Append the clone
-    cloneContainer.appendChild(clonedNode);
+  cloneContainer.appendChild(clonedNode);
 
-    // 3. Measure natural size (don’t force width/height)
-    const { offsetWidth, offsetHeight } = clonedNode;
+  // Key: use real pixel ratio
+  const scale = window.devicePixelRatio || 2;
+  const { offsetWidth, offsetHeight } = clonedNode;
 
-    // 4. Capture with html2canvas at higher resolution
-    const canvas = await html2canvas(clonedNode, {
-        scale: 4, // Higher resolution export
-        useCORS: true,
-        backgroundColor: backgroundColor,
-        logging: false,
-        width: offsetWidth,
-        height: offsetHeight,
-    });
+  const canvas = await html2canvas(clonedNode, {
+    scale: 5, // match device pixels
+    useCORS: true,
+    backgroundColor,
+    logging: false,
+    width: offsetWidth,
+    height: offsetHeight,
+  });
 
-    // 5. Clean up
-    document.body.removeChild(cloneContainer);
+  document.body.removeChild(cloneContainer);
 
-    return canvas;
+  return canvas;
 }
-
 
 async function exportPNG() {
     try {

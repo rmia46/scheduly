@@ -4,7 +4,8 @@ const state = {
     activeRoutineId: null,
     zoom: 1,
     editingCourseId: null,
-    isMenuOpen: true
+    isMenuOpen: true,
+    draggingCourse: null
 };
 
 function saveStateToLocalStorage() {
@@ -92,4 +93,10 @@ function onRoutineNameChange(event) {
         activeRoutine.name = event.target.value;
         saveStateToLocalStorage();
     }
+}
+
+// Helper function to get full day name
+function getFullDayName(dayIndex) {
+    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return days[dayIndex];
 }

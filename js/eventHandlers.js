@@ -74,7 +74,8 @@ function onAddCourse() {
         room,
         day,
         slotId,
-        color
+        color,
+        zIndex: Date.now() // Assign a zIndex for stacking
     };
     activeRoutine.courses.push(c);
     clearForm();
@@ -109,6 +110,8 @@ function onSaveEditedCourse() {
     course.day = parseInt(document.getElementById('edit-course-day').value, 10);
     course.slotId = document.getElementById('edit-course-slot').value || null;
     course.color = document.getElementById('edit-course-color').value;
+    // Preserve zIndex if it exists, otherwise assign a new one (shouldn't happen for existing courses)
+    course.zIndex = course.zIndex || Date.now();
 
     if (!course.name) {
         toast('Course name cannot be empty');
@@ -317,10 +320,22 @@ function setupEventListeners() {
     // Event listener for course editing (moved from render.js)
     // This needs to be attached to the timetable element and delegate events
     timetableEl.addEventListener('click', (e) => {
-        const deleteBtn = e.target.closest('.delete-btn');
-        if (deleteBtn) {
-            e.stopPropagation(); // Prevents drag start event
-            const courseId = deleteBtn.closest('.course-block').dataset.id;
+        let target = e.target;
+        let isDeleteBtnClick = false;
+        let courseBlockElement = null;
+
+        while (target && target !== timetableEl) {
+            if (target.classList && target.classList.contains('delete-btn')) {
+                isDeleteBtnClick = true;
+                courseBlockElement = target.closest('.course-block');
+                break;
+            }
+            target = target.parentNode;
+        }
+
+        if (isDeleteBtnClick && courseBlockElement) {
+            e.stopPropagation();
+            const courseId = courseBlockElement.dataset.id;
             showConfirmModal('Are you sure you want to delete this course?', () => {
                 const activeRoutine = getActiveRoutine();
                 if (activeRoutine) {
@@ -334,9 +349,25 @@ function setupEventListeners() {
     });
 
     timetableEl.addEventListener('dblclick', (e) => {
-        const courseBlock = e.target.closest('.course-block');
-        if (courseBlock) {
-            openEditModal(courseBlock.dataset.id);
+        let target = e.target;
+        let courseBlockElement = null;
+        let isDeleteBtnClick = false;
+
+        while (target && target !== timetableEl) {
+            if (target.classList && target.classList.contains('delete-btn')) {
+                isDeleteBtnClick = true;
+                break;
+            }
+            if (target.classList && target.classList.contains('course-block')) {
+                courseBlockElement = target;
+                break;
+            }
+            target = target.parentNode;
+        }
+
+        if (courseBlockElement && !isDeleteBtnClick) {
+            const courseId = courseBlockElement.dataset.id;
+            openEditModal(courseId);
         }
     });
 
@@ -380,10 +411,5 @@ function setupEventListeners() {
         }
     });
 
-    // Event listener for edit modal close (moved from eventHandlers.js)
-    editModal.addEventListener('click', (e) => {
-        if (e.target === editModal) {
-            closeEditModal();
-        }
-    });
+    
 }
