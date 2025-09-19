@@ -69,7 +69,7 @@
     border-radius: 10px;
     border: 1px solid #e8f0ff;
     background: linear-gradient(180deg, #fff, #fafcff);
-    min-width: 160px;
+    min-width: 100px;
     min-height: 60px;
     display: flex;
     flex-direction: column;
@@ -113,7 +113,7 @@
     font-weight: 400;
 }
 .grid-cell.time-cell {
-    flex: 0 0 160px; /* Maintain fixed width for time cell */
+    flex: 0 0 110px; /* Maintain fixed width for time cell */
     font-weight: 600;
     background: linear-gradient(90deg, #fafbfe, #fbfdff);
     border: 1px solid var(--time-block-border);

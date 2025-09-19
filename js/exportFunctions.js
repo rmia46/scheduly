@@ -4,7 +4,7 @@ async function captureTimetable(backgroundColor) {
     cloneContainer.style.position = 'absolute';
     cloneContainer.style.left = '-9999px'; // Move it off-screen
     cloneContainer.style.top = '0';
-    cloneContainer.style.width = '1400px'; // Fixed width for consistent export
+    cloneContainer.style.width = '1000px'; // Fixed width for consistent export
     document.body.appendChild(cloneContainer);
 
     // 2. Clone the timetable card
