@@ -4,7 +4,6 @@ async function captureTimetable(backgroundColor) {
     cloneContainer.style.position = 'absolute';
     cloneContainer.style.left = '-9999px'; // Move it off-screen
     cloneContainer.style.top = '0';
-    cloneContainer.style.width = '1000px'; // Fixed width for consistent export
     document.body.appendChild(cloneContainer);
 
     // 2. Clone the timetable card
@@ -13,44 +12,48 @@ async function captureTimetable(backgroundColor) {
 
     // Replace input with a div for capture
     const input = clonedNode.querySelector('#routine-name');
-    const routineName = input.value || input.placeholder;
-    const textDiv = document.createElement('div');
-    textDiv.textContent = routineName;
-    textDiv.className = input.className;
-    textDiv.style.height = input.offsetHeight + 'px';
-    textDiv.style.lineHeight = input.offsetHeight + 'px';
-    textDiv.style.textAlign = 'center';
-    textDiv.style.color = '#333';
-    input.parentNode.replaceChild(textDiv, input);
+    if (input) {
+        const routineName = input.value || input.placeholder;
+        const textDiv = document.createElement('div');
+        textDiv.textContent = routineName;
+        textDiv.className = input.className;
+        textDiv.style.height = input.offsetHeight + 'px';
+        textDiv.style.lineHeight = input.offsetHeight + 'px';
+        textDiv.style.textAlign = 'center';
+        textDiv.style.color = '#333';
+        input.parentNode.replaceChild(textDiv, input);
+    }
 
-    // 3. Reset styles for the clone to ensure it's fully visible for capture
+    // Reset styles for clean capture
     const timetableEl = clonedNode.querySelector('.timetable');
     if (timetableEl) {
-        timetableEl.style.transform = 'scale(1)'; // Reset any zoom
+        timetableEl.style.transform = 'scale(1)'; // Reset zoom
         timetableEl.style.overflow = 'visible';
     }
-    clonedNode.style.width = '100%';
-    clonedNode.style.height = 'auto';
     clonedNode.style.boxShadow = 'none';
 
-    // Append the clone to the off-screen container
+    // Append the clone
     cloneContainer.appendChild(clonedNode);
 
-    // 4. Use html2canvas to capture the clone
+    // 3. Measure natural size (don’t force width/height)
+    const { offsetWidth, offsetHeight } = clonedNode;
+
+    // 4. Capture with html2canvas at higher resolution
     const canvas = await html2canvas(clonedNode, {
-        scale: 2, // Higher resolution
+        scale: 4, // Higher resolution export
         useCORS: true,
         backgroundColor: backgroundColor,
         logging: false,
-        width: clonedNode.offsetWidth,
-        height: clonedNode.offsetHeight,
+        width: offsetWidth,
+        height: offsetHeight,
     });
 
-    // 5. Clean up by removing the off-screen container
+    // 5. Clean up
     document.body.removeChild(cloneContainer);
 
     return canvas;
 }
+
 
 async function exportPNG() {
     try {

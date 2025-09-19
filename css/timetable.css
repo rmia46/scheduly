@@ -95,7 +95,7 @@
 }
 
 .grid-cell.corner {
-    flex: 0 0 120px; /* Maintain fixed width for corner */
+    flex: 0 0 110px; /* Maintain fixed width for corner */
     background: transparent;
     border: none;
 }
