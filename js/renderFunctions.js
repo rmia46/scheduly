@@ -151,21 +151,7 @@ function renderCoursesList() {
         });
     }, 50);
 
-    // We only need the copy event listener here
-    coursesListEl.querySelectorAll('button[data-action="copy"]').forEach(b => b.addEventListener('click', (ev) => {
-        const originalId = ev.currentTarget.dataset.id;
-        const originalCourse = activeRoutine.courses.find(x => x.id === originalId);
-
-        if (originalCourse) {
-            const newCourse = { ...originalCourse,
-                id: uid('course_')
-            };
-            activeRoutine.courses.push(newCourse);
-            renderUI();
-            saveStateToLocalStorage();
-            toast('Course copied to timetable!');
-        }
-    }));
+    
 
 }
 

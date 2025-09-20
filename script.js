@@ -964,26 +964,7 @@ function init() {
         }
     });
 
-    // Event listener for course list copy button (moved from render.js)
-    document.getElementById('courses-list').addEventListener('click', (ev) => {
-        const copyBtn = ev.target.closest('button[data-action="copy"]');
-        if (copyBtn) {
-            const originalId = copyBtn.dataset.id;
-            const activeRoutine = getActiveRoutine();
-            if (activeRoutine) {
-                const originalCourse = activeRoutine.courses.find(x => x.id === originalId);
-                if (originalCourse) {
-                    const newCourse = { ...originalCourse,
-                        id: uid('course_')
-                    };
-                    activeRoutine.courses.push(newCourse);
-                    renderUI();
-                    saveStateToLocalStorage();
-                    toast('Course copied to timetable!');
-                }
-            }
-        }
-    });
+    
 
     // Event listener for slot list remove button (moved from render.js)
     document.getElementById('slots-list').addEventListener('click', (ev) => {
