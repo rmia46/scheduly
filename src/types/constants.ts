@@ -1,6 +1,7 @@
 import type { ThemeColors, ThemeName } from '../types';
 
-export const PREDEFINED_SLOTS: string[] = [
+// North South University (NSU) Standard Academic Time Slots
+export const NSU_SLOTS: string[] = [
   '08:00-09:30',
   '09:40-11:10',
   '11:20-12:50',
@@ -10,13 +11,15 @@ export const PREDEFINED_SLOTS: string[] = [
   '18:00-19:30',
 ];
 
+export const PREDEFINED_SLOTS = NSU_SLOTS;
+
 export const DAYS_SHORT = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'] as const;
 export const DAYS_FULL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'] as const;
 
 export const THEMES: Record<ThemeName, ThemeColors> = {
   ocean: {
     name: 'ocean',
-    label: '🌊 Ocean',
+    label: 'Ocean',
     primary: '#0284c7',
     accent: '#0369a1',
     badgeBg: '#e0f2fe',
@@ -28,7 +31,7 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
   },
   grass: {
     name: 'grass',
-    label: '🌿 Grass',
+    label: 'Grass',
     primary: '#16a34a',
     accent: '#15803d',
     badgeBg: '#dcfce7',
@@ -40,7 +43,7 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
   },
   lemon: {
     name: 'lemon',
-    label: '🍋 Lemon',
+    label: 'Lemon',
     primary: '#ca8a04',
     accent: '#a16207',
     badgeBg: '#fef9c3',
@@ -52,7 +55,7 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
   },
   cherry: {
     name: 'cherry',
-    label: '🌸 Cherry',
+    label: 'Cherry',
     primary: '#db2777',
     accent: '#be185d',
     badgeBg: '#fce7f3',
@@ -64,7 +67,7 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
   },
   grape: {
     name: 'grape',
-    label: '🍇 Grape',
+    label: 'Grape',
     primary: '#7c3aed',
     accent: '#6d28d9',
     badgeBg: '#ede9fe',

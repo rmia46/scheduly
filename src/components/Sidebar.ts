@@ -25,25 +25,53 @@ export function renderSidebar(container: HTMLElement): void {
     <aside class="${state.sidebarOpen ? 'w-full md:w-80 lg:w-88' : 'hidden'} shrink-0 transition-all duration-300">
       <div class="bg-white rounded-2xl shadow-xs overflow-hidden flex flex-col h-full max-h-[calc(100vh-80px)] border transition-all duration-300" style="border-color: ${theme.border};">
         
-        <!-- Segmented Tab Navigation -->
-        <div class="p-2 border-b transition-colors duration-300" style="border-color: ${theme.border}; background-color: ${theme.subtleBg};">
-          <div class="grid grid-cols-3 gap-1 p-1 rounded-xl text-xs font-semibold bg-slate-200/50">
-            <button id="tab-btn-add" class="py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 ${
-              state.activeTab === 'add' ? 'bg-white text-slate-900 shadow-xs font-bold' : 'text-slate-500 hover:text-slate-800'
+        <!-- Minimal Underline Tab Navigation -->
+        <div class="px-4 pt-1 border-b transition-colors duration-300" style="border-color: ${theme.border}; background-color: ${theme.bg};">
+          <div class="flex items-center gap-6 text-xs font-semibold">
+            <!-- Add Tab -->
+            <button id="tab-btn-add" class="relative pb-2.5 pt-2.5 transition-colors cursor-pointer flex items-center gap-1.5 ${
+              state.activeTab === 'add' ? 'text-slate-900 font-bold' : 'text-slate-400 hover:text-slate-600'
             }">
-              <span>+ Add</span>
+              <svg class="w-3.5 h-3.5 ${state.activeTab === 'add' ? '' : 'text-slate-400'}" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" ${state.activeTab === 'add' ? `style="color: ${theme.primary};"` : ''}>
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              <span>Add</span>
+              ${
+                state.activeTab === 'add'
+                  ? `<div class="absolute bottom-0 left-0 right-0 h-0.5 rounded-full transition-all" style="background-color: ${theme.primary};"></div>`
+                  : ''
+              }
             </button>
-            <button id="tab-btn-courses" class="py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 ${
-              state.activeTab === 'courses' ? 'bg-white text-slate-900 shadow-xs font-bold' : 'text-slate-500 hover:text-slate-800'
+
+            <!-- Courses Tab -->
+            <button id="tab-btn-courses" class="relative pb-2.5 pt-2.5 transition-colors cursor-pointer flex items-center gap-1.5 ${
+              state.activeTab === 'courses' ? 'text-slate-900 font-bold' : 'text-slate-400 hover:text-slate-600'
             }">
               <span>Courses</span>
-              <span class="text-[10px] px-1.5 py-0.2 rounded-full ${state.activeTab === 'courses' ? 'text-white' : 'bg-slate-300/80 text-slate-700'}" ${state.activeTab === 'courses' ? `style="background-color: ${theme.primary};"` : ''}>${coursesCount}</span>
+              <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full transition-colors ${
+                state.activeTab === 'courses' ? 'text-white' : 'bg-slate-100 text-slate-500'
+              }" ${state.activeTab === 'courses' ? `style="background-color: ${theme.primary};"` : ''}>${coursesCount}</span>
+              ${
+                state.activeTab === 'courses'
+                  ? `<div class="absolute bottom-0 left-0 right-0 h-0.5 rounded-full transition-all" style="background-color: ${theme.primary};"></div>`
+                  : ''
+              }
             </button>
-            <button id="tab-btn-slots" class="py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 ${
-              state.activeTab === 'slots' ? 'bg-white text-slate-900 shadow-xs font-bold' : 'text-slate-500 hover:text-slate-800'
+
+            <!-- Slots Tab -->
+            <button id="tab-btn-slots" class="relative pb-2.5 pt-2.5 transition-colors cursor-pointer flex items-center gap-1.5 ${
+              state.activeTab === 'slots' ? 'text-slate-900 font-bold' : 'text-slate-400 hover:text-slate-600'
             }">
               <span>Slots</span>
-              <span class="text-[10px] px-1.5 py-0.2 rounded-full ${state.activeTab === 'slots' ? 'text-white' : 'bg-slate-300/80 text-slate-700'}" ${state.activeTab === 'slots' ? `style="background-color: ${theme.primary};"` : ''}>${slotsCount}</span>
+              <span class="text-[10px] font-bold px-1.5 py-0.2 rounded-full transition-colors ${
+                state.activeTab === 'slots' ? 'text-white' : 'bg-slate-100 text-slate-500'
+              }" ${state.activeTab === 'slots' ? `style="background-color: ${theme.primary};"` : ''}>${slotsCount}</span>
+              ${
+                state.activeTab === 'slots'
+                  ? `<div class="absolute bottom-0 left-0 right-0 h-0.5 rounded-full transition-all" style="background-color: ${theme.primary};"></div>`
+                  : ''
+              }
             </button>
           </div>
         </div>
@@ -216,7 +244,7 @@ export function renderSidebar(container: HTMLElement): void {
 
           <div class="flex items-center justify-between pt-1">
             <span class="text-xs font-bold text-slate-700">Active Slots (${routine.slots.length})</span>
-            <button id="btn-load-defaults" class="text-[11px] text-slate-500 hover:text-slate-800 font-medium underline cursor-pointer">Reset default slots</button>
+            <button id="btn-load-defaults" class="text-[11px] text-slate-500 hover:text-slate-800 font-medium underline cursor-pointer">Load NSU slots</button>
           </div>
 
           <div class="space-y-1.5">

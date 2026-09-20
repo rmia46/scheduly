@@ -1,9 +1,10 @@
 import { jsPDF } from 'jspdf';
 import autoTable, { type RowInput } from 'jspdf-autotable';
 import type { Routine } from '../types';
-import { DAYS_FULL, DAYS_SHORT } from '../types/constants';
+import { DAYS_FULL, DAYS_SHORT, THEMES } from '../types/constants';
 import { hexToRgb, getContrastColor, showToast } from './utils';
-import html2canvas from 'html2canvas';
+import { store } from '../store/routineStore';
+import { toPng } from 'html-to-image';
 
 export function exportVectorPDF(routine: Routine): void {
   try {
@@ -137,22 +138,47 @@ export function exportVectorPDF(routine: Routine): void {
 }
 
 export async function exportPNGImage(elementId: string, filename: string): Promise<void> {
-  try {
-    const el = document.getElementById(elementId);
-    if (!el) return;
+  const el = document.getElementById(elementId);
+  if (!el) {
+    showToast('Timetable area not found.');
+    return;
+  }
 
-    showToast('Rendering PNG image...');
-    const canvas = await html2canvas(el, {
-      scale: 3,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      logging: false,
+  showToast('Rendering PNG image...');
+
+  const state = store.getState();
+  const theme = THEMES[state.theme];
+
+  // Temporary title overlay: replace input visually during capture
+  const inputEl = el.querySelector('#input-routine-name') as HTMLInputElement | null;
+  let tempTitleEl: HTMLElement | null = null;
+  if (inputEl) {
+    tempTitleEl = document.createElement('h2');
+    tempTitleEl.textContent = inputEl.value.trim() || inputEl.placeholder || filename || 'Class Routine';
+    tempTitleEl.className = 'text-xl sm:text-2xl font-extrabold text-slate-900 text-center py-0.5 tracking-tight';
+    inputEl.style.display = 'none';
+    inputEl.parentNode?.insertBefore(tempTitleEl, inputEl);
+  }
+
+  try {
+    const dataUrl = await toPng(el, {
+      pixelRatio: 2,
+      backgroundColor: theme.cardBg || '#ffffff',
+      cacheBust: true,
+      filter: (node) => {
+        // Filter out delete buttons and the hidden input
+        if (node instanceof HTMLElement) {
+          if (node.hasAttribute('data-quick-delete') || node.id === 'input-routine-name') {
+            return false;
+          }
+        }
+        return true;
+      },
     });
 
-    const dataUrl = canvas.toDataURL('image/png');
     const a = document.createElement('a');
     a.href = dataUrl;
-    a.download = `${filename || 'routine'}.png`;
+    a.download = `${(filename || 'routine').trim()}.png`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -160,5 +186,11 @@ export async function exportPNGImage(elementId: string, filename: string): Promi
   } catch (err) {
     console.error('PNG export failed', err);
     showToast('Failed to export PNG');
+  } finally {
+    // Restore input
+    if (inputEl) {
+      inputEl.style.display = '';
+      tempTitleEl?.remove();
+    }
   }
 }

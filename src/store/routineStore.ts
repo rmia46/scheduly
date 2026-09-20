@@ -106,6 +106,8 @@ class Store {
   public setTheme(theme: ThemeName): void {
     if (THEMES[theme]) {
       this.state.theme = theme;
+      // Reshuffle course colors so previous theme colors get reset
+      this.randomizeColors();
       this.notify();
     }
   }
@@ -273,7 +275,7 @@ class Store {
     this.notify();
   }
 
-  public loadDefaultSlots(): void {
+  public loadNsuSlots(): void {
     const routine = this.getActiveRoutine();
     if (!routine) return;
     routine.slots = PREDEFINED_SLOTS.map((label) => ({ id: uid('slot'), label }));
@@ -281,6 +283,10 @@ class Store {
       c.slotId = null;
     }
     this.notify();
+  }
+
+  public loadDefaultSlots(): void {
+    this.loadNsuSlots();
   }
 
   public randomizeColors(): void {
