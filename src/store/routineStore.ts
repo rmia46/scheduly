@@ -286,10 +286,33 @@ class Store {
   public randomizeColors(): void {
     const routine = this.getActiveRoutine();
     if (!routine || routine.courses.length === 0) return;
+
     const swatches = THEMES[this.state.theme].swatches;
-    routine.courses.forEach((c, idx) => {
-      c.color = swatches[idx % swatches.length];
+    // Fisher-Yates shuffle copy of swatches
+    const shuffled = [...swatches];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+
+    // Group courses by courseGroupId or normalized name
+    const groupToColor = new Map<string, string>();
+    let colorIdx = 0;
+
+    routine.courses.forEach((c) => {
+      const key = c.courseGroupId || `course_${c.name.trim().toLowerCase()}`;
+      if (!groupToColor.has(key)) {
+        groupToColor.set(key, shuffled[colorIdx % shuffled.length]);
+        colorIdx++;
+      }
     });
+
+    // Assign uniform color to all instances of the course
+    routine.courses.forEach((c) => {
+      const key = c.courseGroupId || `course_${c.name.trim().toLowerCase()}`;
+      c.color = groupToColor.get(key) || swatches[0];
+    });
+
     this.notify();
   }
 

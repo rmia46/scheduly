@@ -44,7 +44,7 @@ export function renderHeader(container: HTMLElement): void {
           </svg>
         </button>
 
-        <!-- Export Dropdown Menu (Clean Click Handler) -->
+        <!-- Export Dropdown Menu (Strictly Export actions) -->
         <div class="relative" id="export-dropdown-wrapper">
           <button id="hdr-btn-export-toggle" class="flex items-center gap-1.5 text-xs font-semibold text-white px-3 py-1.5 rounded-lg shadow-xs transition-opacity hover:opacity-95 cursor-pointer" style="background-color: ${theme.primary};">
             <span>Export</span>
@@ -63,10 +63,23 @@ export function renderHeader(container: HTMLElement): void {
             <button id="action-print" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer">
               <span class="text-sm">🖨️</span> Print Routine
             </button>
-            <div class="my-1 border-t border-slate-100"></div>
+          </div>
+        </div>
+
+        <!-- Options Dropdown Menu (Routine & Palette options) -->
+        <div class="relative" id="options-dropdown-wrapper">
+          <button id="hdr-btn-options-toggle" class="flex items-center gap-1 text-xs font-semibold text-slate-700 bg-slate-100/90 hover:bg-slate-200/80 border border-slate-200 px-2.5 py-1.5 rounded-lg transition-colors cursor-pointer" title="More Options">
+            <span>Options</span>
+            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+          </button>
+
+          <div id="options-dropdown-menu" class="hidden absolute right-0 mt-1.5 w-44 bg-white rounded-xl shadow-lg border border-slate-150 py-1.5 z-50 text-xs font-medium">
             <button id="action-random-colors" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2 cursor-pointer">
               <span class="text-sm">🎨</span> Shuffle Colors
             </button>
+            <div class="my-1 border-t border-slate-100"></div>
             <button id="action-delete-routine" class="w-full text-left px-3 py-2 text-rose-600 hover:bg-rose-50 flex items-center gap-2 cursor-pointer">
               <span class="text-sm">🗑️</span> Delete Routine
             </button>
@@ -94,16 +107,29 @@ export function renderHeader(container: HTMLElement): void {
     }
   });
 
+  // Export Dropdown
   const exportToggle = container.querySelector('#hdr-btn-export-toggle');
   const exportMenu = container.querySelector('#export-dropdown-menu');
 
+  // Options Dropdown
+  const optionsToggle = container.querySelector('#hdr-btn-options-toggle');
+  const optionsMenu = container.querySelector('#options-dropdown-menu');
+
   exportToggle?.addEventListener('click', (e) => {
     e.stopPropagation();
+    optionsMenu?.classList.add('hidden');
     exportMenu?.classList.toggle('hidden');
+  });
+
+  optionsToggle?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    exportMenu?.classList.add('hidden');
+    optionsMenu?.classList.toggle('hidden');
   });
 
   document.addEventListener('click', () => {
     exportMenu?.classList.add('hidden');
+    optionsMenu?.classList.add('hidden');
   });
 
   container.querySelector('#action-export-pdf')?.addEventListener('click', () => {
@@ -124,12 +150,12 @@ export function renderHeader(container: HTMLElement): void {
   });
 
   container.querySelector('#action-random-colors')?.addEventListener('click', () => {
-    exportMenu?.classList.add('hidden');
+    optionsMenu?.classList.add('hidden');
     store.randomizeColors();
   });
 
   container.querySelector('#action-delete-routine')?.addEventListener('click', () => {
-    exportMenu?.classList.add('hidden');
+    optionsMenu?.classList.add('hidden');
     if (confirm('Are you sure you want to delete this routine?')) {
       if (!store.deleteActiveRoutine()) {
         alert('Cannot delete the last remaining routine.');
