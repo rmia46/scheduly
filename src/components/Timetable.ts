@@ -170,6 +170,17 @@ export function renderTimetable(container: HTMLElement): void {
       }
 
       const targetEl = dropTarget as HTMLElement;
+      const targetDay = parseInt(targetEl.dataset.cellDay || '0', 10);
+      const targetSlotId = targetEl.dataset.cellSlot || '';
+
+      // If hovering over the course's own current cell, do not project or expand
+      if (activeDraggedCourseId) {
+        const draggedCourse = routine.courses.find((c) => c.id === activeDraggedCourseId);
+        if (draggedCourse && draggedCourse.day === targetDay && draggedCourse.slotId === targetSlotId) {
+          return;
+        }
+      }
+
       if (!targetEl.classList.contains('drag-projection')) {
         targetEl.classList.add('drag-projection');
 
@@ -219,7 +230,11 @@ export function renderTimetable(container: HTMLElement): void {
       const day = parseInt(targetEl.dataset.cellDay || '0', 10);
       const slotId = targetEl.dataset.cellSlot || '';
       if (courseId && slotId) {
-        store.moveCourse(courseId, day, slotId);
+        const draggedCourse = routine.courses.find((c) => c.id === courseId);
+        // Only move if destination is different from current position
+        if (draggedCourse && (draggedCourse.day !== day || draggedCourse.slotId !== slotId)) {
+          store.moveCourse(courseId, day, slotId);
+        }
       }
       activeDraggedCourseId = null;
     });
