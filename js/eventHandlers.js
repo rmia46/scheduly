@@ -289,31 +289,25 @@ function setupEventListeners() {
     // Dropdown functionality
     document.querySelectorAll('.dropdown-toggle').forEach(toggle => {
         toggle.addEventListener('click', function(event) {
-            event.stopPropagation(); // Prevent document click from closing immediately
-            const dropdownMenu = this.nextElementSibling;
-            // Close other open dropdowns
-            document.querySelectorAll('.dropdown-menu').forEach(menu => {
-                if (menu !== dropdownMenu) {
-                    menu.classList.remove('show');
-                }
-            });
-            // Toggle current dropdown
-            dropdownMenu.classList.toggle('show');
-        });
-    });
-
-    // Close dropdowns when clicking outside
-    document.addEventListener('click', function() {
-        document.querySelectorAll('.dropdown-menu').forEach(menu => {
-            menu.classList.remove('show');
-        });
-    });
-
-    // Prevent dropdown menu from closing when clicking inside it
-    document.querySelectorAll('.dropdown-menu').forEach(menu => {
-        menu.addEventListener('click', function(event) {
             event.stopPropagation();
+            const dropdownMenu = this.nextElementSibling;
+            const isOpen = dropdownMenu.classList.contains('show');
+            document.querySelectorAll('.dropdown-menu').forEach(menu => menu.classList.remove('show'));
+            if (!isOpen) {
+                dropdownMenu.classList.add('show');
+            }
         });
+    });
+
+    // Close dropdowns when clicking an item inside or clicking outside
+    document.querySelectorAll('.dropdown-menu .action-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+        });
+    });
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
     });
 
     // keyboard shortcuts
