@@ -5,12 +5,14 @@ import type { Routine } from './types';
 import { renderHeader } from './components/Header';
 import { renderSidebar } from './components/Sidebar';
 import { renderTimetable } from './components/Timetable';
+import { renderFooter } from './components/Footer';
 import { decodeFromBase64Url, escapeHtml, showToast } from './services/utils';
 
 function mount(): void {
   const headerContainer = document.getElementById('app-header');
   const sidebarContainer = document.getElementById('app-sidebar');
   const timetableContainer = document.getElementById('app-timetable');
+  const footerContainer = document.getElementById('app-footer');
 
   if (!headerContainer || !sidebarContainer || !timetableContainer) return;
 
@@ -34,6 +36,9 @@ function mount(): void {
     renderHeader(headerContainer!);
     renderSidebar(sidebarContainer!);
     renderTimetable(timetableContainer!);
+    if (footerContainer) {
+      renderFooter(footerContainer);
+    }
   }
 
   // Initial render
