@@ -30,5 +30,9 @@ export interface ThemeColors {
   primary: string;
   accent: string;
   badgeBg: string;
+  bg: string;
+  cardBg: string;
+  border: string;
+  subtleBg: string;
   swatches: string[];
 }

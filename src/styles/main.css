@@ -3,14 +3,21 @@
 @layer base {
   :root {
     --app-font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
+    --theme-primary: #0284c7;
+    --theme-accent: #0369a1;
+    --theme-badge-bg: #e0f2fe;
+    --theme-bg: #f0f9ff;
+    --theme-border: #bae6fd;
+    --theme-subtle: #f8fafc;
   }
 
   body {
     font-family: var(--app-font);
-    background-color: #f8fafc;
+    background-color: var(--theme-bg);
     color: #0f172a;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
   }
 }
 

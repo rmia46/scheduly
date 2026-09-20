@@ -22,12 +22,12 @@ export function renderSidebar(container: HTMLElement): void {
   const prefill = state.selectedCell;
 
   container.innerHTML = `
-    <aside class="${state.sidebarOpen ? 'w-full md:w-80 lg:w-88' : 'hidden'} shrink-0 transition-all duration-200">
-      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden flex flex-col h-full max-h-[calc(100vh-80px)]">
+    <aside class="${state.sidebarOpen ? 'w-full md:w-80 lg:w-88' : 'hidden'} shrink-0 transition-all duration-300">
+      <div class="bg-white rounded-2xl shadow-xs overflow-hidden flex flex-col h-full max-h-[calc(100vh-80px)] border transition-all duration-300" style="border-color: ${theme.border};">
         
         <!-- Segmented Tab Navigation -->
-        <div class="p-2 border-b border-slate-100 bg-slate-50/60">
-          <div class="grid grid-cols-3 gap-1 bg-slate-200/60 p-1 rounded-xl text-xs font-semibold">
+        <div class="p-2 border-b transition-colors duration-300" style="border-color: ${theme.border}; background-color: ${theme.subtleBg};">
+          <div class="grid grid-cols-3 gap-1 p-1 rounded-xl text-xs font-semibold bg-slate-200/50">
             <button id="tab-btn-add" class="py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 ${
               state.activeTab === 'add' ? 'bg-white text-slate-900 shadow-xs font-bold' : 'text-slate-500 hover:text-slate-800'
             }">
@@ -37,13 +37,13 @@ export function renderSidebar(container: HTMLElement): void {
               state.activeTab === 'courses' ? 'bg-white text-slate-900 shadow-xs font-bold' : 'text-slate-500 hover:text-slate-800'
             }">
               <span>Courses</span>
-              <span class="text-[10px] px-1.5 py-0.2 rounded-full ${state.activeTab === 'courses' ? 'bg-slate-900 text-white' : 'bg-slate-300/80 text-slate-700'}">${coursesCount}</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded-full ${state.activeTab === 'courses' ? 'text-white' : 'bg-slate-300/80 text-slate-700'}" ${state.activeTab === 'courses' ? `style="background-color: ${theme.primary};"` : ''}>${coursesCount}</span>
             </button>
             <button id="tab-btn-slots" class="py-1.5 rounded-lg transition-all cursor-pointer flex items-center justify-center gap-1 ${
               state.activeTab === 'slots' ? 'bg-white text-slate-900 shadow-xs font-bold' : 'text-slate-500 hover:text-slate-800'
             }">
               <span>Slots</span>
-              <span class="text-[10px] px-1.5 py-0.2 rounded-full ${state.activeTab === 'slots' ? 'bg-slate-900 text-white' : 'bg-slate-300/80 text-slate-700'}">${slotsCount}</span>
+              <span class="text-[10px] px-1.5 py-0.2 rounded-full ${state.activeTab === 'slots' ? 'text-white' : 'bg-slate-300/80 text-slate-700'}" ${state.activeTab === 'slots' ? `style="background-color: ${theme.primary};"` : ''}>${slotsCount}</span>
             </button>
           </div>
         </div>
@@ -54,7 +54,7 @@ export function renderSidebar(container: HTMLElement): void {
             <h2 class="text-sm font-bold text-slate-900 tracking-tight">Add Course</h2>
             ${
               prefill
-                ? `<span class="text-[11px] font-medium text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">Cell selected</span>`
+                ? `<span class="text-[11px] font-bold px-2 py-0.5 rounded-md border" style="background-color: ${theme.badgeBg}; color: ${theme.accent}; border-color: ${theme.border};">Cell selected</span>`
                 : ''
             }
           </div>

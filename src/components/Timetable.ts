@@ -1,5 +1,5 @@
 import { store } from '../store/routineStore';
-import { DAYS_SHORT, DAYS_FULL } from '../types/constants';
+import { DAYS_SHORT, DAYS_FULL, THEMES } from '../types/constants';
 import { escapeHtml, getContrastColor, hexToRgb } from '../services/utils';
 
 export function renderTimetable(container: HTMLElement): void {
@@ -7,10 +7,11 @@ export function renderTimetable(container: HTMLElement): void {
   if (!routine) return;
 
   const state = store.getState();
+  const theme = THEMES[state.theme];
 
   container.innerHTML = `
     <div class="flex-1 min-w-0 flex flex-col print-card">
-      <div id="timetable-capture-area" class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-6 overflow-hidden flex flex-col">
+      <div id="timetable-capture-area" class="bg-white rounded-2xl shadow-xs p-4 sm:p-6 overflow-hidden flex flex-col border transition-all duration-300" style="border-color: ${theme.border};">
         
         <!-- Editable Routine Title -->
         <div class="mb-4 text-center">
@@ -23,14 +24,14 @@ export function renderTimetable(container: HTMLElement): void {
             
             <!-- Grid Header Row (Days) -->
             <div class="grid grid-cols-8 gap-1.5 mb-1.5 text-xs font-bold text-slate-600">
-              <div class="py-1.5 px-2 text-center rounded-xl bg-slate-100/90 border border-slate-200/80 font-semibold text-[10px] text-slate-500 flex items-center justify-center">
+              <div class="py-1.5 px-2 text-center rounded-xl font-semibold text-[10px] flex items-center justify-center border transition-colors duration-300" style="background-color: ${theme.subtleBg}; border-color: ${theme.border}; color: ${theme.accent};">
                 Time / Day
               </div>
               ${DAYS_SHORT.map(
                 (d, idx) => `
-                <div class="py-1.5 px-1 text-center rounded-xl bg-slate-100/90 border border-slate-200/80">
-                  <span class="block text-slate-900">${d}</span>
-                  <span class="block text-[9.5px] font-normal text-slate-400 leading-tight hidden sm:block">${DAYS_FULL[idx]}</span>
+                <div class="py-1.5 px-1 text-center rounded-xl border transition-colors duration-300" style="background-color: ${theme.subtleBg}; border-color: ${theme.border};">
+                  <span class="block text-slate-900 font-extrabold">${d}</span>
+                  <span class="block text-[9.5px] font-medium opacity-60 leading-tight hidden sm:block">${DAYS_FULL[idx]}</span>
                 </div>
               `
               ).join('')}
@@ -43,7 +44,7 @@ export function renderTimetable(container: HTMLElement): void {
                   return `
                   <div class="grid grid-cols-8 gap-1.5 text-xs">
                     <!-- Time Column -->
-                    <div class="p-1.5 text-center rounded-xl border border-slate-200/80 bg-slate-50 font-bold text-[10.5px] text-slate-600 flex items-center justify-center leading-tight">
+                    <div class="p-1.5 text-center rounded-xl border font-bold text-[10.5px] flex items-center justify-center leading-tight transition-colors duration-300" style="background-color: ${theme.subtleBg}; border-color: ${theme.border}; color: ${theme.accent};">
                       ${slot.label}
                     </div>
 
@@ -54,8 +55,12 @@ export function renderTimetable(container: HTMLElement): void {
                         const isSelected = state.selectedCell?.day === dayIdx && state.selectedCell?.slotId === slot.id;
 
                         return `
-                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl border border-slate-200/80 h-[64px] min-h-[64px] relative transition-all p-1 hover:overflow-visible cursor-pointer ${
-                          isSelected ? 'bg-sky-50/80 ring-2 ring-sky-400 border-transparent shadow-xs' : 'hover:border-slate-300 hover:bg-slate-50/50 bg-white shadow-2xs'
+                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl h-[64px] min-h-[64px] relative transition-all p-1 hover:overflow-visible cursor-pointer border ${
+                          isSelected ? 'border-transparent shadow-xs' : 'bg-white hover:border-slate-300 shadow-2xs'
+                        }" style="${
+                          isSelected
+                            ? `outline: 2px solid ${theme.primary}; background-color: ${theme.badgeBg}; border-color: transparent;`
+                            : `border-color: ${theme.border}80;`
                         }">
                           ${matches
                             .map((course, idx) => {
