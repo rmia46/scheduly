@@ -182,20 +182,28 @@ class Store {
     this.notify();
   }
 
-  public addCourseMultipleDays(
-    courseData: Omit<Course, 'id' | 'day' | 'courseGroupId'>,
-    days: number[]
+  public addCourseMultiSchedule(
+    courseData: Omit<Course, 'id' | 'day' | 'slotId' | 'courseGroupId'>,
+    days: number[],
+    slotIds: string[]
   ): void {
     const routine = this.getActiveRoutine();
-    if (!routine || days.length === 0) return;
+    if (!routine || days.length === 0 || slotIds.length === 0) return;
 
     const groupId = uid('cgrp');
-    const newCourses: Course[] = days.map((day) => ({
-      ...courseData,
-      id: uid('course'),
-      courseGroupId: groupId,
-      day,
-    }));
+    const newCourses: Course[] = [];
+
+    for (const day of days) {
+      for (const slotId of slotIds) {
+        newCourses.push({
+          ...courseData,
+          id: uid('course'),
+          courseGroupId: groupId,
+          day,
+          slotId,
+        });
+      }
+    }
 
     routine.courses.push(...newCourses);
     this.notify();

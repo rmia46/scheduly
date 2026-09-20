@@ -94,11 +94,29 @@ export function renderSidebar(container: HTMLElement): void {
             </div>
           </div>
 
+          <!-- Time Slots Selection (Checkboxes / Chips) -->
           <div>
-            <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Time Slot</label>
-            <select id="input-course-slot" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-medium text-slate-900 focus:bg-white focus:outline-none cursor-pointer">
-              ${routine.slots.map((s) => `<option value="${s.id}" ${prefill && prefill.slotId === s.id ? 'selected' : ''}>${s.label}</option>`).join('')}
-            </select>
+            <div class="flex items-center justify-between mb-1.5">
+              <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Time Slots</label>
+              <span class="text-[10px] text-slate-400">Select one or more</span>
+            </div>
+            <div class="grid grid-cols-2 gap-1.5 max-h-36 overflow-y-auto p-1 bg-slate-50/50 rounded-xl border border-slate-200" id="course-slots-checkboxes">
+              ${
+                routine.slots.length === 0
+                  ? `<div class="col-span-2 text-center py-2 text-[11px] text-slate-400">No time slots yet. Add slots in the "Slots" tab.</div>`
+                  : routine.slots
+                      .map((s, idx) => {
+                        const isChecked = prefill ? prefill.slotId === s.id : idx === 0;
+                        return `
+                        <label class="flex items-center gap-1.5 p-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 cursor-pointer select-none transition-colors has-[:checked]:bg-slate-900 has-[:checked]:text-white has-[:checked]:border-slate-900">
+                          <input type="checkbox" name="course-slot" value="${s.id}" ${isChecked ? 'checked' : ''} class="sr-only" />
+                          <span class="text-[11px] font-semibold truncate">${escapeHtml(s.label)}</span>
+                        </label>
+                      `;
+                      })
+                      .join('')
+              }
+            </div>
           </div>
 
           <!-- Color Palette Picker -->
@@ -136,11 +154,13 @@ export function renderSidebar(container: HTMLElement): void {
               : Array.from(courseGroups.entries())
                   .map(([groupKey, instances]) => {
                     const primary = instances[0];
-                    const slotLabel = routine.slots.find((s) => s.id === primary.slotId)?.label || 'Unassigned';
-                    const daysSummary = instances
-                      .map((inst) => DAYS_FULL[inst.day]?.slice(0, 3) || '')
-                      .sort()
-                      .join(', ');
+                    const uniqueDays = Array.from(new Set(instances.map((i) => i.day))).sort();
+                    const daysSummary = uniqueDays.map((d) => DAYS_FULL[d]?.slice(0, 3) || '').join(', ');
+
+                    const uniqueSlotIds = Array.from(new Set(instances.map((i) => i.slotId).filter(Boolean)));
+                    const slotsSummary = uniqueSlotIds
+                      .map((sid) => routine.slots.find((s) => s.id === sid)?.label || 'Slot')
+                      .join(', ') || 'Unassigned';
 
                     return `
                 <div class="p-2.5 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-white hover:border-slate-300 transition-all flex items-center justify-between group">
@@ -151,13 +171,13 @@ export function renderSidebar(container: HTMLElement): void {
                         <p class="text-xs font-bold text-slate-900 truncate">${escapeHtml(primary.name)}</p>
                         ${
                           instances.length > 1
-                            ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-700">${instances.length} days</span>`
+                            ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-700">${instances.length} slots</span>`
                             : ''
                         }
                       </div>
                       <p class="text-[10px] text-slate-500 truncate">
                         ${[primary.section, primary.room].filter(Boolean).map(escapeHtml).join(' • ')} 
-                        ${primary.section || primary.room ? '• ' : ''}${daysSummary} (${slotLabel})
+                        ${primary.section || primary.room ? '• ' : ''}${daysSummary} (${slotsSummary})
                       </p>
                     </div>
                   </div>
@@ -230,15 +250,17 @@ export function renderSidebar(container: HTMLElement): void {
     });
   });
 
-  // Submit Add Course (Multi-Day Support)
+  // Submit Add Course (Multi-Day and Multi-Slot Support)
   container.querySelector('#btn-submit-course')?.addEventListener('click', () => {
     const nameInput = container.querySelector('#input-course-name') as HTMLInputElement;
     const secInput = container.querySelector('#input-course-section') as HTMLInputElement;
     const roomInput = container.querySelector('#input-course-room') as HTMLInputElement;
-    const slotInput = container.querySelector('#input-course-slot') as HTMLSelectElement;
 
-    const checkedBoxes = container.querySelectorAll<HTMLInputElement>('input[name="course-day"]:checked');
-    const selectedDays = Array.from(checkedBoxes).map((cb) => parseInt(cb.value, 10));
+    const checkedDayBoxes = container.querySelectorAll<HTMLInputElement>('input[name="course-day"]:checked');
+    const selectedDays = Array.from(checkedDayBoxes).map((cb) => parseInt(cb.value, 10));
+
+    const checkedSlotBoxes = container.querySelectorAll<HTMLInputElement>('input[name="course-slot"]:checked');
+    const selectedSlotIds = Array.from(checkedSlotBoxes).map((cb) => cb.value);
 
     const name = nameInput.value.trim();
     if (!name) {
@@ -251,15 +273,20 @@ export function renderSidebar(container: HTMLElement): void {
       return;
     }
 
-    store.addCourseMultipleDays(
+    if (selectedSlotIds.length === 0) {
+      alert('Please select at least one time slot.');
+      return;
+    }
+
+    store.addCourseMultiSchedule(
       {
         name,
         section: secInput.value.trim(),
         room: roomInput.value.trim(),
-        slotId: slotInput.value || null,
         color: colorInput.value || theme.swatches[0],
       },
-      selectedDays
+      selectedDays,
+      selectedSlotIds
     );
 
     nameInput.value = '';
@@ -274,6 +301,9 @@ export function renderSidebar(container: HTMLElement): void {
     (container.querySelector('#input-course-section') as HTMLInputElement).value = '';
     (container.querySelector('#input-course-room') as HTMLInputElement).value = '';
     container.querySelectorAll<HTMLInputElement>('input[name="course-day"]').forEach((cb, idx) => {
+      cb.checked = idx === 0;
+    });
+    container.querySelectorAll<HTMLInputElement>('input[name="course-slot"]').forEach((cb, idx) => {
       cb.checked = idx === 0;
     });
     store.setSelectedCell(null);
