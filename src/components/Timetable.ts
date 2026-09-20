@@ -87,22 +87,22 @@ export function renderTimetable(container: HTMLElement): void {
                                 ${
                                   hasMeta
                                     ? `
-                                  <!-- Meta Info: Prominent, large and bold -->
-                                  <div class="w-full flex-1 flex items-center justify-between border-t border-current/25 mt-1 pt-1 font-extrabold leading-tight">
+                                  <!-- Meta Info: Balanced, compact and bold -->
+                                  <div class="w-full flex-1 flex items-center justify-between border-t border-current/20 mt-0.5 pt-0.5 font-bold leading-tight min-h-0">
                                     <!-- Left: Section and Room vertical stack -->
                                     <div class="flex flex-col text-left truncate min-w-0 ${!hasRight ? 'w-full text-center' : ''}">
-                                      ${sectionText ? `<span class="truncate text-[11px] font-black leading-none">${sectionText}</span>` : ''}
-                                      ${roomText ? `<span class="truncate text-[10px] font-bold opacity-95 leading-none mt-0.5">${roomText}</span>` : ''}
+                                      ${sectionText ? `<span class="truncate text-[9.5px] font-black leading-tight">${sectionText}</span>` : ''}
+                                      ${roomText ? `<span class="truncate text-[9px] font-semibold opacity-90 leading-tight">${roomText}</span>` : ''}
                                     </div>
 
                                     ${
                                       hasLeft && hasRight
-                                        ? `<span class="h-5 w-[1.5px] bg-current/30 mx-2 shrink-0 self-center"></span>`
+                                        ? `<span class="h-3.5 w-px bg-current/25 mx-1.5 shrink-0 self-center"></span>`
                                         : ''
                                     }
 
                                     <!-- Right: Faculty -->
-                                    <div class="text-right text-[12px] font-black tracking-tight shrink-0 truncate ${!hasLeft ? 'w-full text-center' : ''}">
+                                    <div class="text-right text-[10px] font-black tracking-tight shrink-0 truncate ${!hasLeft ? 'w-full text-center' : ''}">
                                       ${facultyText}
                                     </div>
                                   </div>
