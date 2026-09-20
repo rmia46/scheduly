@@ -5,31 +5,35 @@ import { escapeHtml, getContrastColor, hexToRgb } from '../services/utils';
 let quoteIntervalTimer: number | null = null;
 let currentQuoteIndex = 0;
 
+function advanceQuote(): void {
+  const quoteContainer = document.getElementById('timetable-quote-content');
+  if (!quoteContainer) return;
+
+  // Cycle to next quote
+  currentQuoteIndex = (currentQuoteIndex + 1) % PHILOSOPHICAL_QUOTES.length;
+  const nextQuote = PHILOSOPHICAL_QUOTES[currentQuoteIndex];
+
+  // Smooth fade transition
+  quoteContainer.style.opacity = '0';
+  setTimeout(() => {
+    quoteContainer.innerHTML = `
+      <span>“${escapeHtml(nextQuote.text)}”</span>
+      <span class="font-medium text-slate-500">— ${escapeHtml(nextQuote.author)}</span>
+    `;
+    quoteContainer.style.opacity = '1';
+  }, 200);
+}
+
 function setupQuoteRotation(): void {
   if (quoteIntervalTimer !== null) {
     clearInterval(quoteIntervalTimer);
     quoteIntervalTimer = null;
   }
 
-  // 2 minutes = 120,000ms
+  // 45 seconds = 45,000ms
   quoteIntervalTimer = window.setInterval(() => {
-    const quoteContainer = document.getElementById('timetable-quote-content');
-    if (!quoteContainer) return;
-
-    // Cycle to next quote
-    currentQuoteIndex = (currentQuoteIndex + 1) % PHILOSOPHICAL_QUOTES.length;
-    const nextQuote = PHILOSOPHICAL_QUOTES[currentQuoteIndex];
-
-    // Smooth fade transition
-    quoteContainer.style.opacity = '0';
-    setTimeout(() => {
-      quoteContainer.innerHTML = `
-        <span>“${escapeHtml(nextQuote.text)}”</span>
-        <span class="font-medium text-slate-500">— ${escapeHtml(nextQuote.author)}</span>
-      `;
-      quoteContainer.style.opacity = '1';
-    }, 300);
-  }, 120000);
+    advanceQuote();
+  }, 45000);
 }
 
 export function renderTimetable(container: HTMLElement): void {
@@ -71,9 +75,37 @@ export function renderTimetable(container: HTMLElement): void {
 
             <!-- Grid Rows (Slots) -->
             <div class="space-y-1.5">
-              ${routine.slots
-                .map((slot) => {
-                  return `
+              ${
+                routine.slots.length === 0
+                  ? `
+                <div class="py-16 px-4 text-center rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-3 my-2" style="border-color: ${theme.border}; background-color: ${theme.subtleBg}40;">
+                  <div class="w-12 h-12 rounded-2xl flex items-center justify-center shadow-xs" style="background-color: ${theme.subtleBg}; color: ${theme.accent};">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                  </div>
+                  <div class="max-w-sm">
+                    <h3 class="font-bold text-sm text-slate-800 mb-1">No Time Slots Yet</h3>
+                    <p class="text-xs text-slate-500 leading-relaxed">
+                      Add custom time slots for your schedule, or quickly load official North South University (NSU) slots.
+                    </p>
+                  </div>
+                  <div class="flex items-center gap-2 pt-1">
+                    <button id="btn-empty-load-nsu" class="px-3.5 py-2 rounded-xl text-xs font-bold text-white shadow-xs hover:opacity-90 transition-opacity cursor-pointer flex items-center gap-1.5" style="background-color: ${theme.primary}">
+                      <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      <span>Load NSU Slots</span>
+                    </button>
+                    <button id="btn-empty-add-slots" class="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer flex items-center gap-1.5">
+                      <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                      <span>Add Slots</span>
+                    </button>
+                  </div>
+                </div>
+              `
+                  : routine.slots
+                      .map((slot) => {
+                        return `
                   <div class="grid grid-cols-8 gap-1.5 text-xs">
                     <!-- Time Column -->
                     <div class="p-1.5 text-center rounded-xl border font-bold text-[10.5px] flex items-center justify-center leading-tight transition-colors duration-300" style="background-color: ${theme.subtleBg}; border-color: ${theme.border}; color: ${theme.accent};">
@@ -133,16 +165,16 @@ export function renderTimetable(container: HTMLElement): void {
                                 : `top: 0; left: 0; width: 100%; height: 100%;`;
 
                               return `
-                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute px-2 py-1 flex flex-col justify-between items-center text-center group select-none rounded-xl border border-white/25 shadow-xs overflow-hidden ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
+                              <div draggable="true" data-drag-course-id="${course.id}" data-course-id="${course.id}" class="course-card-item absolute px-2 py-1 flex flex-col justify-between items-center text-center group select-none rounded-xl border border-white/25 shadow-xs overflow-hidden cursor-pointer ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}" title="Click to edit course">
                                 <!-- Course Name: Prominent & clear heading with dedicated space -->
-                                <div class="w-full flex-1 flex items-center justify-center min-h-0 px-0.5">
+                                <div class="w-full flex-1 flex items-center justify-center min-h-0 px-0.5 pointer-events-none">
                                   <p class="font-black text-[12px] leading-tight line-clamp-2 break-words tracking-tight">${escapeHtml(course.name)}</p>
                                 </div>
                                 ${
                                   hasMeta
                                     ? `
                                   <!-- Meta Info: Clean pinned footer -->
-                                  <div class="w-full shrink-0 flex items-center justify-between border-t border-current/20 mt-0.5 pt-0.5 font-bold leading-tight">
+                                  <div class="w-full shrink-0 flex items-center justify-between border-t border-current/20 mt-0.5 pt-0.5 font-bold leading-tight pointer-events-none">
                                     <!-- Left: Section and Room vertical stack -->
                                     <div class="flex flex-col text-left truncate min-w-0 ${!hasRight ? 'w-full text-center' : ''}">
                                       ${sectionText ? `<span class="truncate text-[9px] font-black leading-none">${sectionText}</span>` : ''}
@@ -174,15 +206,16 @@ export function renderTimetable(container: HTMLElement): void {
                       .join('')}
                   </div>
                 `;
-                })
-                .join('')}
+                      })
+                      .join('')
+              }
             </div>
         </div>
 
         <footer class="mt-4 pt-3 border-t border-slate-150 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
           ${
             state.showQuotes
-              ? `<div id="timetable-quote-content" class="transition-opacity duration-300 text-center sm:text-left flex flex-wrap items-center gap-1.5 justify-center sm:justify-start">
+              ? `<div id="timetable-quote-content" class="transition-opacity duration-200 text-center sm:text-left flex flex-wrap items-center gap-1.5 justify-center sm:justify-start cursor-pointer select-none hover:text-slate-600 transition-colors" title="Click to see next quote">
                    <span>“${escapeHtml(initialQuote.text)}”</span>
                    <span class="font-medium text-slate-500">— ${escapeHtml(initialQuote.author)}</span>
                  </div>`
@@ -196,10 +229,27 @@ export function renderTimetable(container: HTMLElement): void {
 
   if (state.showQuotes) {
     setupQuoteRotation();
+
+    // Click on quote to skip immediately to next quote and reset timer
+    const quoteEl = container.querySelector('#timetable-quote-content');
+    quoteEl?.addEventListener('click', () => {
+      advanceQuote();
+      setupQuoteRotation();
+    });
   } else if (quoteIntervalTimer !== null) {
     clearInterval(quoteIntervalTimer);
     quoteIntervalTimer = null;
   }
+
+  // Empty state buttons
+  container.querySelector('#btn-empty-load-nsu')?.addEventListener('click', () => {
+    store.loadNsuSlots();
+  });
+
+  container.querySelector('#btn-empty-add-slots')?.addEventListener('click', () => {
+    store.setActiveTab('slots');
+    store.setSidebarOpen(true);
+  });
 
   // Rename routine
   const nameInput = container.querySelector('#input-routine-name') as HTMLInputElement;
@@ -210,18 +260,33 @@ export function renderTimetable(container: HTMLElement): void {
   // Cell click to add / focus
   container.querySelectorAll('[data-cell-day]').forEach((cell) => {
     cell.addEventListener('click', (e) => {
-      // If clicking delete button, don't trigger cell selection
+      // If clicking course card or its buttons, do not trigger empty cell click
+      if ((e.target as HTMLElement).closest('.course-card-item')) return;
       if ((e.target as HTMLElement).closest('[data-quick-delete]')) return;
 
       const day = parseInt((cell as HTMLElement).dataset.cellDay || '0', 10);
       const slotId = (cell as HTMLElement).dataset.cellSlot || '';
       store.setSelectedCell({ day, slotId });
+      store.clearEditingCourse();
       store.setActiveTab('add');
       store.setSidebarOpen(true);
 
       // Focus course input
       const courseInput = document.getElementById('input-course-name');
       courseInput?.focus();
+    });
+  });
+
+  // Edit course by clicking anywhere on the course card
+  container.querySelectorAll('[data-course-id]').forEach((card) => {
+    card.addEventListener('click', (e) => {
+      // If clicking delete button, don't trigger edit
+      if ((e.target as HTMLElement).closest('[data-quick-delete]')) return;
+      e.stopPropagation();
+      const id = (card as HTMLElement).dataset.courseId;
+      if (id) {
+        store.setEditingCourse(id);
+      }
     });
   });
 

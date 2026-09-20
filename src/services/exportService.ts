@@ -27,7 +27,7 @@ export function exportVectorPDF(routine: Routine): void {
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
     doc.setTextColor(148, 163, 184);
-    doc.text('Scheduly • Clean Vector Schedule', pageWidth / 2, 57, { align: 'center' });
+    doc.text('Scheduly', pageWidth / 2, 57, { align: 'center' });
 
     // Table Headers
     const head: RowInput[] = [
@@ -162,7 +162,7 @@ export async function exportPNGImage(elementId: string, filename: string): Promi
 
   try {
     const dataUrl = await toPng(el, {
-      pixelRatio: 2,
+      pixelRatio: 3,
       backgroundColor: theme.cardBg || '#ffffff',
       cacheBust: true,
       filter: (node) => {

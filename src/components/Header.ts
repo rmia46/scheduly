@@ -1,5 +1,5 @@
 import { store } from '../store/routineStore';
-import { THEMES } from '../types/constants';
+import { THEMES, APP_VERSION } from '../types/constants';
 import type { ThemeName, Routine } from '../types';
 import { exportVectorPDF, exportPNGImage, exportICSCalendar } from '../services/exportService';
 import { showToast, encodeToBase64Url, decodeFromBase64Url, escapeHtml } from '../services/utils';
@@ -79,7 +79,7 @@ export function renderHeader(container: HTMLElement): void {
                 !store.canUndo() ? 'opacity-40 pointer-events-none' : ''
               }">
                 <div class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-blue-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a5 5 0 0 1 5 5v2m0 0l-3-3m3 3l3-3M3 10l4-4m-4 4l4 4" />
                   </svg>
                   <span>Undo</span>
@@ -90,7 +90,7 @@ export function renderHeader(container: HTMLElement): void {
                 !store.canRedo() ? 'opacity-40 pointer-events-none' : ''
               }">
                 <div class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-indigo-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M21 10H11a5 5 0 0 0-5 5v2m0 0l3-3m-3 3l-3-3m15-4l-4-4m4 4l-4 4" />
                   </svg>
                   <span>Redo</span>
@@ -100,7 +100,7 @@ export function renderHeader(container: HTMLElement): void {
               <div class="my-1 border-t border-slate-100"></div>
               <button id="action-random-colors" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center justify-between cursor-pointer">
                 <div class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-fuchsia-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
                   </svg>
                   <span>Shuffle Colors</span>
@@ -108,7 +108,7 @@ export function renderHeader(container: HTMLElement): void {
               </button>
               <button id="action-load-nsu-slots" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center justify-between cursor-pointer">
                 <div class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <circle cx="12" cy="12" r="10"></circle>
                     <polyline points="12 6 12 12 16 14"></polyline>
                   </svg>
@@ -118,7 +118,7 @@ export function renderHeader(container: HTMLElement): void {
               <div class="my-1 border-t border-slate-100"></div>
               <button id="action-toggle-quotes" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center justify-between cursor-pointer">
                 <div class="flex items-center gap-2">
-                  <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <svg class="w-4 h-4 text-teal-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                   </svg>
                   <span>Quotes Footer</span>
@@ -126,6 +126,16 @@ export function renderHeader(container: HTMLElement): void {
                 <span class="text-[10px] font-semibold ${state.showQuotes ? 'text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded' : 'text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded'}">
                   ${state.showQuotes ? 'On' : 'Off'}
                 </span>
+              </button>
+              <div class="my-1 border-t border-slate-100"></div>
+              <button id="action-reset-cache" class="w-full text-left px-3 py-2 text-rose-600 hover:bg-rose-50 flex items-center justify-between cursor-pointer">
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-rose-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                  <span class="font-medium">Reset Cache</span>
+                </div>
+                <span class="text-[10px] text-rose-400 font-medium">Clear data</span>
               </button>
             </div>
           </div>
@@ -340,7 +350,7 @@ export function renderHeader(container: HTMLElement): void {
             <button id="mobile-action-undo" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer ${
               !store.canUndo() ? 'opacity-40 pointer-events-none' : ''
             }">
-              <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-blue-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a5 5 0 0 1 5 5v2m0 0l-3-3m3 3l3-3M3 10l4-4m-4 4l4 4" />
               </svg>
               <span>Undo (Ctrl+Z)</span>
@@ -348,19 +358,19 @@ export function renderHeader(container: HTMLElement): void {
             <button id="mobile-action-redo" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer ${
               !store.canRedo() ? 'opacity-40 pointer-events-none' : ''
             }">
-              <svg class="w-4 h-4 text-slate-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-indigo-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M21 10H11a5 5 0 0 0-5 5v2m0 0l3-3m-3 3l-3-3m15-4l-4-4m4 4l-4 4" />
               </svg>
               <span>Redo (Ctrl+Y)</span>
             </button>
             <button id="mobile-action-random-colors" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer">
-              <svg class="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-fuchsia-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
               </svg>
               <span>Shuffle Colors</span>
             </button>
             <button id="mobile-action-load-nsu-slots" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer">
-              <svg class="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                 <circle cx="12" cy="12" r="10"></circle>
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
@@ -368,7 +378,7 @@ export function renderHeader(container: HTMLElement): void {
             </button>
             <button id="mobile-action-toggle-quotes" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center justify-between cursor-pointer">
               <div class="flex items-center gap-2.5">
-                <svg class="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <svg class="w-4 h-4 text-teal-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
                 </svg>
                 <span>Quotes Footer</span>
@@ -376,6 +386,15 @@ export function renderHeader(container: HTMLElement): void {
               <span class="text-[10px] font-semibold ${state.showQuotes ? 'text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded' : 'text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded'}">
                 ${state.showQuotes ? 'On' : 'Off'}
               </span>
+            </button>
+            <button id="mobile-action-reset-cache" class="w-full text-left px-3 py-2 text-rose-600 hover:bg-rose-50 flex items-center justify-between cursor-pointer">
+              <div class="flex items-center gap-2.5">
+                <svg class="w-4 h-4 text-rose-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+                <span class="font-medium">Reset Cache</span>
+              </div>
+              <span class="text-[10px] text-rose-400 font-medium">Clear data</span>
             </button>
 
             <!-- Share Section -->
@@ -611,7 +630,7 @@ export function renderHeader(container: HTMLElement): void {
           S2
         </div>
         <div>
-          <h4 class="text-sm font-bold text-slate-900 leading-tight">Scheduly v2.0</h4>
+          <h4 class="text-sm font-bold text-slate-900 leading-tight">Scheduly v${APP_VERSION}</h4>
           <p class="text-[11px] text-slate-500">Your Routine, Simplified</p>
         </div>
       </div>
@@ -624,13 +643,15 @@ export function renderHeader(container: HTMLElement): void {
         <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50">
           <span class="font-semibold text-slate-700 flex items-center gap-2">
             <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
-              <rect x="2" y="9" width="4" height="12"></rect>
-              <circle cx="4" cy="4" r="2"></circle>
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
             </svg>
             Author
           </span>
-          <span class="font-bold text-slate-900">rmia46</span>
+          <a href="https://github.com/rmia46" target="_blank" rel="noopener noreferrer" class="font-bold text-slate-900 hover:text-sky-600 transition-colors flex items-center gap-1">
+            <span>Roman Mia</span>
+            <span class="text-[10px] text-slate-400 font-normal">(@rmia46)</span>
+          </a>
         </div>
 
         <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50">
@@ -1053,6 +1074,16 @@ export function renderHeader(container: HTMLElement): void {
 
   container.querySelector('#action-toggle-quotes')?.addEventListener('click', handleToggleQuotes);
   container.querySelector('#mobile-action-toggle-quotes')?.addEventListener('click', handleToggleQuotes);
+
+  const handleResetCache = () => {
+    closeAllMenus();
+    if (confirm('Are you sure you want to reset all data and cache for this app? This will clear all routines and restore the fresh default state.')) {
+      store.clearStorage();
+    }
+  };
+
+  container.querySelector('#action-reset-cache')?.addEventListener('click', handleResetCache);
+  container.querySelector('#mobile-action-reset-cache')?.addEventListener('click', handleResetCache);
 
   container.querySelector('#action-export-pdf')?.addEventListener('click', handleExportPdf);
   container.querySelector('#mobile-action-export-pdf')?.addEventListener('click', handleExportPdf);

@@ -13,6 +13,7 @@ export interface AppState {
   sidebarOpen: boolean;
   activeTab: 'add' | 'courses' | 'slots';
   selectedCell: { day: number; slotId: string } | null;
+  editingCourseId: string | null;
   showQuotes: boolean;
 }
 
@@ -100,6 +101,7 @@ class Store {
             sidebarOpen: parsed.sidebarOpen !== undefined ? parsed.sidebarOpen : true,
             activeTab: 'add',
             selectedCell: null,
+            editingCourseId: null,
             showQuotes,
           };
         }
@@ -108,11 +110,11 @@ class Store {
       console.error('Failed to load storage, initializing fresh state', e);
     }
 
-    // Default first routine
+    // Default first routine (starts with 0 slots by default)
     const defaultRoutine: Routine = {
       id: uid('routine'),
       name: 'Spring 2025 Routine',
-      slots: PREDEFINED_SLOTS.map((label) => ({ id: uid('slot'), label })),
+      slots: [],
       courses: [],
     };
 
@@ -123,6 +125,7 @@ class Store {
       sidebarOpen: true,
       activeTab: 'add',
       selectedCell: null,
+      editingCourseId: null,
       showQuotes,
     };
   }
@@ -204,6 +207,20 @@ class Store {
     this.notify();
   }
 
+  public setEditingCourse(courseId: string | null): void {
+    this.state.editingCourseId = courseId;
+    if (courseId) {
+      this.state.activeTab = 'add';
+      this.state.sidebarOpen = true;
+    }
+    this.notify();
+  }
+
+  public clearEditingCourse(): void {
+    this.state.editingCourseId = null;
+    this.notify();
+  }
+
   public switchRoutine(id: string): void {
     if (this.state.routines.some((r) => r.id === id)) {
       this.state.activeRoutineId = id;
@@ -227,7 +244,7 @@ class Store {
     const newRoutine: Routine = {
       id: uid('routine'),
       name: name.trim() || `Routine ${this.state.routines.length + 1}`,
-      slots: active ? active.slots.map((s) => ({ ...s, id: uid('slot') })) : PREDEFINED_SLOTS.map((l) => ({ id: uid('slot'), label: l })),
+      slots: active ? active.slots.map((s) => ({ ...s, id: uid('slot') })) : [],
       courses: [],
     };
     this.state.routines.push(newRoutine);
@@ -330,6 +347,77 @@ class Store {
     }
 
     routine.courses.push(...newCourses);
+    this.notify();
+  }
+
+  public updateCourseGroup(
+    sourceCourseId: string,
+    updates: {
+      name: string;
+      section: string;
+      room: string;
+      faculty?: string;
+      color: string;
+    },
+    newDays?: number[],
+    newSlotIds?: string[]
+  ): void {
+    const routine = this.getActiveRoutine();
+    if (!routine) return;
+
+    const sourceCourse = routine.courses.find((c) => c.id === sourceCourseId);
+    if (!sourceCourse) return;
+
+    this.recordAction();
+
+    const groupId = sourceCourse.courseGroupId;
+    const oldName = sourceCourse.name;
+    const oldSection = sourceCourse.section;
+    const oldColor = sourceCourse.color;
+
+    // Find all sibling instances: either by courseGroupId or legacy match
+    const isSibling = (c: Course) =>
+      c.id === sourceCourseId ||
+      (groupId ? c.courseGroupId === groupId : (c.name === oldName && c.section === oldSection && c.color === oldColor));
+
+    if (newDays && newSlotIds && (newDays.length > 0) && (newSlotIds.length > 0)) {
+      // Re-schedule all instances of this course group to the new days & slots
+      // 1. Remove existing instances
+      routine.courses = routine.courses.filter((c) => !isSibling(c));
+
+      // 2. Assign unified group id
+      const targetGroupId = groupId || uid('cgrp');
+
+      // 3. Create instances for selected days & slots
+      for (const day of newDays) {
+        for (const slotId of newSlotIds) {
+          routine.courses.push({
+            id: uid('course'),
+            courseGroupId: targetGroupId,
+            name: updates.name,
+            section: updates.section,
+            room: updates.room,
+            faculty: updates.faculty,
+            color: updates.color,
+            day,
+            slotId,
+          });
+        }
+      }
+    } else {
+      // Just update metadata across all instances
+      for (const c of routine.courses) {
+        if (isSibling(c)) {
+          c.name = updates.name;
+          c.section = updates.section;
+          c.room = updates.room;
+          c.faculty = updates.faculty;
+          c.color = updates.color;
+        }
+      }
+    }
+
+    this.state.editingCourseId = null;
     this.notify();
   }
 
@@ -453,8 +541,12 @@ class Store {
   }
 
   public clearStorage(): void {
-    localStorage.removeItem(STORAGE_KEY);
-    localStorage.removeItem(THEME_KEY);
+    try {
+      localStorage.clear();
+      sessionStorage.clear();
+    } catch (e) {
+      console.error('Failed to clear storage', e);
+    }
     window.location.reload();
   }
 }

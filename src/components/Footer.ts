@@ -1,5 +1,5 @@
 import { store } from '../store/routineStore';
-import { THEMES } from '../types/constants';
+import { THEMES, APP_VERSION } from '../types/constants';
 
 export function renderFooter(container: HTMLElement): void {
   const state = store.getState();
@@ -13,7 +13,7 @@ export function renderFooter(container: HTMLElement): void {
             S
           </div>
           <span class="font-bold text-slate-800">Scheduly</span>
-          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold font-mono" style="background-color: ${theme.subtleBg}; color: ${theme.accent};">v2.0.0</span>
+          <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold font-mono" style="background-color: ${theme.subtleBg}; color: ${theme.accent};">v${APP_VERSION}</span>
           <span class="text-slate-300">•</span>
           <span class="text-slate-500">Your Routine, Simplified</span>
         </div>
