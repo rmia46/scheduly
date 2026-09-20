@@ -10,43 +10,67 @@
 
 ---
 
-A simple and intuitive web application for **creating and managing class schedules**.
-This tool helps students and educators organize their weekly routines with ease.
+A modern, responsive web application for **creating, customizing, and sharing weekly academic schedules**. Built with vanilla TypeScript and Tailwind CSS for speed, aesthetics, and flexible timetable management.
 
-![Screenshot of the Class Routine Maker application](ss.png)
-
----
-
-## Live Demo
-
-👉 [Click here to try Scheduly!](https://rmia46.github.io/scheduly/)
+![Scheduly Screenshot](https://i.ibb.co.com/JWpYCK37/Screenshot-2026-09-21-at-04-57-36-Scheduly-Your-Routine-Simplified.png)
 
 ---
 
-## How to Use
+## 🚀 Live Demo
 
-1. **Add Time Slots:** Use the *Add Time Slot* section to create your desired time slots.
-2. **Add Courses:** Fill in the course details in the *Add Course* section and click *Add Course*.
-3. **Arrange Your Routine:** Drag and drop courses on the timetable to organize your schedule, with visual feedback for drop locations.
-4. **Edit & Delete Courses:**
-
-   * **Single click** a course block to select it and reveal the **Delete** button.
-   * **Double click / tap** a course block to open edit mode and update details.
-5. **Customize:** Choose a theme (including the new **Grape** theme), randomize colors, and name your routine.
-6. **Export:** Use the **Export** dropdown to save your routine as **PNG** or **PDF**.
+👉 **[Launch Scheduly](https://rmia46.github.io/scheduly/)**
 
 ---
 
-## Features
+## ✨ Features
 
-* **Customizable Time Slots** – Add, remove, sort, and load default time slots.
-* **Course Management** – Add, edit, and delete courses with details like name, section, and room.
-* **Interactive Timetable** – Drag and drop courses across slots with visual feedback for drop locations.
-* **Visual Feedback** – Highlight selected course blocks and drop targets.
-* **Multiple Themes** – Personalize your routine’s appearance, including the new **Grape** theme.
-* **Color-Coded Courses** – Assign or randomize course colors.
-* **Export Options** – Save schedules as **PNG** or **PDF** through a convenient export menu.
-* **Persistent Storage** – Automatically saved to browser local storage.
-* **Multiple Routine Support** – Create and manage multiple schedules easily.
-* **Responsive Design** – Works smoothly on desktop and mobile devices.
-* **Clean UI** – Grouped header actions for a less cluttered interface.
+- **Multi-Schedule Course Creator**: Add courses across multiple days (e.g. Sunday & Tuesday) and multiple time slots in a single click.
+- **Interactive Timetable Grid**: 
+  - Click any cell to quickly prefill day & slot.
+  - Smooth drag-and-drop course rescheduling with ghost projection preview.
+  - Cascading card deck layout when multiple courses occupy the same cell.
+- **Schedule Conflict Detector**: Instant visual alerts with soft rose highlighting and clash badges when overlapping classes share the same slot.
+- **Share & Sync**:
+  - **Zero-Server Share Link**: Share entire routines via client-side URL hash fragments (`#routine=...`).
+  - **Import Shared Link**: Paste any shared link or URL fragment to import routines into your workspace without modifying existing data.
+  - **Recurring Calendar Export (`.ics`)**: Export weekly class schedules directly to Google Calendar, Apple Calendar, or Outlook with custom recurring duration (1 to 12 months).
+  - **Vector PDF & High-Res PNG**: Crystal-clear exports for printing or digital sharing.
+- **Full History (Undo / Redo)**: Seamless `Ctrl+Z` / `Ctrl+Y` support for all routine actions, moves, and color updates.
+- **Theme Studio**: 5 harmonious analogous color themes (**Ocean**, **Grass**, **Lemon**, **Cherry**, and **Grape**) with intelligent contrast calculations and automatic color palette reshuffling.
+- **University Presets**: One-click standard North South University (NSU) slot loader.
+- **100% Client-Side & Private**: Instant auto-saving to local storage with zero server tracking or external database requirements.
+
+---
+
+## 🛠 Tech Stack
+
+- **Core**: Vanilla TypeScript (No framework bloat)
+- **Styling**: Tailwind CSS v4 + Material 3 Design Tokens
+- **Bundler**: Vite
+- **Export Engines**: `jspdf`, `jspdf-autotable`, `html-to-image`
+
+---
+
+## 💻 Local Development
+
+```bash
+# Clone the repository
+git clone https://github.com/rmia46/scheduly.git
+cd scheduly
+
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
+
+# Build for production
+npm run build
+```
+
+---
+
+## 👤 Author
+
+Developed with care by [rmia46](https://github.com/rmia46).
+Contributions and feature requests are welcome!
