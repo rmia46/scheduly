@@ -54,7 +54,7 @@ export function renderTimetable(container: HTMLElement): void {
                         const isSelected = state.selectedCell?.day === dayIdx && state.selectedCell?.slotId === slot.id;
 
                         return `
-                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl border border-slate-200/80 h-[88px] min-h-[88px] relative transition-all p-1 hover:overflow-visible cursor-pointer ${
+                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl border border-slate-200/80 h-[70px] min-h-[70px] relative transition-all p-1 hover:overflow-visible cursor-pointer ${
                           isSelected ? 'bg-sky-50/80 ring-2 ring-sky-400 border-transparent shadow-xs' : 'hover:border-slate-300 hover:bg-slate-50/50 bg-white shadow-2xs'
                         }">
                           ${matches
@@ -62,42 +62,52 @@ export function renderTimetable(container: HTMLElement): void {
                               const rgb = hexToRgb(course.color);
                               const [r, g, b] = getContrastColor(rgb);
                               const textColor = `rgb(${r}, ${g}, ${b})`;
-                              const leftMeta = [course.section, course.room]
-                                .filter((v): v is string => Boolean(v && v.trim()))
-                                .map((v) => escapeHtml(v))
-                                .join(' • ');
-                              const rightMeta = course.faculty ? escapeHtml(course.faculty.trim()) : '';
-                              const hasMeta = leftMeta || rightMeta;
+
+                              const sectionText = course.section ? escapeHtml(course.section.trim()) : '';
+                              const roomText = course.room ? escapeHtml(course.room.trim()) : '';
+                              const facultyText = course.faculty ? escapeHtml(course.faculty.trim()) : '';
+                              const hasLeft = sectionText || roomText;
+                              const hasRight = Boolean(facultyText);
+                              const hasMeta = hasLeft || hasRight;
 
                               // When multiple courses occupy the same cell, stack them with an offset cascade like a deck of cards
                               const isStacked = matches.length > 1;
-                              const offsetPx = isStacked ? idx * 6 : 0;
+                              const offsetPx = isStacked ? idx * 5 : 0;
                               const zIndex = isStacked ? matches.length - idx : 1;
                               const stackStyle = isStacked
                                 ? `top: ${offsetPx}px; left: ${offsetPx}px; width: calc(100% - ${matches.length * 4}px); height: calc(100% - ${matches.length * 4}px); z-index: ${zIndex};`
                                 : `top: 0; left: 0; width: 100%; height: 100%;`;
 
                               return `
-                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute p-2 flex flex-col justify-between items-center text-center group select-none rounded-xl border border-white/25 shadow-xs overflow-hidden ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
-                                <div class="w-full flex-1 flex items-center justify-center min-h-0">
-                                  <p class="font-extrabold text-xs leading-snug line-clamp-2 break-words px-1">${escapeHtml(course.name)}</p>
+                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute p-1.5 flex flex-col justify-between items-center text-center group select-none rounded-xl border border-white/25 shadow-xs overflow-hidden ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
+                                <div class="w-full flex-1 flex items-center justify-center min-h-0 px-0.5">
+                                  <p class="font-extrabold text-[11px] leading-tight line-clamp-2 break-words px-0.5">${escapeHtml(course.name)}</p>
                                 </div>
                                 ${
                                   hasMeta
                                     ? `
-                                  <div class="w-full mt-1.5 pt-1 border-t border-current/20 flex items-center justify-between text-[10px] font-semibold leading-none opacity-90 px-0.5">
-                                    <span class="truncate text-left ${!rightMeta ? 'w-full text-center' : ''}">${leftMeta || ''}</span>
+                                  <div class="w-full mt-1 pt-0.5 border-t border-current/20 flex items-center justify-between text-[9px] font-semibold leading-tight opacity-90 px-0.5">
+                                    <!-- Left: Section and Room vertical stack -->
+                                    <div class="flex flex-col text-left truncate min-w-0 ${!hasRight ? 'w-full text-center' : ''}">
+                                      ${sectionText ? `<span class="truncate leading-none">${sectionText}</span>` : ''}
+                                      ${roomText ? `<span class="truncate text-[8.5px] opacity-80 leading-none mt-0.5">${roomText}</span>` : ''}
+                                    </div>
+
                                     ${
-                                      leftMeta && rightMeta
-                                        ? `<span class="h-3 w-px bg-current/25 mx-1.5 shrink-0"></span>`
+                                      hasLeft && hasRight
+                                        ? `<span class="h-4 w-px bg-current/25 mx-1.5 shrink-0 self-center"></span>`
                                         : ''
                                     }
-                                    <span class="truncate text-right font-bold shrink-0 ${!leftMeta ? 'w-full text-center' : ''}">${rightMeta}</span>
+
+                                    <!-- Right: Faculty -->
+                                    <div class="text-right font-bold shrink-0 truncate ${!hasLeft ? 'w-full text-center' : ''}">
+                                      ${facultyText}
+                                    </div>
                                   </div>
                                 `
                                     : ''
                                 }
-                                <button data-quick-delete="${course.id}" class="no-print absolute top-1 right-1 w-4 h-4 bg-slate-900/80 text-white rounded-full text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer shadow-xs" title="Remove course">×</button>
+                                <button data-quick-delete="${course.id}" class="no-print absolute top-1 right-1 w-3.5 h-3.5 bg-slate-900/80 text-white rounded-full text-[8px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer shadow-xs" title="Remove course">×</button>
                               </div>
                             `;
                             })
