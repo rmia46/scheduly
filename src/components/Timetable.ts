@@ -54,7 +54,7 @@ export function renderTimetable(container: HTMLElement): void {
                         const isSelected = state.selectedCell?.day === dayIdx && state.selectedCell?.slotId === slot.id;
 
                         return `
-                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl border border-slate-200/80 h-[80px] min-h-[80px] relative transition-all overflow-hidden cursor-pointer ${
+                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl border border-slate-200/80 h-[84px] min-h-[84px] relative transition-all p-1 hover:overflow-visible cursor-pointer ${
                           isSelected ? 'bg-sky-50/80 ring-2 ring-sky-400 border-transparent shadow-xs' : 'hover:border-slate-300 hover:bg-slate-50/50 bg-white shadow-2xs'
                         }">
                           ${matches
@@ -68,16 +68,16 @@ export function renderTimetable(container: HTMLElement): void {
                                 .map((v) => escapeHtml(v))
                                 .join(' • ');
 
-                              // When multiple courses occupy the same cell, stack them with an offset cascade
+                              // When multiple courses occupy the same cell, stack them with an offset cascade like a deck of cards
                               const isStacked = matches.length > 1;
-                              const offsetPx = isStacked ? idx * 4 : 0;
+                              const offsetPx = isStacked ? idx * 6 : 0;
                               const zIndex = isStacked ? matches.length - idx : 1;
                               const stackStyle = isStacked
-                                ? `top: ${offsetPx}px; left: ${offsetPx}px; right: ${offsetPx}px; bottom: ${offsetPx}px; z-index: ${zIndex};`
-                                : `top: 0; left: 0; right: 0; bottom: 0;`;
+                                ? `top: ${offsetPx}px; left: ${offsetPx}px; width: calc(100% - ${matches.length * 4}px); height: calc(100% - ${matches.length * 4}px); z-index: ${zIndex};`
+                                : `top: 0; left: 0; width: 100%; height: 100%;`;
 
                               return `
-                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute p-2 flex flex-col justify-center items-center text-center group select-none rounded-[10px] ${isStacked ? 'stacked-course' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
+                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute p-2 flex flex-col justify-center items-center text-center group select-none rounded-[10px] ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
                                 <p class="font-extrabold text-xs leading-snug line-clamp-2">${escapeHtml(course.name)}</p>
                                 ${
                                   meta
