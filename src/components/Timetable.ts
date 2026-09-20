@@ -1,6 +1,36 @@
 import { store } from '../store/routineStore';
-import { DAYS_SHORT, DAYS_FULL, THEMES } from '../types/constants';
+import { DAYS_SHORT, DAYS_FULL, THEMES, PHILOSOPHICAL_QUOTES } from '../types/constants';
 import { escapeHtml, getContrastColor, hexToRgb } from '../services/utils';
+
+let quoteIntervalTimer: number | null = null;
+let currentQuoteIndex = 0;
+
+function setupQuoteRotation(): void {
+  if (quoteIntervalTimer !== null) {
+    clearInterval(quoteIntervalTimer);
+    quoteIntervalTimer = null;
+  }
+
+  // 2 minutes = 120,000ms
+  quoteIntervalTimer = window.setInterval(() => {
+    const quoteContainer = document.getElementById('timetable-quote-content');
+    if (!quoteContainer) return;
+
+    // Cycle to next quote
+    currentQuoteIndex = (currentQuoteIndex + 1) % PHILOSOPHICAL_QUOTES.length;
+    const nextQuote = PHILOSOPHICAL_QUOTES[currentQuoteIndex];
+
+    // Smooth fade transition
+    quoteContainer.style.opacity = '0';
+    setTimeout(() => {
+      quoteContainer.innerHTML = `
+        <span>“${escapeHtml(nextQuote.text)}”</span>
+        <span class="font-medium text-slate-500">— ${escapeHtml(nextQuote.author)}</span>
+      `;
+      quoteContainer.style.opacity = '1';
+    }, 300);
+  }, 120000);
+}
 
 export function renderTimetable(container: HTMLElement): void {
   const routine = store.getActiveRoutine();
@@ -8,6 +38,8 @@ export function renderTimetable(container: HTMLElement): void {
 
   const state = store.getState();
   const theme = THEMES[state.theme];
+
+  const initialQuote = PHILOSOPHICAL_QUOTES[currentQuoteIndex] || PHILOSOPHICAL_QUOTES[0];
 
   container.innerHTML = `
     <div class="flex-1 min-w-0 flex flex-col print-card">
@@ -148,12 +180,26 @@ export function renderTimetable(container: HTMLElement): void {
         </div>
 
         <footer class="mt-4 pt-3 border-t border-slate-150 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
-          <span>“When you arise in the morning think of what a privilege it is to be alive: to think, to enjoy, to love.” — Marcus Aurelius</span>
-          <span class="font-medium text-slate-500">Scheduly</span>
+          ${
+            state.showQuotes
+              ? `<div id="timetable-quote-content" class="transition-opacity duration-300 text-center sm:text-left flex flex-wrap items-center gap-1.5 justify-center sm:justify-start">
+                   <span>“${escapeHtml(initialQuote.text)}”</span>
+                   <span class="font-medium text-slate-500">— ${escapeHtml(initialQuote.author)}</span>
+                 </div>`
+              : `<div></div>`
+          }
+          <span class="font-medium text-slate-500 shrink-0">Scheduly</span>
         </footer>
       </div>
     </div>
   `;
+
+  if (state.showQuotes) {
+    setupQuoteRotation();
+  } else if (quoteIntervalTimer !== null) {
+    clearInterval(quoteIntervalTimer);
+    quoteIntervalTimer = null;
+  }
 
   // Rename routine
   const nameInput = container.querySelector('#input-routine-name') as HTMLInputElement;

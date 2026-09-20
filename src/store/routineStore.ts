@@ -4,6 +4,7 @@ import { uid } from '../services/utils';
 
 const STORAGE_KEY = 'scheduly_app_state_v2';
 const THEME_KEY = 'scheduly_theme_v2';
+const SHOW_QUOTES_KEY = 'scheduly_show_quotes_v2';
 
 export interface AppState {
   routines: Routine[];
@@ -12,6 +13,7 @@ export interface AppState {
   sidebarOpen: boolean;
   activeTab: 'add' | 'courses' | 'slots';
   selectedCell: { day: number; slotId: string } | null;
+  showQuotes: boolean;
 }
 
 interface RoutineHistorySnapshot {
@@ -80,6 +82,7 @@ class Store {
   private loadInitialState(): AppState {
     const savedTheme = (localStorage.getItem(THEME_KEY) as ThemeName) || 'ocean';
     const theme = THEMES[savedTheme] ? savedTheme : 'ocean';
+    const showQuotes = localStorage.getItem(SHOW_QUOTES_KEY) !== 'false';
 
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
@@ -97,6 +100,7 @@ class Store {
             sidebarOpen: parsed.sidebarOpen !== undefined ? parsed.sidebarOpen : true,
             activeTab: 'add',
             selectedCell: null,
+            showQuotes,
           };
         }
       }
@@ -119,6 +123,7 @@ class Store {
       sidebarOpen: true,
       activeTab: 'add',
       selectedCell: null,
+      showQuotes,
     };
   }
 
@@ -149,9 +154,21 @@ class Store {
         })
       );
       localStorage.setItem(THEME_KEY, this.state.theme);
+      localStorage.setItem(SHOW_QUOTES_KEY, String(this.state.showQuotes));
     } catch (e) {
       console.error('Failed to save to localStorage', e);
     }
+  }
+
+  public toggleQuotes(): boolean {
+    this.state.showQuotes = !this.state.showQuotes;
+    this.notify();
+    return this.state.showQuotes;
+  }
+
+  public setShowQuotes(show: boolean): void {
+    this.state.showQuotes = show;
+    this.notify();
   }
 
   public getActiveRoutine(): Routine | undefined {

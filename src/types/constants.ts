@@ -128,3 +128,41 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
     ],
   },
 };
+
+export interface Quote {
+  text: string;
+  author: string;
+}
+
+export const PHILOSOPHICAL_QUOTES: Quote[] = [
+  { text: "When you arise in the morning think of what a privilege it is to be alive: to think, to enjoy, to love.", author: "Marcus Aurelius" },
+  { text: "Indeed, with hardship comes ease.", author: "Al-Quran (94:6)" },
+  { text: "We suffer more often in imagination than in reality.", author: "Seneca" },
+  { text: "The journey of a thousand miles begins with a single step.", author: "Lao Tzu" },
+  { text: "And seek help through patience and prayer.", author: "Al-Quran (2:45)" },
+  { text: "It is not that we have a short time to live, but that we waste a lot of it.", author: "Seneca" },
+  { text: "He who has a why to live can bear almost any how.", author: "Friedrich Nietzsche" },
+  { text: "Small deeds done are better than great deeds planned.", author: "Peter Marshall" },
+  { text: "Do not let the behavior of others destroy your inner peace.", author: "Dalai Lama" },
+  { text: "Be like water making its way through cracks. Do not be assertive, but adjust to the object.", author: "Bruce Lee" },
+  { text: "The unexamined life is not worth living.", author: "Socrates" },
+  { text: "Verily, after every night comes the dawn.", author: "Arabic Proverb" },
+  { text: "You have power over your mind - not outside events. Realize this, and you will find strength.", author: "Marcus Aurelius" },
+  { text: "In the middle of difficulty lies opportunity.", author: "Albert Einstein" },
+  { text: "Patience is of two kinds: patience over what pains you, and patience against what you covet.", author: "Ali ibn Abi Talib" },
+  { text: "No man is free who is not master of himself.", author: "Epictetus" },
+  { text: "Knowing others is intelligence; knowing yourself is true wisdom.", author: "Lao Tzu" },
+  { text: "Waste no more time arguing what a good man should be. Be one.", author: "Marcus Aurelius" },
+  { text: "Rest satisfied with doing well, and leave others to talk of you as they please.", author: "Pythagoras" },
+  { text: "Do not spoil what you have by desiring what you have not.", author: "Epicurus" },
+  { text: "Man is not affected by events, but by the view he takes of them.", author: "Epictetus" },
+  { text: "Speak only if it improves upon the silence.", author: "Mahatma Gandhi" },
+  { text: "And whoever relies upon patience and perseverance will find their reward.", author: "Al-Quran (39:10)" },
+  { text: "A disciplined mind brings happiness.", author: "The Dhammapada" },
+  { text: "The happiness of your life depends upon the quality of your thoughts.", author: "Marcus Aurelius" },
+  { text: "Simplicity is the ultimate sophistication.", author: "Leonardo da Vinci" },
+  { text: "Dwell on the beauty of life. Watch the stars, and see yourself running with them.", author: "Marcus Aurelius" },
+  { text: "He who conquers himself is the mightiest warrior.", author: "Confucius" },
+  { text: "Yesterday I was clever, so I wanted to change the world. Today I am wise, so I am changing myself.", author: "Rumi" },
+  { text: "Time is the most valuable thing a man can spend.", author: "Theophrastus" },
+];

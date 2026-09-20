@@ -115,6 +115,18 @@ export function renderHeader(container: HTMLElement): void {
                   <span>Load NSU Slots</span>
                 </div>
               </button>
+              <div class="my-1 border-t border-slate-100"></div>
+              <button id="action-toggle-quotes" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center justify-between cursor-pointer">
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                  </svg>
+                  <span>Quotes Footer</span>
+                </div>
+                <span class="text-[10px] font-semibold ${state.showQuotes ? 'text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded' : 'text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded'}">
+                  ${state.showQuotes ? 'On' : 'Off'}
+                </span>
+              </button>
             </div>
           </div>
 
@@ -353,6 +365,17 @@ export function renderHeader(container: HTMLElement): void {
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
               <span>Load NSU Slots</span>
+            </button>
+            <button id="mobile-action-toggle-quotes" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center justify-between cursor-pointer">
+              <div class="flex items-center gap-2.5">
+                <svg class="w-4 h-4 text-slate-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4 4z" />
+                </svg>
+                <span>Quotes Footer</span>
+              </div>
+              <span class="text-[10px] font-semibold ${state.showQuotes ? 'text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded' : 'text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded'}">
+                ${state.showQuotes ? 'On' : 'Off'}
+              </span>
             </button>
 
             <!-- Share Section -->
@@ -1021,6 +1044,15 @@ export function renderHeader(container: HTMLElement): void {
 
   container.querySelector('#action-load-nsu-slots')?.addEventListener('click', handleLoadNsuSlots);
   container.querySelector('#mobile-action-load-nsu-slots')?.addEventListener('click', handleLoadNsuSlots);
+
+  const handleToggleQuotes = () => {
+    closeAllMenus();
+    const enabled = store.toggleQuotes();
+    showToast(enabled ? 'Footer quotes enabled' : 'Footer quotes hidden');
+  };
+
+  container.querySelector('#action-toggle-quotes')?.addEventListener('click', handleToggleQuotes);
+  container.querySelector('#mobile-action-toggle-quotes')?.addEventListener('click', handleToggleQuotes);
 
   container.querySelector('#action-export-pdf')?.addEventListener('click', handleExportPdf);
   container.querySelector('#mobile-action-export-pdf')?.addEventListener('click', handleExportPdf);
