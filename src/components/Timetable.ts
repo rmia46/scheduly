@@ -54,7 +54,7 @@ export function renderTimetable(container: HTMLElement): void {
                         const isSelected = state.selectedCell?.day === dayIdx && state.selectedCell?.slotId === slot.id;
 
                         return `
-                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl border border-slate-200/80 h-[70px] min-h-[70px] relative transition-all p-1 hover:overflow-visible cursor-pointer ${
+                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl border border-slate-200/80 h-[74px] min-h-[74px] relative transition-all p-1 hover:overflow-visible cursor-pointer ${
                           isSelected ? 'bg-sky-50/80 ring-2 ring-sky-400 border-transparent shadow-xs' : 'hover:border-slate-300 hover:bg-slate-50/50 bg-white shadow-2xs'
                         }">
                           ${matches
@@ -79,30 +79,30 @@ export function renderTimetable(container: HTMLElement): void {
                                 : `top: 0; left: 0; width: 100%; height: 100%;`;
 
                               return `
-                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute px-2 py-1.5 flex flex-col justify-between items-center text-center group select-none rounded-xl border border-white/25 shadow-xs overflow-hidden ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
-                                <!-- Course Name: Compact, bold heading -->
-                                <div class="w-full shrink-0 flex items-center justify-center pt-0.5">
-                                  <p class="font-black text-[11px] leading-tight truncate px-0.5 tracking-tight">${escapeHtml(course.name)}</p>
+                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute px-2 py-1 flex flex-col justify-between items-center text-center group select-none rounded-xl border border-white/25 shadow-xs overflow-hidden ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
+                                <!-- Course Name: Prominent & clear heading with dedicated space -->
+                                <div class="w-full flex-1 flex items-center justify-center min-h-0 px-0.5">
+                                  <p class="font-black text-[12px] leading-tight line-clamp-2 break-words tracking-tight">${escapeHtml(course.name)}</p>
                                 </div>
                                 ${
                                   hasMeta
                                     ? `
-                                  <!-- Meta Info: Balanced, compact and bold -->
-                                  <div class="w-full flex-1 flex items-center justify-between border-t border-current/20 mt-0.5 pt-0.5 font-bold leading-tight min-h-0">
+                                  <!-- Meta Info: Clean pinned footer -->
+                                  <div class="w-full shrink-0 flex items-center justify-between border-t border-current/20 mt-0.5 pt-0.5 font-bold leading-tight">
                                     <!-- Left: Section and Room vertical stack -->
                                     <div class="flex flex-col text-left truncate min-w-0 ${!hasRight ? 'w-full text-center' : ''}">
-                                      ${sectionText ? `<span class="truncate text-[9.5px] font-black leading-tight">${sectionText}</span>` : ''}
-                                      ${roomText ? `<span class="truncate text-[9px] font-semibold opacity-90 leading-tight">${roomText}</span>` : ''}
+                                      ${sectionText ? `<span class="truncate text-[9px] font-black leading-none">${sectionText}</span>` : ''}
+                                      ${roomText ? `<span class="truncate text-[8.5px] font-semibold opacity-90 leading-none mt-0.5">${roomText}</span>` : ''}
                                     </div>
 
                                     ${
                                       hasLeft && hasRight
-                                        ? `<span class="h-3.5 w-px bg-current/25 mx-1.5 shrink-0 self-center"></span>`
+                                        ? `<span class="h-3 w-px bg-current/25 mx-1.5 shrink-0 self-center"></span>`
                                         : ''
                                     }
 
                                     <!-- Right: Faculty -->
-                                    <div class="text-right text-[10px] font-black tracking-tight shrink-0 truncate ${!hasLeft ? 'w-full text-center' : ''}">
+                                    <div class="text-right text-[9.5px] font-black tracking-tight shrink-0 truncate ${!hasLeft ? 'w-full text-center' : ''}">
                                       ${facultyText}
                                     </div>
                                   </div>
