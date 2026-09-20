@@ -160,5 +160,61 @@ body.menu-closed .app-body {
         text-align: center;
         gap: 4px;
     }
+}
 
+/* Print styling */
+@media print {
+    @page {
+        size: landscape;
+        margin: 10mm;
+    }
+
+    body {
+        background: #ffffff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+
+    .app-bar,
+    .left-panel,
+    .controls,
+    .bottom-nav,
+    .dropdown,
+    #confirm-modal,
+    #new-routine-modal,
+    #edit-modal,
+    #toast-container {
+        display: none !important;
+    }
+
+    .app-shell {
+        max-width: 100% !important;
+        margin: 0 !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+    }
+
+    .app-body {
+        padding: 0 !important;
+        display: block !important;
+    }
+
+    .right-panel {
+        width: 100% !important;
+    }
+
+    .timetable-card {
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+    }
+
+    .timetable {
+        transform: none !important;
+        overflow: visible !important;
+    }
+
+    .course-block .delete-btn {
+        display: none !important;
+    }
 }

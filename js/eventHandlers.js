@@ -213,6 +213,10 @@ function setupEventListeners() {
     document.getElementById('randomize-colors').addEventListener('click', onRandomizeColors);
     document.getElementById('export-png').addEventListener('click', exportPNG);
     document.getElementById('export-pdf').addEventListener('click', exportPDF);
+    const printBtn = document.getElementById('print-routine');
+    if (printBtn) {
+        printBtn.addEventListener('click', printRoutine);
+    }
 
     document.getElementById('zoom-in').addEventListener('click', () => changeZoom(0.1));
     document.getElementById('zoom-out').addEventListener('click', () => changeZoom(-0.1));

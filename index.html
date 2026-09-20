@@ -20,6 +20,7 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
 </head>
 
 <body data-theme="grass">
@@ -59,8 +60,9 @@
                 <div class="dropdown">
                     <button class="action-btn dropdown-toggle">Export <span class="material-symbols-outlined">arrow_drop_down</span></button>
                     <div class="dropdown-menu">
-                        <button id="export-png" class="action-btn">Export PNG</button>
-                        <button id="export-pdf" class="action-btn">Export PDF</button>
+                        <button id="export-pdf" class="action-btn">Export PDF (Vector)</button>
+                        <button id="export-png" class="action-btn">Export PNG (Image)</button>
+                        <button id="print-routine" class="action-btn">Print Routine</button>
                     </div>
                 </div>
             </div>
