@@ -54,11 +54,11 @@ export function renderTimetable(container: HTMLElement): void {
                         const isSelected = state.selectedCell?.day === dayIdx && state.selectedCell?.slotId === slot.id;
 
                         return `
-                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl border border-slate-200/80 min-h-[76px] flex flex-col relative transition-all overflow-hidden cursor-pointer ${
+                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl border border-slate-200/80 h-[80px] min-h-[80px] relative transition-all overflow-hidden cursor-pointer ${
                           isSelected ? 'bg-sky-50/80 ring-2 ring-sky-400 border-transparent shadow-xs' : 'hover:border-slate-300 hover:bg-slate-50/50 bg-white shadow-2xs'
                         }">
                           ${matches
-                            .map((course) => {
+                            .map((course, idx) => {
                               const rgb = hexToRgb(course.color);
                               const [r, g, b] = getContrastColor(rgb);
                               const textColor = `rgb(${r}, ${g}, ${b})`;
@@ -67,12 +67,21 @@ export function renderTimetable(container: HTMLElement): void {
                                 .filter((v): v is string => Boolean(v && v.trim()))
                                 .map((v) => escapeHtml(v))
                                 .join(' • ');
+
+                              // When multiple courses occupy the same cell, stack them with an offset cascade
+                              const isStacked = matches.length > 1;
+                              const offsetPx = isStacked ? idx * 4 : 0;
+                              const zIndex = isStacked ? matches.length - idx : 1;
+                              const stackStyle = isStacked
+                                ? `top: ${offsetPx}px; left: ${offsetPx}px; right: ${offsetPx}px; bottom: ${offsetPx}px; z-index: ${zIndex};`
+                                : `top: 0; left: 0; right: 0; bottom: 0;`;
+
                               return `
-                              <div draggable="true" data-drag-course-id="${course.id}" class="w-full h-full flex-1 p-2 flex flex-col justify-center items-center text-center transition-all group relative select-none rounded-[10px]" style="background-color: ${course.color}; color: ${textColor};">
+                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute p-2 flex flex-col justify-center items-center text-center group select-none rounded-[10px] ${isStacked ? 'stacked-course' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
                                 <p class="font-extrabold text-xs leading-snug line-clamp-2">${escapeHtml(course.name)}</p>
                                 ${
                                   meta
-                                    ? `<p class="text-[10px] font-medium opacity-90 mt-0.5 leading-tight">${meta}</p>`
+                                    ? `<p class="text-[10px] font-medium opacity-90 mt-0.5 leading-tight truncate">${meta}</p>`
                                     : ''
                                 }
                                 <button data-quick-delete="${course.id}" class="no-print absolute top-1 right-1 w-4 h-4 bg-slate-900/80 text-white rounded-full text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer shadow-xs" title="Remove course">×</button>
@@ -184,14 +193,14 @@ export function renderTimetable(container: HTMLElement): void {
       if (!targetEl.classList.contains('drag-projection')) {
         targetEl.classList.add('drag-projection');
 
-        // If target cell doesn't already contain a ghost, add projected preview
+        // If target cell doesn't already contain a ghost, add projected preview without altering layout height
         if (activeDraggedCourseId && !targetEl.querySelector('.drag-ghost-placeholder')) {
           const draggedCourse = routine.courses.find((c) => c.id === activeDraggedCourseId);
           if (draggedCourse) {
             if (activeGhostEl) activeGhostEl.remove();
             activeGhostEl = document.createElement('div');
             activeGhostEl.className =
-              'drag-ghost-placeholder w-full h-full min-h-[64px] rounded-[10px] border-2 border-dashed border-sky-400 bg-sky-100/60 p-2 flex flex-col justify-center items-center text-center pointer-events-none transition-all';
+              'drag-ghost-placeholder absolute inset-1 z-30 rounded-[10px] border-2 border-dashed border-sky-400 bg-sky-100/75 p-2 flex flex-col justify-center items-center text-center pointer-events-none transition-all shadow-xs';
             activeGhostEl.innerHTML = `
               <p class="font-bold text-xs text-sky-900 truncate opacity-90">${escapeHtml(draggedCourse.name)}</p>
               <span class="text-[9px] font-semibold text-sky-700 tracking-wider uppercase mt-0.5">Drop here</span>
