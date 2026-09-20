@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Scheduly • Your Routine, Simplified</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%230284c7'><path d='M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10z'/></svg>" />
+  </head>
+  <body class="bg-slate-50 min-h-screen flex flex-col text-slate-900">
+    <div id="app-header" class="no-print"></div>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-5 flex flex-col md:flex-row gap-4 items-start">
+      <div id="app-sidebar" class="no-print w-full md:w-auto"></div>
+      <div id="app-timetable" class="flex-1 w-full min-w-0"></div>
+    </main>
+
+    <div id="toast-container" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none no-print"></div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
