@@ -68,7 +68,7 @@ export function exportVectorPDF(routine: Routine): void {
         } else {
           const text = matches
             .map((c) => {
-              const meta = [c.section, c.room].filter(Boolean).join(' • ');
+              const meta = [c.section, c.room, c.faculty].filter(Boolean).join(' • ');
               return meta ? `${c.name}\n${meta}` : c.name;
             })
             .join('\n---\n');

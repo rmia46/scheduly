@@ -62,12 +62,16 @@ export function renderTimetable(container: HTMLElement): void {
                             const [r, g, b] = getContrastColor(rgb);
                             const textColor = `rgb(${r}, ${g}, ${b})`;
 
+                            const meta = [course.section, course.room, course.faculty]
+                              .filter((v): v is string => Boolean(v && v.trim()))
+                              .map((v) => escapeHtml(v))
+                              .join(' • ');
                             return `
                             <div draggable="true" data-drag-course-id="${course.id}" class="rounded-lg p-1.5 text-center shadow-xs transition-transform hover:scale-[1.02] active:scale-95 group relative select-none" style="background-color: ${course.color}; color: ${textColor};">
                               <p class="font-extrabold text-[11px] leading-tight truncate">${escapeHtml(course.name)}</p>
                               ${
-                                course.section || course.room
-                                  ? `<p class="text-[9px] font-medium opacity-90 leading-tight truncate">${escapeHtml(course.section)} ${course.section && course.room ? '•' : ''} ${escapeHtml(course.room)}</p>`
+                                meta
+                                  ? `<p class="text-[9px] font-medium opacity-90 leading-tight truncate">${meta}</p>`
                                   : ''
                               }
                               <button data-quick-delete="${course.id}" class="no-print absolute -top-1 -right-1 w-4 h-4 bg-slate-900/80 text-white rounded-full text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer shadow-xs" title="Remove course">×</button>

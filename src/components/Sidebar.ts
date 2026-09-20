@@ -64,14 +64,18 @@ export function renderSidebar(container: HTMLElement): void {
             <input id="input-course-name" type="text" placeholder="e.g. Distributed Systems" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-400" />
           </div>
 
-          <div class="grid grid-cols-2 gap-2.5">
+          <div class="grid grid-cols-3 gap-2">
             <div>
               <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Section</label>
-              <input id="input-course-section" type="text" placeholder="e.g. A1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-400" />
+              <input id="input-course-section" type="text" placeholder="e.g. A1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-400" />
             </div>
             <div>
               <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Room</label>
-              <input id="input-course-room" type="text" placeholder="e.g. Lab 402" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-400" />
+              <input id="input-course-room" type="text" placeholder="e.g. 402" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-400" />
+            </div>
+            <div>
+              <label class="block text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">Faculty</label>
+              <input id="input-course-faculty" type="text" placeholder="e.g. MRA" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-400" />
             </div>
           </div>
 
@@ -162,6 +166,11 @@ export function renderSidebar(container: HTMLElement): void {
                       .map((sid) => routine.slots.find((s) => s.id === sid)?.label || 'Slot')
                       .join(', ') || 'Unassigned';
 
+                    const details = [primary.section, primary.room, primary.faculty ? `Faculty: ${primary.faculty}` : '']
+                      .filter(Boolean)
+                      .map(escapeHtml)
+                      .join(' • ');
+
                     return `
                 <div class="p-2.5 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-white hover:border-slate-300 transition-all flex items-center justify-between group">
                   <div class="flex items-center gap-2.5 min-w-0">
@@ -176,8 +185,7 @@ export function renderSidebar(container: HTMLElement): void {
                         }
                       </div>
                       <p class="text-[10px] text-slate-500 truncate">
-                        ${[primary.section, primary.room].filter(Boolean).map(escapeHtml).join(' • ')} 
-                        ${primary.section || primary.room ? '• ' : ''}${daysSummary} (${slotsSummary})
+                        ${details ? `${details} • ` : ''}${daysSummary} (${slotsSummary})
                       </p>
                     </div>
                   </div>
@@ -255,6 +263,7 @@ export function renderSidebar(container: HTMLElement): void {
     const nameInput = container.querySelector('#input-course-name') as HTMLInputElement;
     const secInput = container.querySelector('#input-course-section') as HTMLInputElement;
     const roomInput = container.querySelector('#input-course-room') as HTMLInputElement;
+    const facultyInput = container.querySelector('#input-course-faculty') as HTMLInputElement;
 
     const checkedDayBoxes = container.querySelectorAll<HTMLInputElement>('input[name="course-day"]:checked');
     const selectedDays = Array.from(checkedDayBoxes).map((cb) => parseInt(cb.value, 10));
@@ -283,6 +292,7 @@ export function renderSidebar(container: HTMLElement): void {
         name,
         section: secInput.value.trim(),
         room: roomInput.value.trim(),
+        faculty: facultyInput.value.trim(),
         color: colorInput.value || theme.swatches[0],
       },
       selectedDays,
@@ -292,6 +302,7 @@ export function renderSidebar(container: HTMLElement): void {
     nameInput.value = '';
     secInput.value = '';
     roomInput.value = '';
+    facultyInput.value = '';
     store.setSelectedCell(null);
   });
 
@@ -300,6 +311,7 @@ export function renderSidebar(container: HTMLElement): void {
     (container.querySelector('#input-course-name') as HTMLInputElement).value = '';
     (container.querySelector('#input-course-section') as HTMLInputElement).value = '';
     (container.querySelector('#input-course-room') as HTMLInputElement).value = '';
+    (container.querySelector('#input-course-faculty') as HTMLInputElement).value = '';
     container.querySelectorAll<HTMLInputElement>('input[name="course-day"]').forEach((cb, idx) => {
       cb.checked = idx === 0;
     });

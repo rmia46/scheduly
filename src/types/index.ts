@@ -5,10 +5,11 @@ export interface TimeSlot {
 
 export interface Course {
   id: string;
-  courseGroupId?: string; // Links recurring multi-day instances of the same course
+  courseGroupId?: string; // Links recurring multi-day/slot instances of the same course
   name: string;
   section: string;
   room: string;
+  faculty?: string; // Faculty initial, e.g. "MRA", "TKD"
   day: number; // 0 = Sunday, 1 = Monday, ..., 6 = Saturday
   slotId: string | null;
   color: string;
