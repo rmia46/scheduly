@@ -20,10 +20,10 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
     primary: '#0284c7',
     accent: '#0369a1',
     badgeBg: '#e0f2fe',
-    bg: '#f0f9ff',
+    bg: '#f8fafc', // M3 subtle neutral surface with 1.5% blue tone
     cardBg: '#ffffff',
-    border: '#bae6fd',
-    subtleBg: '#f8fafc',
+    border: '#e2e8f0',
+    subtleBg: '#f1f5f9',
     swatches: ['#0284c7', '#0ea5e9', '#38bdf8', '#06b6d4', '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b'],
   },
   grass: {
@@ -32,10 +32,10 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
     primary: '#16a34a',
     accent: '#15803d',
     badgeBg: '#dcfce7',
-    bg: '#f0fdf4',
+    bg: '#f7faf7', // M3 subtle neutral surface with 1.5% mint tone
     cardBg: '#ffffff',
-    border: '#bbf7d0',
-    subtleBg: '#f8fafc',
+    border: '#e2e8e2',
+    subtleBg: '#eff5ef',
     swatches: ['#16a34a', '#22c55e', '#84cc16', '#eab308', '#f97316', '#ef4444', '#8b5cf6', '#0284c7'],
   },
   lemon: {
@@ -44,10 +44,10 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
     primary: '#ca8a04',
     accent: '#a16207',
     badgeBg: '#fef9c3',
-    bg: '#fefce8',
+    bg: '#faf9f5', // M3 subtle warm surface with 1.5% amber tone
     cardBg: '#ffffff',
-    border: '#fef08a',
-    subtleBg: '#fffdf0',
+    border: '#eeebe2',
+    subtleBg: '#f5f3ec',
     swatches: ['#ca8a04', '#eab308', '#f59e0b', '#f97316', '#ef4444', '#16a34a', '#0ea5e9', '#8b5cf6'],
   },
   cherry: {
@@ -56,10 +56,10 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
     primary: '#db2777',
     accent: '#be185d',
     badgeBg: '#fce7f3',
-    bg: '#fff1f2',
+    bg: '#faf7f8', // M3 subtle neutral surface with 1.5% rose tone
     cardBg: '#ffffff',
-    border: '#fbcfe8',
-    subtleBg: '#fff5f7',
+    border: '#eee3e6',
+    subtleBg: '#f6eff1',
     swatches: ['#db2777', '#ec4899', '#f43f5e', '#ef4444', '#a855f7', '#6366f1', '#3b82f6', '#10b981'],
   },
   grape: {
@@ -68,10 +68,10 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
     primary: '#7c3aed',
     accent: '#6d28d9',
     badgeBg: '#ede9fe',
-    bg: '#faf5ff',
+    bg: '#f9f7fa', // M3 subtle neutral surface with 1.5% lavender tone
     cardBg: '#ffffff',
-    border: '#ddd6fe',
-    subtleBg: '#fbf8ff',
+    border: '#e7e2ea',
+    subtleBg: '#f2eef4',
     swatches: ['#7c3aed', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#3b82f6', '#06b6d4', '#10b981'],
   },
 };
