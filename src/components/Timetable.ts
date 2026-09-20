@@ -54,7 +54,7 @@ export function renderTimetable(container: HTMLElement): void {
                         const isSelected = state.selectedCell?.day === dayIdx && state.selectedCell?.slotId === slot.id;
 
                         return `
-                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl border border-slate-200/80 h-[84px] min-h-[84px] relative transition-all p-1 hover:overflow-visible cursor-pointer ${
+                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl border border-slate-200/80 h-[88px] min-h-[88px] relative transition-all p-1 hover:overflow-visible cursor-pointer ${
                           isSelected ? 'bg-sky-50/80 ring-2 ring-sky-400 border-transparent shadow-xs' : 'hover:border-slate-300 hover:bg-slate-50/50 bg-white shadow-2xs'
                         }">
                           ${matches
@@ -62,11 +62,13 @@ export function renderTimetable(container: HTMLElement): void {
                               const rgb = hexToRgb(course.color);
                               const [r, g, b] = getContrastColor(rgb);
                               const textColor = `rgb(${r}, ${g}, ${b})`;
+                              const isDarkBg = r === 255; // White text on dark/vibrant background
 
-                              const meta = [course.section, course.room, course.faculty]
-                                .filter((v): v is string => Boolean(v && v.trim()))
-                                .map((v) => escapeHtml(v))
-                                .join(' • ');
+                              const metaItems = [
+                                course.section ? `Sec ${course.section}` : '',
+                                course.room ? `R ${course.room}` : '',
+                                course.faculty || '',
+                              ].filter((v): v is string => Boolean(v && v.trim()));
 
                               // When multiple courses occupy the same cell, stack them with an offset cascade like a deck of cards
                               const isStacked = matches.length > 1;
@@ -77,11 +79,21 @@ export function renderTimetable(container: HTMLElement): void {
                                 : `top: 0; left: 0; width: 100%; height: 100%;`;
 
                               return `
-                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute p-2 flex flex-col justify-center items-center text-center group select-none rounded-[10px] ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
-                                <p class="font-extrabold text-xs leading-snug line-clamp-2">${escapeHtml(course.name)}</p>
+                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute p-2 flex flex-col justify-between items-center text-center group select-none rounded-xl border border-white/20 shadow-xs ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
+                                <div class="w-full flex-1 flex items-center justify-center min-h-0">
+                                  <p class="font-extrabold text-xs leading-snug line-clamp-2 px-1">${escapeHtml(course.name)}</p>
+                                </div>
                                 ${
-                                  meta
-                                    ? `<p class="text-[10px] font-medium opacity-90 mt-0.5 leading-tight truncate">${meta}</p>`
+                                  metaItems.length > 0
+                                    ? `
+                                  <div class="mt-1 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-tight shadow-2xs max-w-full truncate ${
+                                    isDarkBg
+                                      ? 'bg-black/20 text-white/95 border border-white/15'
+                                      : 'bg-white/40 text-slate-800 border border-black/10'
+                                  }">
+                                    ${metaItems.map((m) => `<span>${escapeHtml(m)}</span>`).join('<span class="opacity-40">•</span>')}
+                                  </div>
+                                `
                                     : ''
                                 }
                                 <button data-quick-delete="${course.id}" class="no-print absolute top-1 right-1 w-4 h-4 bg-slate-900/80 text-white rounded-full text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer shadow-xs" title="Remove course">×</button>
