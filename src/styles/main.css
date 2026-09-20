@@ -45,3 +45,16 @@
     max-width: 100% !important;
   }
 }
+
+/* Drag and Drop Projection */
+.drag-projection {
+  outline: 2px dashed #0284c7 !important;
+  outline-offset: -2px !important;
+  background-color: #f0f9ff !important;
+  border-color: #38bdf8 !important;
+}
+
+.is-dragging {
+  opacity: 0.35 !important;
+  transform: scale(0.96);
+}

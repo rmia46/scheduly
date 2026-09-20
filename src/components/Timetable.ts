@@ -132,35 +132,96 @@ export function renderTimetable(container: HTMLElement): void {
     });
   });
 
-  // Drag and drop course between cells
+  // Drag and drop course between cells with projection preview
+  let activeDraggedCourseId: string | null = null;
+  let activeGhostEl: HTMLElement | null = null;
+
   container.querySelectorAll('[data-drag-course-id]').forEach((draggable) => {
     draggable.addEventListener('dragstart', (e) => {
       const courseId = (draggable as HTMLElement).dataset.dragCourseId;
       if (courseId && (e as DragEvent).dataTransfer) {
+        activeDraggedCourseId = courseId;
         (e as DragEvent).dataTransfer!.setData('text/plain', courseId);
+        (e as DragEvent).dataTransfer!.effectAllowed = 'move';
+        setTimeout(() => {
+          (draggable as HTMLElement).classList.add('is-dragging');
+        }, 0);
       }
+    });
+
+    draggable.addEventListener('dragend', () => {
+      (draggable as HTMLElement).classList.remove('is-dragging');
+      activeDraggedCourseId = null;
+      if (activeGhostEl) {
+        activeGhostEl.remove();
+        activeGhostEl = null;
+      }
+      container.querySelectorAll('.drag-projection').forEach((el) => {
+        el.classList.remove('drag-projection');
+      });
     });
   });
 
   container.querySelectorAll('[data-cell-day]').forEach((dropTarget) => {
     dropTarget.addEventListener('dragover', (e) => {
       e.preventDefault();
-      (dropTarget as HTMLElement).classList.add('bg-sky-100/70');
+      if ((e as DragEvent).dataTransfer) {
+        (e as DragEvent).dataTransfer!.dropEffect = 'move';
+      }
+
+      const targetEl = dropTarget as HTMLElement;
+      if (!targetEl.classList.contains('drag-projection')) {
+        targetEl.classList.add('drag-projection');
+
+        // If target cell doesn't already contain a ghost, add projected preview
+        if (activeDraggedCourseId && !targetEl.querySelector('.drag-ghost-placeholder')) {
+          const draggedCourse = routine.courses.find((c) => c.id === activeDraggedCourseId);
+          if (draggedCourse) {
+            if (activeGhostEl) activeGhostEl.remove();
+            activeGhostEl = document.createElement('div');
+            activeGhostEl.className =
+              'drag-ghost-placeholder w-full h-full min-h-[64px] rounded-[10px] border-2 border-dashed border-sky-400 bg-sky-100/60 p-2 flex flex-col justify-center items-center text-center pointer-events-none transition-all';
+            activeGhostEl.innerHTML = `
+              <p class="font-bold text-xs text-sky-900 truncate opacity-90">${escapeHtml(draggedCourse.name)}</p>
+              <span class="text-[9px] font-semibold text-sky-700 tracking-wider uppercase mt-0.5">Drop here</span>
+            `;
+            targetEl.appendChild(activeGhostEl);
+          }
+        }
+      }
     });
 
-    dropTarget.addEventListener('dragleave', () => {
-      (dropTarget as HTMLElement).classList.remove('bg-sky-100/70');
+    dropTarget.addEventListener('dragleave', (e) => {
+      const targetEl = dropTarget as HTMLElement;
+      // Only remove if leaving the actual cell container (not hovering over child element)
+      if (!targetEl.contains((e as DragEvent).relatedTarget as Node)) {
+        targetEl.classList.remove('drag-projection');
+        const ghost = targetEl.querySelector('.drag-ghost-placeholder');
+        if (ghost) {
+          ghost.remove();
+          if (activeGhostEl === ghost) activeGhostEl = null;
+        }
+      }
     });
 
     dropTarget.addEventListener('drop', (e) => {
       e.preventDefault();
-      (dropTarget as HTMLElement).classList.remove('bg-sky-100/70');
-      const courseId = (e as DragEvent).dataTransfer?.getData('text/plain');
-      const day = parseInt((dropTarget as HTMLElement).dataset.cellDay || '0', 10);
-      const slotId = (dropTarget as HTMLElement).dataset.cellSlot || '';
+      const targetEl = dropTarget as HTMLElement;
+      targetEl.classList.remove('drag-projection');
+
+      if (activeGhostEl) {
+        activeGhostEl.remove();
+        activeGhostEl = null;
+      }
+      targetEl.querySelector('.drag-ghost-placeholder')?.remove();
+
+      const courseId = (e as DragEvent).dataTransfer?.getData('text/plain') || activeDraggedCourseId;
+      const day = parseInt(targetEl.dataset.cellDay || '0', 10);
+      const slotId = targetEl.dataset.cellSlot || '';
       if (courseId && slotId) {
         store.moveCourse(courseId, day, slotId);
       }
+      activeDraggedCourseId = null;
     });
   });
 }
