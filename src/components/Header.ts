@@ -68,10 +68,10 @@ export function renderHeader(container: HTMLElement): void {
             </div>
           </div>
 
-          <!-- 2. Edit / Tools Menu -->
+          <!-- 2. Edit / Action Menu -->
           <div class="relative" id="menu-tools-wrapper">
             <button id="hdr-btn-tools-toggle" class="px-2.5 py-1 rounded-md hover:bg-slate-100 transition-colors cursor-pointer flex items-center gap-1 font-medium">
-              <span>Tools</span>
+              <span>Action</span>
             </button>
 
             <div id="menu-tools-dropdown" class="hidden absolute left-0 mt-1 w-52 bg-white rounded-xl shadow-lg border border-slate-150 py-1.5 z-50 text-xs">
@@ -334,9 +334,9 @@ export function renderHeader(container: HTMLElement): void {
               <span>Delete Current Routine</span>
             </button>
 
-            <!-- Tools Section -->
+            <!-- Action Section -->
             <div class="my-1.5 border-t border-slate-100"></div>
-            <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Tools</div>
+            <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Action</div>
             <button id="mobile-action-undo" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer ${
               !store.canUndo() ? 'opacity-40 pointer-events-none' : ''
             }">
@@ -699,7 +699,7 @@ export function renderHeader(container: HTMLElement): void {
           <div class="w-6 h-6 rounded-lg bg-amber-100 text-amber-700 font-bold flex items-center justify-center shrink-0 text-xs">4</div>
           <div>
             <h5 class="font-bold text-slate-900 mb-0.5">Themes, Colors & NSU Slots</h5>
-            <p class="text-slate-500 text-[11px]">Switch themes from the Theme menu to restyle the entire app. Use <code>Tools ▾</code> to shuffle colors or load official North South University (NSU) slots.</p>
+            <p class="text-slate-500 text-[11px]">Switch themes from the Theme menu to restyle the entire app. Use <code>Action ▾</code> to shuffle colors or load official North South University (NSU) slots.</p>
           </div>
         </div>
 
