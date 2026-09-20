@@ -79,28 +79,30 @@ export function renderTimetable(container: HTMLElement): void {
                                 : `top: 0; left: 0; width: 100%; height: 100%;`;
 
                               return `
-                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute p-1.5 flex flex-col justify-between items-center text-center group select-none rounded-xl border border-white/25 shadow-xs overflow-hidden ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
-                                <div class="w-full flex-1 flex items-center justify-center min-h-0 px-0.5">
-                                  <p class="font-extrabold text-[11px] leading-tight line-clamp-2 break-words px-0.5">${escapeHtml(course.name)}</p>
+                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute px-2 py-1.5 flex flex-col justify-between items-center text-center group select-none rounded-xl border border-white/25 shadow-xs overflow-hidden ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
+                                <!-- Course Name: Compact, bold heading -->
+                                <div class="w-full shrink-0 flex items-center justify-center pt-0.5">
+                                  <p class="font-black text-[11px] leading-tight truncate px-0.5 tracking-tight">${escapeHtml(course.name)}</p>
                                 </div>
                                 ${
                                   hasMeta
                                     ? `
-                                  <div class="w-full mt-1 pt-0.5 border-t border-current/20 flex items-center justify-between text-[9px] font-semibold leading-tight opacity-90 px-0.5">
+                                  <!-- Meta Info: Prominent, large and bold -->
+                                  <div class="w-full flex-1 flex items-center justify-between border-t border-current/25 mt-1 pt-1 font-extrabold leading-tight">
                                     <!-- Left: Section and Room vertical stack -->
                                     <div class="flex flex-col text-left truncate min-w-0 ${!hasRight ? 'w-full text-center' : ''}">
-                                      ${sectionText ? `<span class="truncate leading-none">${sectionText}</span>` : ''}
-                                      ${roomText ? `<span class="truncate text-[8.5px] opacity-80 leading-none mt-0.5">${roomText}</span>` : ''}
+                                      ${sectionText ? `<span class="truncate text-[11px] font-black leading-none">${sectionText}</span>` : ''}
+                                      ${roomText ? `<span class="truncate text-[10px] font-bold opacity-95 leading-none mt-0.5">${roomText}</span>` : ''}
                                     </div>
 
                                     ${
                                       hasLeft && hasRight
-                                        ? `<span class="h-4 w-px bg-current/25 mx-1.5 shrink-0 self-center"></span>`
+                                        ? `<span class="h-5 w-[1.5px] bg-current/30 mx-2 shrink-0 self-center"></span>`
                                         : ''
                                     }
 
                                     <!-- Right: Faculty -->
-                                    <div class="text-right font-bold shrink-0 truncate ${!hasLeft ? 'w-full text-center' : ''}">
+                                    <div class="text-right text-[12px] font-black tracking-tight shrink-0 truncate ${!hasLeft ? 'w-full text-center' : ''}">
                                       ${facultyText}
                                     </div>
                                   </div>
