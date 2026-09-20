@@ -54,14 +54,31 @@ export function renderTimetable(container: HTMLElement): void {
                         const matches = routine.courses.filter((c) => c.day === dayIdx && c.slotId === slot.id);
                         const isSelected = state.selectedCell?.day === dayIdx && state.selectedCell?.slotId === slot.id;
 
+                        const isConflict = matches.length > 1;
+
                         return `
                         <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl h-[64px] min-h-[64px] relative transition-all p-1 hover:overflow-visible cursor-pointer border ${
-                          isSelected ? 'border-transparent shadow-xs' : 'bg-white hover:border-slate-300 shadow-2xs'
+                          isSelected
+                            ? 'border-transparent shadow-xs'
+                            : isConflict
+                            ? 'bg-rose-50/50 hover:border-rose-400 shadow-2xs'
+                            : 'bg-white hover:border-slate-300 shadow-2xs'
                         }" style="${
                           isSelected
                             ? `outline: 2px solid ${theme.primary}; background-color: ${theme.badgeBg}; border-color: transparent;`
+                            : isConflict
+                            ? `border-color: #fca5a5; outline: 1.5px solid #f87171;`
                             : `border-color: ${theme.border}80;`
                         }">
+                          ${
+                            isConflict
+                              ? `<div class="no-print absolute -top-1.5 -right-1.5 z-40 bg-rose-500 text-white rounded-full p-0.5 shadow-xs flex items-center justify-center pointer-events-none" title="Schedule conflict: ${matches.length} classes scheduled at the same time">
+                                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                                  </svg>
+                                </div>`
+                              : ''
+                          }
                           ${matches
                             .map((course, idx) => {
                               const rgb = hexToRgb(course.color);

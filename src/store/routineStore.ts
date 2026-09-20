@@ -14,12 +14,67 @@ export interface AppState {
   selectedCell: { day: number; slotId: string } | null;
 }
 
+interface RoutineHistorySnapshot {
+  routines: Routine[];
+  activeRoutineId: string;
+}
+
 class Store {
   private state: AppState;
   private listeners: Set<() => void> = new Set();
+  private undoStack: RoutineHistorySnapshot[] = [];
+  private redoStack: RoutineHistorySnapshot[] = [];
+  private readonly MAX_HISTORY = 30;
 
   constructor() {
     this.state = this.loadInitialState();
+  }
+
+  private takeSnapshot(): RoutineHistorySnapshot {
+    return {
+      routines: JSON.parse(JSON.stringify(this.state.routines)),
+      activeRoutineId: this.state.activeRoutineId,
+    };
+  }
+
+  private recordAction(): void {
+    this.undoStack.push(this.takeSnapshot());
+    if (this.undoStack.length > this.MAX_HISTORY) {
+      this.undoStack.shift();
+    }
+    // Any new action clears redo stack
+    this.redoStack = [];
+  }
+
+  public canUndo(): boolean {
+    return this.undoStack.length > 0;
+  }
+
+  public canRedo(): boolean {
+    return this.redoStack.length > 0;
+  }
+
+  public undo(): boolean {
+    if (this.undoStack.length === 0) return false;
+    // Push current state to redo
+    this.redoStack.push(this.takeSnapshot());
+    const previous = this.undoStack.pop()!;
+    this.state.routines = previous.routines;
+    this.state.activeRoutineId = previous.activeRoutineId;
+    this.state.selectedCell = null;
+    this.notify();
+    return true;
+  }
+
+  public redo(): boolean {
+    if (this.redoStack.length === 0) return false;
+    this.undoStack.push(this.takeSnapshot());
+    const next = this.redoStack.pop()!;
+    this.state.routines = next.routines;
+    this.state.activeRoutineId = next.activeRoutineId;
+    this.state.selectedCell = null;
+    this.notify();
+    return true;
   }
 
   private loadInitialState(): AppState {
@@ -143,12 +198,14 @@ class Store {
   public setRoutineName(name: string): void {
     const routine = this.getActiveRoutine();
     if (routine) {
+      this.recordAction();
       routine.name = name;
       this.notify();
     }
   }
 
   public createRoutine(name: string): string {
+    this.recordAction();
     const active = this.getActiveRoutine();
     const newRoutine: Routine = {
       id: uid('routine'),
@@ -162,10 +219,56 @@ class Store {
     return newRoutine.id;
   }
 
+  public importRoutine(imported: Routine): string {
+    this.recordAction();
+    // Generate fresh IDs for routine, slots, and courses to prevent ID collisions
+    const routineId = uid('routine');
+    const slotIdMap = new Map<string, string>();
+
+    const slots = imported.slots.map((s) => {
+      const newSlotId = uid('slot');
+      slotIdMap.set(s.id, newSlotId);
+      return { id: newSlotId, label: s.label };
+    });
+
+    const groupIdMap = new Map<string, string>();
+
+    const courses = imported.courses.map((c) => {
+      let newGroupId: string | undefined = undefined;
+      if (c.courseGroupId) {
+        if (!groupIdMap.has(c.courseGroupId)) {
+          groupIdMap.set(c.courseGroupId, uid('cgrp'));
+        }
+        newGroupId = groupIdMap.get(c.courseGroupId);
+      }
+
+      return {
+        ...c,
+        id: uid('course'),
+        slotId: c.slotId ? slotIdMap.get(c.slotId) || null : null,
+        courseGroupId: newGroupId,
+      };
+    });
+
+    const newRoutine: Routine = {
+      id: routineId,
+      name: imported.name.trim() || 'Imported Routine',
+      slots,
+      courses,
+    };
+
+    this.state.routines.push(newRoutine);
+    this.state.activeRoutineId = newRoutine.id;
+    this.state.selectedCell = null;
+    this.notify();
+    return newRoutine.id;
+  }
+
   public deleteActiveRoutine(): boolean {
     if (this.state.routines.length <= 1) {
       return false;
     }
+    this.recordAction();
     this.state.routines = this.state.routines.filter((r) => r.id !== this.state.activeRoutineId);
     this.state.activeRoutineId = this.state.routines[0].id;
     this.notify();
@@ -176,6 +279,7 @@ class Store {
     const routine = this.getActiveRoutine();
     if (!routine) return;
 
+    this.recordAction();
     const newCourse: Course = {
       ...course,
       id: uid('course'),
@@ -192,6 +296,7 @@ class Store {
     const routine = this.getActiveRoutine();
     if (!routine || days.length === 0 || slotIds.length === 0) return;
 
+    this.recordAction();
     const groupId = uid('cgrp');
     const newCourses: Course[] = [];
 
@@ -217,6 +322,7 @@ class Store {
 
     const index = routine.courses.findIndex((c) => c.id === updated.id);
     if (index !== -1) {
+      this.recordAction();
       routine.courses[index] = updated;
       this.notify();
     }
@@ -225,6 +331,7 @@ class Store {
   public deleteCourse(id: string): void {
     const routine = this.getActiveRoutine();
     if (!routine) return;
+    this.recordAction();
     routine.courses = routine.courses.filter((c) => c.id !== id);
     this.notify();
   }
@@ -232,6 +339,7 @@ class Store {
   public deleteCourseGroup(groupIdOrId: string): void {
     const routine = this.getActiveRoutine();
     if (!routine) return;
+    this.recordAction();
     routine.courses = routine.courses.filter(
       (c) => c.courseGroupId !== groupIdOrId && c.id !== groupIdOrId
     );
@@ -243,6 +351,7 @@ class Store {
     if (!routine) return;
     const course = routine.courses.find((c) => c.id === courseId);
     if (course) {
+      this.recordAction();
       course.day = day;
       course.slotId = slotId;
       this.notify();
@@ -252,6 +361,7 @@ class Store {
   public addSlot(label: string): void {
     const routine = this.getActiveRoutine();
     if (!routine) return;
+    this.recordAction();
     routine.slots.push({ id: uid('slot'), label });
     // Sort slots chronologically by start time
     routine.slots.sort((a, b) => {
@@ -265,6 +375,7 @@ class Store {
   public removeSlot(id: string): void {
     const routine = this.getActiveRoutine();
     if (!routine) return;
+    this.recordAction();
     routine.slots = routine.slots.filter((s) => s.id !== id);
     // Unassign courses assigned to this slot
     for (const c of routine.courses) {
@@ -278,6 +389,7 @@ class Store {
   public loadNsuSlots(): void {
     const routine = this.getActiveRoutine();
     if (!routine) return;
+    this.recordAction();
     routine.slots = PREDEFINED_SLOTS.map((label) => ({ id: uid('slot'), label }));
     for (const c of routine.courses) {
       c.slotId = null;
@@ -293,6 +405,7 @@ class Store {
     const routine = this.getActiveRoutine();
     if (!routine || routine.courses.length === 0) return;
 
+    this.recordAction();
     const swatches = THEMES[this.state.theme].swatches;
     // Fisher-Yates shuffle copy of swatches
     const shuffled = [...swatches];

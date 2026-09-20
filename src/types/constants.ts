@@ -27,7 +27,17 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
     cardBg: '#ffffff',
     border: '#e2e8f0',
     subtleBg: '#f1f5f9',
-    swatches: ['#0284c7', '#0ea5e9', '#38bdf8', '#06b6d4', '#6366f1', '#8b5cf6', '#ec4899', '#f59e0b'],
+    // Ocean: Cool aquatic analogous range (Deep Navy, Sky Blue, Cyan, Teal, Slate Indigo, Aquamarine, Mint Blue, Cobalt)
+    swatches: [
+      '#0284c7', // Sky Blue
+      '#0d9488', // Deep Teal
+      '#06b6d4', // Cyan
+      '#4f46e5', // Indigo
+      '#059669', // Emerald Teal
+      '#2563eb', // Royal Cobalt
+      '#14b8a6', // Aquamarine
+      '#64748b', // Steel Slate
+    ],
   },
   grass: {
     name: 'grass',
@@ -39,7 +49,17 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
     cardBg: '#ffffff',
     border: '#e2e8e2',
     subtleBg: '#eff5ef',
-    swatches: ['#16a34a', '#22c55e', '#84cc16', '#eab308', '#f97316', '#ef4444', '#8b5cf6', '#0284c7'],
+    // Grass: Botanical & nature range (Forest, Lime, Teal, Olive, Mint, Spring Green, Warm Pine, Cyan Sage)
+    swatches: [
+      '#16a34a', // Vivid Green
+      '#0d9488', // Deep Teal
+      '#65a30d', // Fresh Olive Lime
+      '#059669', // Emerald
+      '#0284c7', // Sky Cyan
+      '#84cc16', // Bright Lime
+      '#0f766e', // Forest Pine
+      '#10b981', // Spring Mint
+    ],
   },
   lemon: {
     name: 'lemon',
@@ -51,7 +71,17 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
     cardBg: '#ffffff',
     border: '#eeebe2',
     subtleBg: '#f5f3ec',
-    swatches: ['#ca8a04', '#eab308', '#f59e0b', '#f97316', '#ef4444', '#16a34a', '#0ea5e9', '#8b5cf6'],
+    // Lemon: Warm solar & citrus range (Citron, Amber, Ochre, Warm Tangerine, Chartreuse, Olive, Sun Gold, Coral Peach)
+    swatches: [
+      '#ca8a04', // Rich Citron Gold
+      '#d97706', // Deep Amber
+      '#65a30d', // Chartreuse Olive
+      '#ea580c', // Tangerine Flame
+      '#eab308', // Radiant Yellow
+      '#16a34a', // Fresh Green Leaf
+      '#f97316', // Warm Coral
+      '#854d0e', // Ochre Bronze
+    ],
   },
   cherry: {
     name: 'cherry',
@@ -63,7 +93,17 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
     cardBg: '#ffffff',
     border: '#eee3e6',
     subtleBg: '#f6eff1',
-    swatches: ['#db2777', '#ec4899', '#f43f5e', '#ef4444', '#a855f7', '#6366f1', '#3b82f6', '#10b981'],
+    // Cherry: Floral & berry spectrum (Ruby, Rose, Plum, Fuchsia, Coral, Violet-Rose, Crimson, Wine)
+    swatches: [
+      '#db2777', // Vivid Pink Rose
+      '#e11d48', // Crimson Rose
+      '#c026d3', // Deep Fuchsia
+      '#f43f5e', // Strawberry Coral
+      '#9333ea', // Royal Purple
+      '#be123c', // Deep Wine Ruby
+      '#d946ef', // Orchid
+      '#f97316', // Sunset Coral
+    ],
   },
   grape: {
     name: 'grape',
@@ -75,6 +115,16 @@ export const THEMES: Record<ThemeName, ThemeColors> = {
     cardBg: '#ffffff',
     border: '#e7e2ea',
     subtleBg: '#f2eef4',
-    swatches: ['#7c3aed', '#8b5cf6', '#a855f7', '#d946ef', '#ec4899', '#3b82f6', '#06b6d4', '#10b981'],
+    // Grape: Twilight analogous range (Violet, Indigo, Orchid, Cobalt, Plum, Periwinkle, Magenta, Deep Navy)
+    swatches: [
+      '#7c3aed', // Deep Violet
+      '#4f46e5', // Vivid Indigo
+      '#c026d3', // Royal Plum
+      '#2563eb', // Cobalt Blue
+      '#a855f7', // Radiant Purple
+      '#db2777', // Berry Magenta
+      '#0284c7', // Cyan Blue
+      '#6366f1', // Periwinkle Iris
+    ],
   },
 };

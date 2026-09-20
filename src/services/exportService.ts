@@ -194,3 +194,174 @@ export async function exportPNGImage(elementId: string, filename: string): Promi
     }
   }
 }
+
+export interface ICSExportOptions {
+  startDate: string; // YYYY-MM-DD
+  monthsDuration: number; // 1 to 12
+}
+
+/**
+ * Parses time strings such as "08:00", "8:00", "8:00 AM", "1:30 PM", "13:30"
+ * Returns [hours, minutes] in 24-hour format.
+ */
+function parseTimeComponents(timeStr: string): [number, number] | null {
+  const clean = timeStr.trim().toUpperCase();
+  const isPM = clean.includes('PM');
+  const isAM = clean.includes('AM');
+  const numeric = clean.replace(/[^\d:]/g, '');
+  const parts = numeric.split(':').map((p) => parseInt(p, 10));
+
+  if (parts.length < 2 || isNaN(parts[0]) || isNaN(parts[1])) return null;
+
+  let [hours, minutes] = parts;
+  if (isPM && hours < 12) hours += 12;
+  if (isAM && hours === 12) hours = 0;
+
+  return [hours, minutes];
+}
+
+/**
+ * Formats a Date object as an iCalendar UTC timestamp: YYYYMMDDTHHMMSSZ
+ */
+function formatICSDateTime(d: Date): string {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return (
+    d.getUTCFullYear() +
+    pad(d.getUTCMonth() + 1) +
+    pad(d.getUTCDate()) +
+    'T' +
+    pad(d.getUTCHours()) +
+    pad(d.getUTCMinutes()) +
+    pad(d.getUTCSeconds()) +
+    'Z'
+  );
+}
+
+
+/**
+ * Exports routine schedule to an iCalendar (.ics) file with recurring weekly events (RRULE).
+ */
+export function exportICSCalendar(routine: Routine, options: ICSExportOptions): void {
+  const courses = routine.courses;
+  if (courses.length === 0) {
+    showToast('No courses in this routine to export.');
+    return;
+  }
+
+  const slotMap = new Map<string, string>();
+  routine.slots.forEach((s) => slotMap.set(s.id, s.label));
+
+  const [startYear, startMonth, startDay] = options.startDate.split('-').map(Number);
+  const userStartDate = new Date(startYear, startMonth - 1, startDay, 0, 0, 0);
+
+  // Calculate until date based on selected duration in months
+  const untilDate = new Date(userStartDate);
+  untilDate.setMonth(untilDate.getMonth() + options.monthsDuration);
+  // Set untilDate to end of that day in UTC
+  const untilTimestamp = formatICSDateTime(new Date(Date.UTC(untilDate.getFullYear(), untilDate.getMonth(), untilDate.getDate(), 23, 59, 59)));
+
+  const nowTimestamp = formatICSDateTime(new Date());
+  const icsDays = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
+
+  const lines: string[] = [
+    'BEGIN:VCALENDAR',
+    'VERSION:2.0',
+    'PRODID:-//Scheduly//Class Routine Calendar//EN',
+    'CALSCALE:GREGORIAN',
+    'METHOD:PUBLISH',
+    `X-WR-CALNAME:${routine.name.trim() || 'Class Routine'}`,
+    'X-WR-TIMEZONE:UTC',
+  ];
+
+  let eventCount = 0;
+
+  for (const course of courses) {
+    const slotLabel = course.slotId ? slotMap.get(course.slotId) : null;
+    if (!slotLabel) continue;
+
+    // slotLabel is typically "08:00-09:30" or "8:00 - 9:30"
+    const slotParts = slotLabel.split('-').map((s) => s.trim());
+    if (slotParts.length !== 2) continue;
+
+    const startParsed = parseTimeComponents(slotParts[0]);
+    const endParsed = parseTimeComponents(slotParts[1]);
+    if (!startParsed || !endParsed) continue;
+
+    // Find the first date matching course.day (0=Sun, 1=Mon, ..., 6=Sat) on or after userStartDate
+    const courseDayOfWeek = course.day; // 0..6
+    const firstEventDate = new Date(userStartDate);
+    const dayDifference = (courseDayOfWeek - firstEventDate.getDay() + 7) % 7;
+    firstEventDate.setDate(firstEventDate.getDate() + dayDifference);
+
+    const eventStartDate = new Date(
+      firstEventDate.getFullYear(),
+      firstEventDate.getMonth(),
+      firstEventDate.getDate(),
+      startParsed[0],
+      startParsed[1],
+      0
+    );
+
+    const eventEndDate = new Date(
+      firstEventDate.getFullYear(),
+      firstEventDate.getMonth(),
+      firstEventDate.getDate(),
+      endParsed[0],
+      endParsed[1],
+      0
+    );
+
+    const dtStartStr = formatICSDateTime(eventStartDate);
+    const dtEndStr = formatICSDateTime(eventEndDate);
+
+    const dayCode = icsDays[course.day];
+    const uid = `scheduly-${course.id}-${firstEventDate.getTime()}@scheduly.app`;
+
+    const summary = course.section ? `${course.name} (${course.section})` : course.name;
+    const descriptionParts = [
+      course.section ? `Section: ${course.section}` : '',
+      course.room ? `Room: ${course.room}` : '',
+      course.faculty ? `Faculty: ${course.faculty}` : '',
+      `Routine: ${routine.name}`,
+    ].filter(Boolean);
+
+    lines.push('BEGIN:VEVENT');
+    lines.push(`UID:${uid}`);
+    lines.push(`DTSTAMP:${nowTimestamp}`);
+    lines.push(`DTSTART:${dtStartStr}`);
+    lines.push(`DTEND:${dtEndStr}`);
+    lines.push(`RRULE:FREQ=WEEKLY;BYDAY=${dayCode};UNTIL=${untilTimestamp}`);
+    lines.push(`SUMMARY:${summary.replace(/,/g, '\\,')}`);
+    if (course.room) {
+      lines.push(`LOCATION:${course.room.replace(/,/g, '\\,')}`);
+    }
+    if (descriptionParts.length > 0) {
+      lines.push(`DESCRIPTION:${descriptionParts.join(' | ').replace(/,/g, '\\,')}`);
+    }
+    lines.push('STATUS:CONFIRMED');
+    lines.push('TRANSP:OPAQUE');
+    lines.push('END:VEVENT');
+
+    eventCount++;
+  }
+
+  if (eventCount === 0) {
+    showToast('Could not parse time slots for calendar export.');
+    return;
+  }
+
+  lines.push('END:VCALENDAR');
+
+  const icsBlob = new Blob([lines.join('\r\n')], { type: 'text/calendar;charset=utf-8' });
+  const downloadUrl = URL.createObjectURL(icsBlob);
+  const a = document.createElement('a');
+  a.href = downloadUrl;
+  a.download = `${(routine.name || 'routine').trim().replace(/\s+/g, '_')}_calendar.ics`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(downloadUrl);
+
+  showToast(`Exported ${eventCount} recurring classes to .ics calendar!`);
+}
+

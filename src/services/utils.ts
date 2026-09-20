@@ -52,3 +52,39 @@ export function showToast(message: string, durationMs: number = 2400): void {
     setTimeout(() => toast.remove(), 200);
   }, durationMs);
 }
+
+/**
+ * Encodes a JSON-serializable object into a URL-safe Base64 string
+ * (supports UTF-8 characters properly across all browsers).
+ */
+export function encodeToBase64Url(data: unknown): string {
+  const jsonStr = JSON.stringify(data);
+  // UTF-8 safe encode
+  const utf8Bytes = encodeURIComponent(jsonStr).replace(/%([0-9A-F]{2})/g, (_, p1) =>
+    String.fromCharCode(parseInt(p1, 16))
+  );
+  return btoa(utf8Bytes).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+/**
+ * Decodes a URL-safe Base64 string back into an object
+ */
+export function decodeFromBase64Url<T>(base64Url: string): T | null {
+  try {
+    let base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+    while (base64.length % 4 !== 0) {
+      base64 += '=';
+    }
+    const binary = atob(base64);
+    const jsonStr = decodeURIComponent(
+      Array.from(binary)
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    );
+    return JSON.parse(jsonStr) as T;
+  } catch (e) {
+    console.error('Failed to decode Base64 URL data', e);
+    return null;
+  }
+}
+

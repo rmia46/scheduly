@@ -199,20 +199,32 @@ export function renderSidebar(container: HTMLElement): void {
                       .map(escapeHtml)
                       .join(' • ');
 
+                    const hasConflict = instances.some((inst) => {
+                      return routine.courses.some((other) => other.id !== inst.id && other.day === inst.day && other.slotId === inst.slotId);
+                    });
+
                     return `
-                <div class="p-2.5 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-white hover:border-slate-300 transition-all flex items-center justify-between group">
+                <div class="p-2.5 rounded-xl border ${hasConflict ? 'border-rose-300 bg-rose-50/40' : 'border-slate-200/80 bg-slate-50/50'} hover:bg-white hover:border-slate-300 transition-all flex items-center justify-between group">
                   <div class="flex items-center gap-2.5 min-w-0">
                     <span class="w-3 h-3 rounded-full shrink-0" style="background-color: ${primary.color}"></span>
                     <div class="min-w-0">
                       <div class="flex items-center gap-1.5">
                         <p class="text-xs font-bold text-slate-900 truncate">${escapeHtml(primary.name)}</p>
                         ${
+                          hasConflict
+                            ? `<span class="text-[9px] font-bold px-1.5 py-0.2 rounded-full bg-rose-100 text-rose-700 flex items-center gap-1" title="Time slot clash detected">
+                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                                Conflict
+                              </span>`
+                            : ''
+                        }
+                        ${
                           instances.length > 1
                             ? `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-700">${instances.length} slots</span>`
                             : ''
                         }
                       </div>
-                      <p class="text-[10px] text-slate-500 truncate">
+                      <p class="text-[10px] ${hasConflict ? 'text-rose-600 font-medium' : 'text-slate-500'} truncate">
                         ${details ? `${details} • ` : ''}${daysSummary} (${slotsSummary})
                       </p>
                     </div>
