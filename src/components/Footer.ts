@@ -6,8 +6,8 @@ export function renderFooter(container: HTMLElement): void {
   const theme = THEMES[state.theme];
 
   container.innerHTML = `
-    <div class="border-t border-slate-200/80 bg-white/75 backdrop-blur-md py-4 px-4 sm:px-6">
-      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+    <div class="border-t border-slate-200/80 bg-white/75 backdrop-blur-md py-2 px-4 sm:px-6">
+      <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
         <div class="flex items-center gap-2">
           <div class="w-5 h-5 rounded-md flex items-center justify-center font-black text-[10px] text-white shadow-2xs" style="background-color: ${theme.primary}">
             S

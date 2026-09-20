@@ -212,7 +212,7 @@ export function renderTimetable(container: HTMLElement): void {
             </div>
         </div>
 
-        <footer class="mt-4 pt-3 border-t border-slate-150 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
+        <footer class="mt-2.5 pt-2 border-t border-slate-150 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-1.5">
           ${
             state.showQuotes
               ? `<div id="timetable-quote-content" class="transition-opacity duration-200 text-center sm:text-left flex flex-wrap items-center gap-1.5 justify-center sm:justify-start cursor-pointer select-none hover:text-slate-600 transition-colors" title="Click to see next quote">

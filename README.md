@@ -2,7 +2,7 @@
 
 **Your Routine, Simplified**
 
-[![Version](https://img.shields.io/badge/version-v2.30.0-blue.svg)](https://github.com/rmia46/scheduly)
+[![Version](https://img.shields.io/badge/version-v2.31.0-blue.svg)](https://github.com/rmia46/scheduly)
 [![Website](https://img.shields.io/website?url=https%3A%2F%2Frmia46.github.io%2Fscheduly\&logo=google-chrome\&logoColor=white\&label=Live%20Demo)](https://rmia46.github.io/scheduly/)
 ![GitHub Repo stars](https://img.shields.io/github/stars/rmia46/scheduly?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/rmia46/scheduly?style=social)
