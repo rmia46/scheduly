@@ -19,16 +19,16 @@ export function renderTimetable(container: HTMLElement): void {
 
         <!-- Timetable Scroll Wrapper for Mobile -->
         <div class="overflow-x-auto overflow-y-visible pb-2 select-none">
-          <div class="min-w-[650px] border border-slate-200/80 rounded-xl overflow-hidden bg-slate-50/50">
+          <div class="min-w-[680px]">
             
             <!-- Grid Header Row (Days) -->
-            <div class="grid grid-cols-8 border-b border-slate-200 text-xs font-bold text-slate-600 bg-slate-100/80">
-              <div class="p-2.5 text-center border-r border-slate-200 bg-slate-200/50 font-semibold text-[11px] text-slate-500">
+            <div class="grid grid-cols-8 gap-1.5 mb-1.5 text-xs font-bold text-slate-600">
+              <div class="p-2 text-center rounded-xl bg-slate-100/90 border border-slate-200/80 font-semibold text-[11px] text-slate-500 flex items-center justify-center">
                 Time / Day
               </div>
               ${DAYS_SHORT.map(
                 (d, idx) => `
-                <div class="p-2 text-center border-r last:border-r-0 border-slate-200">
+                <div class="p-2 text-center rounded-xl bg-slate-100/90 border border-slate-200/80">
                   <span class="block text-slate-900">${d}</span>
                   <span class="block text-[10px] font-normal text-slate-400 leading-tight hidden sm:block">${DAYS_FULL[idx]}</span>
                 </div>
@@ -37,57 +37,58 @@ export function renderTimetable(container: HTMLElement): void {
             </div>
 
             <!-- Grid Rows (Slots) -->
-            ${routine.slots
-              .map((slot) => {
-                return `
-                <div class="grid grid-cols-8 border-b last:border-b-0 border-slate-200/80 text-xs">
-                  <!-- Time Column -->
-                  <div class="p-2 text-center border-r border-slate-200/80 bg-slate-50 font-bold text-[11px] text-slate-600 flex items-center justify-center">
-                    ${slot.label}
+            <div class="space-y-1.5">
+              ${routine.slots
+                .map((slot) => {
+                  return `
+                  <div class="grid grid-cols-8 gap-1.5 text-xs">
+                    <!-- Time Column -->
+                    <div class="p-2 text-center rounded-xl border border-slate-200/80 bg-slate-50 font-bold text-[11px] text-slate-600 flex items-center justify-center">
+                      ${slot.label}
+                    </div>
+
+                    <!-- 7 Day Cells -->
+                    ${[0, 1, 2, 3, 4, 5, 6]
+                      .map((dayIdx) => {
+                        const matches = routine.courses.filter((c) => c.day === dayIdx && c.slotId === slot.id);
+                        const isSelected = state.selectedCell?.day === dayIdx && state.selectedCell?.slotId === slot.id;
+
+                        return `
+                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl border border-slate-200/80 min-h-[76px] flex flex-col relative transition-all overflow-hidden cursor-pointer ${
+                          isSelected ? 'bg-sky-50/80 ring-2 ring-sky-400 border-transparent shadow-xs' : 'hover:border-slate-300 hover:bg-slate-50/50 bg-white shadow-2xs'
+                        }">
+                          ${matches
+                            .map((course) => {
+                              const rgb = hexToRgb(course.color);
+                              const [r, g, b] = getContrastColor(rgb);
+                              const textColor = `rgb(${r}, ${g}, ${b})`;
+
+                              const meta = [course.section, course.room, course.faculty]
+                                .filter((v): v is string => Boolean(v && v.trim()))
+                                .map((v) => escapeHtml(v))
+                                .join(' • ');
+                              return `
+                              <div draggable="true" data-drag-course-id="${course.id}" class="w-full h-full flex-1 p-2 flex flex-col justify-center items-center text-center transition-all group relative select-none rounded-[10px]" style="background-color: ${course.color}; color: ${textColor};">
+                                <p class="font-extrabold text-xs leading-snug line-clamp-2">${escapeHtml(course.name)}</p>
+                                ${
+                                  meta
+                                    ? `<p class="text-[10px] font-medium opacity-90 mt-0.5 leading-tight">${meta}</p>`
+                                    : ''
+                                }
+                                <button data-quick-delete="${course.id}" class="no-print absolute top-1 right-1 w-4 h-4 bg-slate-900/80 text-white rounded-full text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer shadow-xs" title="Remove course">×</button>
+                              </div>
+                            `;
+                            })
+                            .join('')}
+                        </div>
+                      `;
+                      })
+                      .join('')}
                   </div>
-
-                  <!-- 7 Day Cells -->
-                  ${[0, 1, 2, 3, 4, 5, 6]
-                    .map((dayIdx) => {
-                      const matches = routine.courses.filter((c) => c.day === dayIdx && c.slotId === slot.id);
-                      const isSelected = state.selectedCell?.day === dayIdx && state.selectedCell?.slotId === slot.id;
-
-                      return `
-                      <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="border-r last:border-r-0 border-slate-200/80 min-h-[76px] flex flex-col relative transition-colors cursor-pointer ${
-                        isSelected ? 'bg-sky-50/80 ring-2 ring-sky-400 inset-0' : 'hover:bg-slate-100/60 bg-white'
-                      }">
-                        ${matches
-                          .map((course) => {
-                            const rgb = hexToRgb(course.color);
-                            const [r, g, b] = getContrastColor(rgb);
-                            const textColor = `rgb(${r}, ${g}, ${b})`;
-
-                            const meta = [course.section, course.room, course.faculty]
-                              .filter((v): v is string => Boolean(v && v.trim()))
-                              .map((v) => escapeHtml(v))
-                              .join(' • ');
-                            return `
-                            <div draggable="true" data-drag-course-id="${course.id}" class="w-full h-full flex-1 p-2 flex flex-col justify-center items-center text-center transition-all group relative select-none" style="background-color: ${course.color}; color: ${textColor};">
-                              <p class="font-extrabold text-xs leading-snug line-clamp-2">${escapeHtml(course.name)}</p>
-                              ${
-                                meta
-                                  ? `<p class="text-[10px] font-medium opacity-90 mt-0.5 leading-tight">${meta}</p>`
-                                  : ''
-                              }
-                              <button data-quick-delete="${course.id}" class="no-print absolute top-1 right-1 w-4 h-4 bg-slate-900/80 text-white rounded-full text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer shadow-xs" title="Remove course">×</button>
-                            </div>
-                          `;
-                          })
-                          .join('')}
-                      </div>
-                    `;
-                    })
-                    .join('')}
-                </div>
-              `;
-              })
-              .join('')}
-          </div>
+                `;
+                })
+                .join('')}
+            </div>
         </div>
 
         <footer class="mt-4 pt-3 border-t border-slate-150 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-2">
