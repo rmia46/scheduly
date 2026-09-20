@@ -5,6 +5,7 @@ export interface TimeSlot {
 
 export interface Course {
   id: string;
+  courseGroupId?: string; // Links recurring multi-day instances of the same course
   name: string;
   section: string;
   room: string;

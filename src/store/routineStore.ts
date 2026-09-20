@@ -182,6 +182,25 @@ class Store {
     this.notify();
   }
 
+  public addCourseMultipleDays(
+    courseData: Omit<Course, 'id' | 'day' | 'courseGroupId'>,
+    days: number[]
+  ): void {
+    const routine = this.getActiveRoutine();
+    if (!routine || days.length === 0) return;
+
+    const groupId = uid('cgrp');
+    const newCourses: Course[] = days.map((day) => ({
+      ...courseData,
+      id: uid('course'),
+      courseGroupId: groupId,
+      day,
+    }));
+
+    routine.courses.push(...newCourses);
+    this.notify();
+  }
+
   public updateCourse(updated: Course): void {
     const routine = this.getActiveRoutine();
     if (!routine) return;
@@ -197,6 +216,15 @@ class Store {
     const routine = this.getActiveRoutine();
     if (!routine) return;
     routine.courses = routine.courses.filter((c) => c.id !== id);
+    this.notify();
+  }
+
+  public deleteCourseGroup(groupIdOrId: string): void {
+    const routine = this.getActiveRoutine();
+    if (!routine) return;
+    routine.courses = routine.courses.filter(
+      (c) => c.courseGroupId !== groupIdOrId && c.id !== groupIdOrId
+    );
     this.notify();
   }
 
