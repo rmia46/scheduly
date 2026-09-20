@@ -23,14 +23,14 @@ export function renderTimetable(container: HTMLElement): void {
             
             <!-- Grid Header Row (Days) -->
             <div class="grid grid-cols-8 gap-1.5 mb-1.5 text-xs font-bold text-slate-600">
-              <div class="p-2 text-center rounded-xl bg-slate-100/90 border border-slate-200/80 font-semibold text-[11px] text-slate-500 flex items-center justify-center">
+              <div class="py-1.5 px-2 text-center rounded-xl bg-slate-100/90 border border-slate-200/80 font-semibold text-[10px] text-slate-500 flex items-center justify-center">
                 Time / Day
               </div>
               ${DAYS_SHORT.map(
                 (d, idx) => `
-                <div class="p-2 text-center rounded-xl bg-slate-100/90 border border-slate-200/80">
+                <div class="py-1.5 px-1 text-center rounded-xl bg-slate-100/90 border border-slate-200/80">
                   <span class="block text-slate-900">${d}</span>
-                  <span class="block text-[10px] font-normal text-slate-400 leading-tight hidden sm:block">${DAYS_FULL[idx]}</span>
+                  <span class="block text-[9.5px] font-normal text-slate-400 leading-tight hidden sm:block">${DAYS_FULL[idx]}</span>
                 </div>
               `
               ).join('')}
@@ -43,7 +43,7 @@ export function renderTimetable(container: HTMLElement): void {
                   return `
                   <div class="grid grid-cols-8 gap-1.5 text-xs">
                     <!-- Time Column -->
-                    <div class="p-2 text-center rounded-xl border border-slate-200/80 bg-slate-50 font-bold text-[11px] text-slate-600 flex items-center justify-center">
+                    <div class="p-1.5 text-center rounded-xl border border-slate-200/80 bg-slate-50 font-bold text-[10.5px] text-slate-600 flex items-center justify-center leading-tight">
                       ${slot.label}
                     </div>
 
@@ -54,7 +54,7 @@ export function renderTimetable(container: HTMLElement): void {
                         const isSelected = state.selectedCell?.day === dayIdx && state.selectedCell?.slotId === slot.id;
 
                         return `
-                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl border border-slate-200/80 h-[74px] min-h-[74px] relative transition-all p-1 hover:overflow-visible cursor-pointer ${
+                        <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="rounded-xl border border-slate-200/80 h-[64px] min-h-[64px] relative transition-all p-1 hover:overflow-visible cursor-pointer ${
                           isSelected ? 'bg-sky-50/80 ring-2 ring-sky-400 border-transparent shadow-xs' : 'hover:border-slate-300 hover:bg-slate-50/50 bg-white shadow-2xs'
                         }">
                           ${matches
