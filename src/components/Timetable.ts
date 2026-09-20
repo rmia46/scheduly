@@ -62,11 +62,12 @@ export function renderTimetable(container: HTMLElement): void {
                               const rgb = hexToRgb(course.color);
                               const [r, g, b] = getContrastColor(rgb);
                               const textColor = `rgb(${r}, ${g}, ${b})`;
-                              const isDarkBg = r === 255; // White text on dark/vibrant background
-
-                              const metaParts = [course.section, course.room, course.faculty].filter(
-                                (v): v is string => Boolean(v && v.trim())
-                              );
+                              const leftMeta = [course.section, course.room]
+                                .filter((v): v is string => Boolean(v && v.trim()))
+                                .map((v) => escapeHtml(v))
+                                .join(' • ');
+                              const rightMeta = course.faculty ? escapeHtml(course.faculty.trim()) : '';
+                              const hasMeta = leftMeta || rightMeta;
 
                               // When multiple courses occupy the same cell, stack them with an offset cascade like a deck of cards
                               const isStacked = matches.length > 1;
@@ -77,19 +78,21 @@ export function renderTimetable(container: HTMLElement): void {
                                 : `top: 0; left: 0; width: 100%; height: 100%;`;
 
                               return `
-                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute p-1.5 flex flex-col justify-between items-center text-center group select-none rounded-xl border border-white/20 shadow-xs overflow-hidden ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
-                                <div class="w-full flex-1 flex items-center justify-center min-h-0 px-0.5">
-                                  <p class="font-extrabold text-[11px] leading-tight line-clamp-2 break-words">${escapeHtml(course.name)}</p>
+                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute p-2 flex flex-col justify-between items-center text-center group select-none rounded-xl border border-white/25 shadow-xs overflow-hidden ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
+                                <div class="w-full flex-1 flex items-center justify-center min-h-0">
+                                  <p class="font-extrabold text-xs leading-snug line-clamp-2 break-words px-1">${escapeHtml(course.name)}</p>
                                 </div>
                                 ${
-                                  metaParts.length > 0
+                                  hasMeta
                                     ? `
-                                  <div class="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-tight max-w-[95%] truncate ${
-                                    isDarkBg
-                                      ? 'bg-black/20 text-white/90 border border-white/15'
-                                      : 'bg-white/50 text-slate-800 border border-black/10'
-                                  }">
-                                    ${metaParts.map((m) => `<span class="truncate">${escapeHtml(m)}</span>`).join('<span class="opacity-30">•</span>')}
+                                  <div class="w-full mt-1.5 pt-1 border-t border-current/20 flex items-center justify-between text-[10px] font-semibold leading-none opacity-90 px-0.5">
+                                    <span class="truncate text-left ${!rightMeta ? 'w-full text-center' : ''}">${leftMeta || ''}</span>
+                                    ${
+                                      leftMeta && rightMeta
+                                        ? `<span class="h-3 w-px bg-current/25 mx-1.5 shrink-0"></span>`
+                                        : ''
+                                    }
+                                    <span class="truncate text-right font-bold shrink-0 ${!leftMeta ? 'w-full text-center' : ''}">${rightMeta}</span>
                                   </div>
                                 `
                                     : ''
