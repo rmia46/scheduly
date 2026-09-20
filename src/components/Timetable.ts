@@ -53,7 +53,7 @@ export function renderTimetable(container: HTMLElement): void {
                       const isSelected = state.selectedCell?.day === dayIdx && state.selectedCell?.slotId === slot.id;
 
                       return `
-                      <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="border-r last:border-r-0 border-slate-200/80 min-h-[64px] p-1.5 flex flex-col gap-1 relative transition-colors cursor-pointer ${
+                      <div data-cell-day="${dayIdx}" data-cell-slot="${slot.id}" class="border-r last:border-r-0 border-slate-200/80 min-h-[76px] flex flex-col relative transition-colors cursor-pointer ${
                         isSelected ? 'bg-sky-50/80 ring-2 ring-sky-400 inset-0' : 'hover:bg-slate-100/60 bg-white'
                       }">
                         ${matches
@@ -67,14 +67,14 @@ export function renderTimetable(container: HTMLElement): void {
                               .map((v) => escapeHtml(v))
                               .join(' • ');
                             return `
-                            <div draggable="true" data-drag-course-id="${course.id}" class="rounded-lg p-1.5 text-center shadow-xs transition-transform hover:scale-[1.02] active:scale-95 group relative select-none" style="background-color: ${course.color}; color: ${textColor};">
-                              <p class="font-extrabold text-[11px] leading-tight truncate">${escapeHtml(course.name)}</p>
+                            <div draggable="true" data-drag-course-id="${course.id}" class="w-full h-full flex-1 p-2 flex flex-col justify-center items-center text-center transition-all group relative select-none" style="background-color: ${course.color}; color: ${textColor};">
+                              <p class="font-extrabold text-xs leading-snug line-clamp-2">${escapeHtml(course.name)}</p>
                               ${
                                 meta
-                                  ? `<p class="text-[9px] font-medium opacity-90 leading-tight truncate">${meta}</p>`
+                                  ? `<p class="text-[10px] font-medium opacity-90 mt-0.5 leading-tight">${meta}</p>`
                                   : ''
                               }
-                              <button data-quick-delete="${course.id}" class="no-print absolute -top-1 -right-1 w-4 h-4 bg-slate-900/80 text-white rounded-full text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer shadow-xs" title="Remove course">×</button>
+                              <button data-quick-delete="${course.id}" class="no-print absolute top-1 right-1 w-4 h-4 bg-slate-900/80 text-white rounded-full text-[9px] font-bold opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer shadow-xs" title="Remove course">×</button>
                             </div>
                           `;
                           })
