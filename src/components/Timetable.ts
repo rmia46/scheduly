@@ -19,7 +19,7 @@ export function renderTimetable(container: HTMLElement): void {
 
         <!-- Timetable Scroll Wrapper for Mobile -->
         <div class="overflow-x-auto overflow-y-visible pb-2 select-none">
-          <div class="min-w-[680px]">
+          <div class="min-w-[760px]">
             
             <!-- Grid Header Row (Days) -->
             <div class="grid grid-cols-8 gap-1.5 mb-1.5 text-xs font-bold text-slate-600">
@@ -64,11 +64,9 @@ export function renderTimetable(container: HTMLElement): void {
                               const textColor = `rgb(${r}, ${g}, ${b})`;
                               const isDarkBg = r === 255; // White text on dark/vibrant background
 
-                              const metaItems = [
-                                course.section ? `Sec ${course.section}` : '',
-                                course.room ? `R ${course.room}` : '',
-                                course.faculty || '',
-                              ].filter((v): v is string => Boolean(v && v.trim()));
+                              const metaParts = [course.section, course.room, course.faculty].filter(
+                                (v): v is string => Boolean(v && v.trim())
+                              );
 
                               // When multiple courses occupy the same cell, stack them with an offset cascade like a deck of cards
                               const isStacked = matches.length > 1;
@@ -79,19 +77,19 @@ export function renderTimetable(container: HTMLElement): void {
                                 : `top: 0; left: 0; width: 100%; height: 100%;`;
 
                               return `
-                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute p-2 flex flex-col justify-between items-center text-center group select-none rounded-xl border border-white/20 shadow-xs ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
-                                <div class="w-full flex-1 flex items-center justify-center min-h-0">
-                                  <p class="font-extrabold text-xs leading-snug line-clamp-2 px-1">${escapeHtml(course.name)}</p>
+                              <div draggable="true" data-drag-course-id="${course.id}" class="absolute p-1.5 flex flex-col justify-between items-center text-center group select-none rounded-xl border border-white/20 shadow-xs overflow-hidden ${isStacked ? 'stacked-course cursor-grab' : 'w-full h-full'}" style="background-color: ${course.color}; color: ${textColor}; ${stackStyle}">
+                                <div class="w-full flex-1 flex items-center justify-center min-h-0 px-0.5">
+                                  <p class="font-extrabold text-[11px] leading-tight line-clamp-2 break-words">${escapeHtml(course.name)}</p>
                                 </div>
                                 ${
-                                  metaItems.length > 0
+                                  metaParts.length > 0
                                     ? `
-                                  <div class="mt-1 inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[10px] font-bold tracking-tight shadow-2xs max-w-full truncate ${
+                                  <div class="mt-1 inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full text-[9px] font-bold tracking-tight max-w-[95%] truncate ${
                                     isDarkBg
-                                      ? 'bg-black/20 text-white/95 border border-white/15'
-                                      : 'bg-white/40 text-slate-800 border border-black/10'
+                                      ? 'bg-black/20 text-white/90 border border-white/15'
+                                      : 'bg-white/50 text-slate-800 border border-black/10'
                                   }">
-                                    ${metaItems.map((m) => `<span>${escapeHtml(m)}</span>`).join('<span class="opacity-40">•</span>')}
+                                    ${metaParts.map((m) => `<span class="truncate">${escapeHtml(m)}</span>`).join('<span class="opacity-30">•</span>')}
                                   </div>
                                 `
                                     : ''
