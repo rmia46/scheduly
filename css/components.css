@@ -306,3 +306,103 @@ input:focus, select:focus {
         min-width: unset; /* Reset for dropdown items */
     }
 }
+
+/* Sidebar Tabbed Interface */
+.sidebar-card {
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-tabs {
+    display: flex;
+    background: var(--surface-tint);
+    border: 1px solid #e2e8f0;
+    border-radius: 14px;
+    padding: 4px;
+    gap: 4px;
+    margin-bottom: 16px;
+}
+
+.sidebar-tab {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 6px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.sidebar-tab .tab-icon {
+    font-size: 1.1rem;
+}
+
+.sidebar-tab:hover {
+    color: var(--accent-1);
+    background: rgba(255, 255, 255, 0.6);
+}
+
+.sidebar-tab.active {
+    background: #ffffff;
+    color: var(--accent-1);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+}
+
+.badge {
+    display: inline-block;
+    padding: 1px 6px;
+    font-size: 0.72rem;
+    border-radius: 10px;
+    background: rgba(0, 0, 0, 0.08);
+    color: inherit;
+    font-weight: 700;
+}
+
+.sidebar-tab.active .badge {
+    background: var(--accent-1);
+    color: #ffffff;
+}
+
+.tab-pane {
+    display: none;
+    animation: fadeInTab 0.2s ease-in-out;
+}
+
+.tab-pane.active {
+    display: block;
+}
+
+@keyframes fadeInTab {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.pane-title {
+    margin: 0 0 12px 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.scrollable-list {
+    max-height: 480px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.scrollable-list::-webkit-scrollbar {
+    width: 6px;
+}
+
+.scrollable-list::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+}

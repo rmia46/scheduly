@@ -83,6 +83,12 @@ function renderSlotsList() {
     });
     slotsListEl.appendChild(fragment);
 
+    // Update tab badge count
+    const slotsCountBadge = document.getElementById('slots-count-badge');
+    if (slotsCountBadge) {
+        slotsCountBadge.textContent = activeRoutine.slots.length;
+    }
+
     // Trigger animation
     setTimeout(() => {
         slotsListEl.querySelectorAll('.list-item.entering').forEach(item => {
@@ -108,6 +114,11 @@ function renderSlotsList() {
 function renderCoursesList() {
     const activeRoutine = getActiveRoutine();
     if (!activeRoutine) return;
+
+    const coursesCountBadge = document.getElementById('courses-count-badge');
+    if (coursesCountBadge) {
+        coursesCountBadge.textContent = activeRoutine.courses.length;
+    }
 
     coursesListEl.innerHTML = '';
     if (activeRoutine.courses.length === 0) {
@@ -144,15 +155,18 @@ function renderCoursesList() {
     });
     coursesListEl.appendChild(fragment);
 
+    // Update tab badge count
+    const coursesCountBadge = document.getElementById('courses-count-badge');
+    if (coursesCountBadge) {
+        coursesCountBadge.textContent = activeRoutine.courses.length;
+    }
+
     // Trigger animation
     setTimeout(() => {
         coursesListEl.querySelectorAll('.list-item.entering').forEach(item => {
             item.classList.remove('entering');
         });
     }, 50);
-
-    
-
 }
 
 function renderTimetable() {
@@ -266,6 +280,21 @@ function renderTimetable() {
                     renderUI();
                     saveStateToLocalStorage();
                 }
+            });
+
+            // Clicking an empty cell switches to the Add Course tab and pre-selects day and slot
+            dcell.addEventListener('click', () => {
+                const daySelect = document.getElementById('course-day');
+                const slotSelect = document.getElementById('course-slot');
+                if (daySelect) daySelect.value = day;
+                if (slotSelect) slotSelect.value = slot.id;
+
+                // Switch to Add Course tab
+                if (typeof switchSidebarTab === 'function') {
+                    switchSidebarTab('tab-add-course');
+                }
+                const nameInput = document.getElementById('course-name');
+                if (nameInput) nameInput.focus();
             });
 
             row.appendChild(dcell);

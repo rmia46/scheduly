@@ -70,72 +70,96 @@
 
         <main class="app-body">
             <aside class="panel left-panel">
-                <section class="card form-card">
-                    <h2>Add Course</h2>
-                    <div class="field">
-                        <label>Course name</label>
-                        <input id="course-name" placeholder="e.g. Algorithms" />
-                    </div>
-                    <div class="field two">
-                        <div>
-                            <label>Section</label>
-                            <input id="course-section" placeholder="e.g. A" />
-                        </div>
-                        <div>
-                            <label>Room</label>
-                            <input id="course-room" placeholder="e.g. C-203" />
-                        </div>
-                    </div>
+                <div class="sidebar-card card">
+                    <nav class="sidebar-tabs">
+                        <button class="sidebar-tab active" data-tab="tab-add-course">
+                            <span class="material-symbols-outlined tab-icon">add_circle</span>
+                            <span>Add</span>
+                        </button>
+                        <button class="sidebar-tab" data-tab="tab-courses">
+                            <span class="material-symbols-outlined tab-icon">menu_book</span>
+                            <span>Courses <span id="courses-count-badge" class="badge">0</span></span>
+                        </button>
+                        <button class="sidebar-tab" data-tab="tab-slots">
+                            <span class="material-symbols-outlined tab-icon">schedule</span>
+                            <span>Slots <span id="slots-count-badge" class="badge">0</span></span>
+                        </button>
+                    </nav>
 
-                    <div class="field two">
-                        <div>
-                            <label>Day</label>
-                            <select id="course-day">
-                                <option value="0">Sunday</option>
-                                <option value="1">Monday</option>
-                                <option value="2">Tuesday</option>
-                                <option value="3">Wednesday</option>
-                                <option value="4">Thursday</option>
-                                <option value="5">Friday</option>
-                                <option value="6">Saturday</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Time slot</label>
-                            <select id="course-slot"></select>
-                        </div>
-                    </div>
+                    <div class="tab-contents">
+                        <!-- TAB 1: ADD COURSE -->
+                        <section id="tab-add-course" class="tab-pane active">
+                            <h2 class="pane-title">Add Course</h2>
+                            <div class="field">
+                                <label>Course name</label>
+                                <input id="course-name" placeholder="e.g. Algorithms" />
+                            </div>
+                            <div class="field two">
+                                <div>
+                                    <label>Section</label>
+                                    <input id="course-section" placeholder="e.g. A" />
+                                </div>
+                                <div>
+                                    <label>Room</label>
+                                    <input id="course-room" placeholder="e.g. C-203" />
+                                </div>
+                            </div>
 
-                    <div class="field">
-                        <label>Color (optional)</label>
-                        <div id="course-color-palette" class="color-palette"></div>
-                        <input type="hidden" id="course-color" value="#7c4dff" />
-                    </div>
+                            <div class="field two">
+                                <div>
+                                    <label>Day</label>
+                                    <select id="course-day">
+                                        <option value="0">Sunday</option>
+                                        <option value="1">Monday</option>
+                                        <option value="2">Tuesday</option>
+                                        <option value="3">Wednesday</option>
+                                        <option value="4">Thursday</option>
+                                        <option value="5">Friday</option>
+                                        <option value="6">Saturday</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label>Time slot</label>
+                                    <select id="course-slot"></select>
+                                </div>
+                            </div>
 
-                    <div class="actions">
-                        <button id="add-course" class="primary">Add course</button>
-                        <button id="clear-form" class="muted">Clear</button>
-                    </div>
-                </section>
+                            <div class="field">
+                                <label>Color (optional)</label>
+                                <div id="course-color-palette" class="color-palette"></div>
+                                <input type="hidden" id="course-color" value="#7c4dff" />
+                            </div>
 
-                <section class="card small-card">
-                    <h3>Courses</h3>
-                    <div id="courses-list" class="list"></div>
-                </section>
+                            <div class="actions">
+                                <button id="add-course" class="primary">Add course</button>
+                                <button id="clear-form" class="muted">Clear</button>
+                            </div>
+                        </section>
 
-                <section class="card small-card">
-                    <h3>Slots</h3>
-                    <div id="slots-list" class="list small"></div>
-                    <div class="field">
-                        <label>Add Time Slot</label>
-                        <div class="slot-actions">
-                            <input id="new-slot-start" type="time" />
-                            <span class="time-separator">-</span>
-                            <input id="new-slot-end" type="time" />
-                            <button id="add-slot" class="small">Add</button>
-                        </div>
+                        <!-- TAB 2: COURSES LIST -->
+                        <section id="tab-courses" class="tab-pane">
+                            <div class="pane-header-row">
+                                <h3 class="pane-title">Routine Courses</h3>
+                            </div>
+                            <div id="courses-list" class="list scrollable-list"></div>
+                        </section>
+
+                        <!-- TAB 3: SLOTS LIST & ADD -->
+                        <section id="tab-slots" class="tab-pane">
+                            <div class="field">
+                                <label>Add New Time Slot</label>
+                                <div class="slot-actions">
+                                    <input id="new-slot-start" type="time" />
+                                    <span class="time-separator">-</span>
+                                    <input id="new-slot-end" type="time" />
+                                    <button id="add-slot" class="small">Add</button>
+                                </div>
+                            </div>
+                            <h3 class="pane-title" style="margin-top: 16px;">Active Slots</h3>
+                            <div id="slots-list" class="list small scrollable-list"></div>
+                        </section>
                     </div>
-                </section>
+                </div>
             </aside>
 
             <section class="panel right-panel">

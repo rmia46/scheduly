@@ -195,6 +195,15 @@ function toggleMenu(forceState) {
     }, 300); // matches CSS transition duration
 }
 
+function switchSidebarTab(tabId) {
+    document.querySelectorAll('.sidebar-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabId);
+    });
+    document.querySelectorAll('.tab-pane').forEach(pane => {
+        pane.classList.toggle('active', pane.id === tabId);
+    });
+}
+
 function setupEventListeners() {
     document.getElementById('add-course').addEventListener('click', onAddCourse);
     document.getElementById('clear-form').addEventListener('click', clearForm);
@@ -217,6 +226,14 @@ function setupEventListeners() {
     if (printBtn) {
         printBtn.addEventListener('click', printRoutine);
     }
+
+    // Sidebar tab switching
+    document.querySelectorAll('.sidebar-tab').forEach(tabBtn => {
+        tabBtn.addEventListener('click', () => {
+            const targetTab = tabBtn.dataset.tab;
+            switchSidebarTab(targetTab);
+        });
+    });
 
     document.getElementById('zoom-in').addEventListener('click', () => changeZoom(0.1));
     document.getElementById('zoom-out').addEventListener('click', () => changeZoom(-0.1));
