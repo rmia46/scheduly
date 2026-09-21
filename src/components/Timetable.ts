@@ -17,8 +17,8 @@ function advanceQuote(): void {
   quoteContainer.style.opacity = '0';
   setTimeout(() => {
     quoteContainer.innerHTML = `
-      <span>“${escapeHtml(nextQuote.text)}”</span>
-      <span class="font-medium text-slate-500">— ${escapeHtml(nextQuote.author)}</span>
+      <span class="text-[13px] tracking-wide text-slate-700" style="font-family: 'Kalam', 'Caveat', cursive, sans-serif;">“${escapeHtml(nextQuote.text)}”</span>
+      <span class="font-semibold text-slate-500 text-[11px]">— ${escapeHtml(nextQuote.author)}</span>
     `;
     quoteContainer.style.opacity = '1';
   }, 200);
@@ -215,9 +215,9 @@ export function renderTimetable(container: HTMLElement): void {
         <footer class="mt-2.5 pt-2 border-t border-slate-150 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-1.5">
           ${
             state.showQuotes
-              ? `<div id="timetable-quote-content" class="transition-opacity duration-200 text-center sm:text-left flex flex-wrap items-center gap-1.5 justify-center sm:justify-start cursor-pointer select-none hover:text-slate-600 transition-colors" title="Click to see next quote">
-                   <span>“${escapeHtml(initialQuote.text)}”</span>
-                   <span class="font-medium text-slate-500">— ${escapeHtml(initialQuote.author)}</span>
+              ? `<div id="timetable-quote-content" class="transition-opacity duration-200 text-center sm:text-left flex flex-wrap items-center gap-1.5 justify-center sm:justify-start cursor-pointer select-none hover:text-slate-800 transition-colors" title="Click to see next quote">
+                   <span class="text-[13px] tracking-wide text-slate-700" style="font-family: 'Kalam', 'Caveat', cursive, sans-serif;">“${escapeHtml(initialQuote.text)}”</span>
+                   <span class="font-semibold text-slate-500 text-[11px]">— ${escapeHtml(initialQuote.author)}</span>
                  </div>`
               : `<div></div>`
           }
