@@ -30,10 +30,9 @@ export function renderHeader(container: HTMLElement): void {
         </button>
 
         <!-- App Branding -->
-        <div class="flex items-center gap-2 pr-1.5 border-r border-slate-200">
-          ${renderLogoSvg('w-5.5 h-5.5 select-none pointer-events-none transition-colors duration-300', theme.primary, theme.accent)}
-          <span class="text-base font-bold text-slate-900 leading-none -skew-x-9 select-none tracking-tight" style="font-family: 'Caveat', cursive, ui-sans-serif, sans-serif; font-size: 1.15rem;">Scheduly</span>
-          <span class="text-[9px] uppercase font-bold tracking-wider px-1 py-0.2 rounded" style="background-color: ${theme.badgeBg}; color: ${theme.accent};">v2</span>
+        <div class="flex items-center gap-2 pr-2 border-r border-slate-200">
+          ${renderLogoSvg('w-6 h-6 select-none pointer-events-none transition-colors duration-300', theme.primary, theme.accent)}
+          <span class="font-bold leading-none select-none tracking-tight inline-block -rotate-2 hover:rotate-0 transition-all duration-200 origin-left" style="font-family: 'Caveat', cursive, ui-sans-serif, sans-serif; font-size: 1.45rem; color: ${theme.accent};">Scheduly</span>
         </div>
 
         <!-- Authentic Application Menu Bar (Desktop: md:flex) -->
