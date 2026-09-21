@@ -27,7 +27,7 @@ export function renderHeader(container: HTMLElement): void {
               <span>Routine</span>
             </button>
 
-            <div id="menu-routine-dropdown" class="hidden absolute left-0 mt-1 w-52 bg-white rounded-xl shadow-lg border border-slate-150 py-1.5 z-50 text-xs">
+            <div id="menu-routine-dropdown" class="hidden menu-popup-enter absolute left-0 mt-1 w-52 bg-white rounded-xl shadow-lg border border-slate-150 py-1.5 z-50 text-xs">
               <button id="action-new-routine" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center justify-between cursor-pointer">
                 <div class="flex items-center gap-2">
                   <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -59,7 +59,7 @@ export function renderHeader(container: HTMLElement): void {
               <span>Action</span>
             </button>
 
-            <div id="menu-tools-dropdown" class="hidden absolute left-0 mt-1 w-52 bg-white rounded-xl shadow-lg border border-slate-150 py-1.5 z-50 text-xs">
+            <div id="menu-tools-dropdown" class="hidden menu-popup-enter absolute left-0 mt-1 w-52 bg-white rounded-xl shadow-lg border border-slate-150 py-1.5 z-50 text-xs">
               <button id="action-undo" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center justify-between cursor-pointer ${
                 !store.canUndo() ? 'opacity-40 pointer-events-none' : ''
               }">
@@ -131,7 +131,7 @@ export function renderHeader(container: HTMLElement): void {
               <span>Share</span>
             </button>
 
-            <div id="menu-export-dropdown" class="hidden absolute left-0 mt-1 w-52 bg-white rounded-xl shadow-lg border border-slate-150 py-1.5 z-50 text-xs">
+            <div id="menu-export-dropdown" class="hidden menu-popup-enter absolute left-0 mt-1 w-52 bg-white rounded-xl shadow-lg border border-slate-150 py-1.5 z-50 text-xs">
               <button id="action-share-routine" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center justify-between cursor-pointer">
                 <div class="flex items-center gap-2">
                   <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -211,7 +211,7 @@ export function renderHeader(container: HTMLElement): void {
               <span>Theme</span>
             </button>
 
-            <div id="menu-theme-dropdown" class="hidden absolute left-0 mt-1 w-44 bg-white rounded-xl shadow-lg border border-slate-150 py-1.5 z-50 text-xs">
+            <div id="menu-theme-dropdown" class="hidden menu-popup-enter absolute left-0 mt-1 w-44 bg-white rounded-xl shadow-lg border border-slate-150 py-1.5 z-50 text-xs">
               <button data-theme="ocean" class="btn-theme-item w-full text-left px-3 py-2 flex items-center justify-between hover:bg-slate-50 cursor-pointer ${state.theme === 'ocean' ? 'bg-sky-50 font-semibold text-sky-900' : 'text-slate-700'}">
                 <div class="flex items-center gap-2">
                   <svg class="w-3.5 h-3.5 text-sky-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">

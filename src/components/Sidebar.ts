@@ -42,7 +42,7 @@ export function renderSidebar(container: HTMLElement): void {
     // Collapsed Rail: Slim vertical rail on desktop (hidden on mobile, but shown as compact bottom-right / top floating bar on mobile)
     container.innerHTML = `
       <!-- Desktop Mini Quick-Action Rail -->
-      <aside class="hidden md:flex flex-col items-center gap-3 p-2 bg-white rounded-2xl shadow-xs border transition-all duration-300 w-12" style="border-color: ${theme.border};">
+      <aside class="hidden md:flex flex-col items-center gap-3 p-2 bg-white rounded-2xl shadow-xs border transition-all duration-300 w-12 rail-enter" style="border-color: ${theme.border};">
         <!-- Expand Panel Button -->
         <button id="btn-rail-expand" class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer" title="Expand Editor Panel (⌘B / Ctrl+B)">
           <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
@@ -112,7 +112,7 @@ export function renderSidebar(container: HTMLElement): void {
   }
 
   container.innerHTML = `
-    <aside class="w-full md:w-80 lg:w-88 shrink-0 transition-all duration-300">
+    <aside class="w-full md:w-80 lg:w-88 shrink-0 transition-all duration-300 panel-expand-enter">
       <div class="bg-white rounded-2xl shadow-xs overflow-hidden flex flex-col h-full max-h-[calc(100vh-80px)] border transition-all duration-300" style="border-color: ${theme.border};">
         
         <!-- Header & Tab Navigation with Collapse Handle -->

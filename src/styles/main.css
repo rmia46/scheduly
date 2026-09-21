@@ -76,3 +76,50 @@
   transform: translateY(-4px) scale(1.02);
   box-shadow: 0 8px 18px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+/* Micro-animations & Popups */
+@keyframes menuPopup {
+  0% {
+    opacity: 0;
+    transform: scale(0.95) translateY(-6px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.menu-popup-enter {
+  animation: menuPopup 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top left;
+}
+
+@keyframes slideInRail {
+  0% {
+    opacity: 0;
+    transform: translateX(-12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.rail-enter {
+  animation: slideInRail 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes panelExpand {
+  0% {
+    opacity: 0;
+    transform: translateX(-16px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.panel-expand-enter {
+  animation: panelExpand 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
