@@ -1,5 +1,6 @@
 import { store } from '../store/routineStore';
 import { THEMES, APP_VERSION } from '../types/constants';
+import { renderLogoSvg } from './Logo';
 
 export function renderFooter(container: HTMLElement): void {
   const state = store.getState();
@@ -9,9 +10,7 @@ export function renderFooter(container: HTMLElement): void {
     <div class="border-t border-slate-200/80 bg-white/75 backdrop-blur-md py-2 px-4 sm:px-6">
       <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
         <div class="flex items-center gap-2">
-          <div class="w-5 h-5 rounded-md flex items-center justify-center font-black text-[10px] text-white shadow-2xs" style="background-color: ${theme.primary}">
-            S
-          </div>
+          ${renderLogoSvg('w-4.5 h-4.5 select-none transition-colors duration-300', theme.primary, theme.accent)}
           <span class="font-bold text-slate-800">Scheduly</span>
           <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-semibold font-mono" style="background-color: ${theme.subtleBg}; color: ${theme.accent};">v${APP_VERSION}</span>
           <span class="text-slate-300">•</span>

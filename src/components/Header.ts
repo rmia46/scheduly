@@ -2,6 +2,7 @@ import { store } from '../store/routineStore';
 import { THEMES, APP_VERSION } from '../types/constants';
 import type { ThemeName, Routine } from '../types';
 import { exportVectorPDF, exportPNGImage, exportICSCalendar } from '../services/exportService';
+import { renderLogoSvg } from './Logo';
 import { showToast, encodeToBase64Url, decodeFromBase64Url, escapeHtml } from '../services/utils';
 
 export function renderHeader(container: HTMLElement): void {
@@ -29,8 +30,9 @@ export function renderHeader(container: HTMLElement): void {
         </button>
 
         <!-- App Branding -->
-        <div class="flex items-center gap-1.5 pr-1 border-r border-slate-200">
-          <span class="text-sm font-bold tracking-tight text-slate-900 leading-none">Scheduly</span>
+        <div class="flex items-center gap-2 pr-1.5 border-r border-slate-200">
+          ${renderLogoSvg('w-5.5 h-5.5 select-none pointer-events-none transition-colors duration-300', theme.primary, theme.accent)}
+          <span class="text-base font-bold text-slate-900 leading-none -skew-x-9 select-none tracking-tight" style="font-family: 'Caveat', cursive, ui-sans-serif, sans-serif; font-size: 1.15rem;">Scheduly</span>
           <span class="text-[9px] uppercase font-bold tracking-wider px-1 py-0.2 rounded" style="background-color: ${theme.badgeBg}; color: ${theme.accent};">v2</span>
         </div>
 
@@ -626,8 +628,8 @@ export function renderHeader(container: HTMLElement): void {
       `,
       `
       <div class="flex items-center gap-3 p-3 rounded-xl bg-slate-50 border border-slate-200/80">
-        <div class="w-10 h-10 rounded-xl flex items-center justify-center font-black text-sm text-white shadow-xs" style="background-color: ${theme.primary}">
-          S2
+        <div class="p-1 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center">
+          ${renderLogoSvg('w-10 h-10', theme.primary, theme.accent)}
         </div>
         <div>
           <h4 class="text-sm font-bold text-slate-900 leading-tight">Scheduly v${APP_VERSION}</h4>
