@@ -17,8 +17,8 @@ function advanceQuote(): void {
   quoteContainer.style.opacity = '0';
   setTimeout(() => {
     quoteContainer.innerHTML = `
-      <span class="text-[13px] tracking-wide text-slate-700" style="font-family: 'Kalam', 'Caveat', cursive, sans-serif;">“${escapeHtml(nextQuote.text)}”</span>
-      <span class="font-semibold text-slate-500 text-[11px]">— ${escapeHtml(nextQuote.author)}</span>
+      <span class="text-[11.5px] tracking-wide text-slate-600" style="font-family: 'Kalam', 'Caveat', cursive, sans-serif;">“${escapeHtml(nextQuote.text)}”</span>
+      <span class="font-medium text-slate-400 text-[10px]">— ${escapeHtml(nextQuote.author)}</span>
     `;
     quoteContainer.style.opacity = '1';
   }, 200);
@@ -216,8 +216,8 @@ export function renderTimetable(container: HTMLElement): void {
           ${
             state.showQuotes
               ? `<div id="timetable-quote-content" class="transition-opacity duration-200 text-center sm:text-left flex flex-wrap items-center gap-1.5 justify-center sm:justify-start cursor-pointer select-none hover:text-slate-800 transition-colors" title="Click to see next quote">
-                   <span class="text-[13px] tracking-wide text-slate-700" style="font-family: 'Kalam', 'Caveat', cursive, sans-serif;">“${escapeHtml(initialQuote.text)}”</span>
-                   <span class="font-semibold text-slate-500 text-[11px]">— ${escapeHtml(initialQuote.author)}</span>
+                   <span class="text-[11.5px] tracking-wide text-slate-600" style="font-family: 'Kalam', 'Caveat', cursive, sans-serif;">“${escapeHtml(initialQuote.text)}”</span>
+                   <span class="font-medium text-slate-400 text-[10px]">— ${escapeHtml(initialQuote.author)}</span>
                  </div>`
               : `<div></div>`
           }
