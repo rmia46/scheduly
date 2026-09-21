@@ -167,6 +167,9 @@ function mount(): void {
       } else if (e.key === 'y' || e.key === 'Y') {
         e.preventDefault();
         store.redo();
+      } else if (e.key === 'b' || e.key === 'B') {
+        e.preventDefault();
+        store.toggleSidebar();
       }
     }
   });
