@@ -94,6 +94,11 @@
   transform-origin: top left;
 }
 
+.menu-popup-right-enter {
+  animation: menuPopup 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  transform-origin: top right;
+}
+
 @keyframes slideInRail {
   0% {
     opacity: 0;

@@ -1,6 +1,6 @@
 import type { ThemeColors, ThemeName } from '../types';
 
-export const APP_VERSION = '2.35.0';
+export const APP_VERSION = '2.36.0';
 
 // North South University (NSU) Standard Academic Time Slots
 export const NSU_SLOTS: string[] = [

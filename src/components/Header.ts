@@ -271,7 +271,7 @@ export function renderHeader(container: HTMLElement): void {
               <span>Help</span>
             </button>
 
-            <div id="menu-help-dropdown" class="hidden absolute left-0 mt-1 w-44 bg-white rounded-xl shadow-lg border border-slate-150 py-1.5 z-50 text-xs font-medium">
+            <div id="menu-help-dropdown" class="hidden menu-popup-enter absolute left-0 mt-1 w-44 bg-white rounded-xl shadow-lg border border-slate-150 py-1.5 z-50 text-xs font-medium">
               <button id="action-open-help" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer">
                 <svg class="w-4 h-4 text-sky-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                   <circle cx="12" cy="12" r="10"></circle>
@@ -295,7 +295,7 @@ export function renderHeader(container: HTMLElement): void {
 
       <!-- Right: Active Routine Selector & Mobile 3-Dots Menu -->
       <div class="flex items-center gap-2">
-        <select id="hdr-routine-select" class="text-xs font-medium bg-slate-100/90 hover:bg-slate-200/80 border border-slate-200 text-slate-800 rounded-lg px-2.5 py-1.5 outline-none cursor-pointer max-w-[135px] sm:max-w-[200px] truncate" title="Switch Active Routine">
+        <select id="hdr-routine-select" class="text-xs font-medium bg-slate-100/90 hover:bg-slate-200/80 border border-slate-200 text-slate-800 rounded-lg px-2.5 py-1.5 outline-none cursor-pointer max-w-[135px] sm:max-w-[200px] truncate transition-colors" title="Switch Active Routine">
           ${state.routines.map((r) => `<option value="${r.id}" ${r.id === state.activeRoutineId ? 'selected' : ''}>${r.name}</option>`).join('')}
         </select>
 
@@ -310,7 +310,7 @@ export function renderHeader(container: HTMLElement): void {
           </button>
 
           <!-- Mobile Categorized Dropdown (Right-aligned) -->
-          <div id="menu-mobile-dropdown" class="hidden absolute right-0 mt-1.5 w-60 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 text-xs">
+          <div id="menu-mobile-dropdown" class="hidden menu-popup-right-enter absolute right-0 mt-1.5 w-60 bg-white rounded-xl shadow-xl border border-slate-200 py-2 z-50 text-xs">
             <!-- Routine Section -->
             <div class="px-3 py-1 text-[10px] font-bold text-slate-400 uppercase tracking-wider">Routine</div>
             <button id="mobile-action-new-routine" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer">
