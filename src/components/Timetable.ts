@@ -221,7 +221,7 @@ export function renderTimetable(container: HTMLElement): void {
                  </div>`
               : `<div></div>`
           }
-          <span class="font-bold leading-none tracking-tight inline-block -rotate-2 shrink-0 opacity-80 hover:opacity-100 transition-opacity select-none cursor-default" style="font-family: 'Caveat', cursive, ui-sans-serif, sans-serif; font-size: 1.15rem; color: ${theme.accent};">Scheduly</span>
+          <span class="font-bold leading-none tracking-tight inline-block -rotate-2 origin-left shrink-0 opacity-85 hover:opacity-100 transition-opacity select-none cursor-default pr-2 mr-1 pb-0.5" style="font-family: 'Caveat', cursive, ui-sans-serif, sans-serif; font-size: 1.15rem; color: ${theme.accent};">Scheduly</span>
         </footer>
       </div>
     </div>
