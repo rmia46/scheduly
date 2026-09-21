@@ -38,13 +38,86 @@ export function renderSidebar(container: HTMLElement): void {
   const editingDays = new Set(editingSiblings.map((c) => c.day));
   const editingSlotIds = new Set(editingSiblings.map((c) => c.slotId).filter(Boolean));
 
+  if (!state.sidebarOpen) {
+    // Collapsed Rail: Slim vertical rail on desktop (hidden on mobile, but shown as compact bottom-right / top floating bar on mobile)
+    container.innerHTML = `
+      <!-- Desktop Mini Quick-Action Rail -->
+      <aside class="hidden md:flex flex-col items-center gap-3 p-2 bg-white rounded-2xl shadow-xs border transition-all duration-300 w-12" style="border-color: ${theme.border};">
+        <!-- Expand Panel Button -->
+        <button id="btn-rail-expand" class="w-8 h-8 rounded-xl flex items-center justify-center text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer" title="Expand Editor Panel (⌘B / Ctrl+B)">
+          <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="9" y1="3" x2="9" y2="21"></line>
+            <polyline points="14 9 17 12 14 15"></polyline>
+          </svg>
+        </button>
+
+        <div class="w-6 h-px bg-slate-200"></div>
+
+        <!-- Quick Add Course -->
+        <button id="btn-rail-add" class="w-8 h-8 rounded-xl flex items-center justify-center text-white shadow-2xs transition-transform hover:scale-105 active:scale-95 cursor-pointer" style="background-color: ${theme.primary}" title="Quick Add Course">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+        </button>
+
+        <!-- Courses Count Trigger -->
+        <button id="btn-rail-courses" class="relative w-8 h-8 rounded-xl flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer" title="${coursesCount} Courses (Click to view)">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
+            <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
+          </svg>
+          <span class="absolute -top-1 -right-1 text-[9px] font-bold px-1 rounded-full text-white" style="background-color: ${theme.accent}">${coursesCount}</span>
+        </button>
+
+        <!-- Slots Count Trigger -->
+        <button id="btn-rail-slots" class="relative w-8 h-8 rounded-xl flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer" title="${slotsCount} Time Slots (Click to manage)">
+          <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          <span class="absolute -top-1 -right-1 text-[9px] font-bold px-1 rounded-full bg-slate-500 text-white">${slotsCount}</span>
+        </button>
+      </aside>
+
+      <!-- Mobile Floating Quick-Action Pill (When collapsed on mobile) -->
+      <div class="md:hidden fixed bottom-5 left-4 z-40 flex items-center gap-1.5 p-1.5 bg-white/95 backdrop-blur-md rounded-full shadow-lg border animate-in slide-in-from-bottom-2" style="border-color: ${theme.border};">
+        <button id="btn-mobile-rail-expand" class="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-white text-xs font-bold shadow-xs active:scale-95 transition-transform" style="background-color: ${theme.primary}">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          <span>Editor</span>
+        </button>
+        <span class="text-[11px] font-bold text-slate-600 px-2 py-0.5 rounded-full bg-slate-100">${coursesCount} courses</span>
+      </div>
+    `;
+
+    container.querySelector('#btn-rail-expand')?.addEventListener('click', () => store.toggleSidebar());
+    container.querySelector('#btn-mobile-rail-expand')?.addEventListener('click', () => store.toggleSidebar());
+    container.querySelector('#btn-rail-add')?.addEventListener('click', () => {
+      store.setActiveTab('add');
+      store.toggleSidebar();
+    });
+    container.querySelector('#btn-rail-courses')?.addEventListener('click', () => {
+      store.setActiveTab('courses');
+      store.toggleSidebar();
+    });
+    container.querySelector('#btn-rail-slots')?.addEventListener('click', () => {
+      store.setActiveTab('slots');
+      store.toggleSidebar();
+    });
+    return;
+  }
+
   container.innerHTML = `
-    <aside class="${state.sidebarOpen ? 'w-full md:w-80 lg:w-88' : 'hidden'} shrink-0 transition-all duration-300">
+    <aside class="w-full md:w-80 lg:w-88 shrink-0 transition-all duration-300">
       <div class="bg-white rounded-2xl shadow-xs overflow-hidden flex flex-col h-full max-h-[calc(100vh-80px)] border transition-all duration-300" style="border-color: ${theme.border};">
         
-        <!-- Minimal Underline Tab Navigation -->
-        <div class="px-4 pt-1 border-b transition-colors duration-300" style="border-color: ${theme.border}; background-color: ${theme.bg};">
-          <div class="flex items-center gap-6 text-xs font-semibold">
+        <!-- Header & Tab Navigation with Collapse Handle -->
+        <div class="px-3 pt-1 border-b transition-colors duration-300 flex items-center justify-between" style="border-color: ${theme.border}; background-color: ${theme.bg};">
+          <div class="flex items-center gap-4 text-xs font-semibold">
             <!-- Add / Edit Tab -->
             <button id="tab-btn-add" class="relative pb-2.5 pt-2.5 transition-colors cursor-pointer flex items-center gap-1.5 ${
               state.activeTab === 'add' ? 'text-slate-900 font-bold' : 'text-slate-400 hover:text-slate-600'
@@ -94,6 +167,15 @@ export function renderSidebar(container: HTMLElement): void {
               }
             </button>
           </div>
+
+          <!-- Collapse Panel Button right in Sidebar Header -->
+          <button id="btn-sidebar-collapse" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer" title="Collapse into Mini Rail (⌘B / Ctrl+B)">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="9" y1="3" x2="9" y2="21"></line>
+              <polyline points="15 9 12 12 15 15"></polyline>
+            </svg>
+          </button>
         </div>
 
         <!-- Tab 1: Add/Edit Course -->
@@ -325,6 +407,7 @@ export function renderSidebar(container: HTMLElement): void {
   container.querySelector('#tab-btn-add')?.addEventListener('click', () => store.setActiveTab('add'));
   container.querySelector('#tab-btn-courses')?.addEventListener('click', () => store.setActiveTab('courses'));
   container.querySelector('#tab-btn-slots')?.addEventListener('click', () => store.setActiveTab('slots'));
+  container.querySelector('#btn-sidebar-collapse')?.addEventListener('click', () => store.toggleSidebar());
 
   // Color Swatch Selection
   const colorInput = container.querySelector('#input-course-color') as HTMLInputElement;
