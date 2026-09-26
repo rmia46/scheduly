@@ -1,6 +1,7 @@
 import { store } from '../store/routineStore';
 import { DAYS_FULL, THEMES } from '../types/constants';
 import { escapeHtml } from '../services/utils';
+import { generateTimeSlots } from '../services/slotGenerator';
 
 export function renderSidebar(container: HTMLElement): void {
   const state = store.getState();
@@ -369,33 +370,141 @@ export function renderSidebar(container: HTMLElement): void {
 
         <!-- Tab 3: Slots Manager -->
         <div id="pane-slots" class="${state.activeTab === 'slots' ? 'block' : 'hidden'} p-3 overflow-y-auto flex-1 space-y-3">
-          <!-- Add Slot Inline -->
-          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
-            <label class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Add Time Slot</label>
-            <div class="flex items-center gap-1.5">
-              <input id="input-new-slot-start" type="time" class="flex-1 bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs" />
-              <span class="text-xs text-slate-400">-</span>
-              <input id="input-new-slot-end" type="time" class="flex-1 bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs" />
-              <button id="btn-add-slot-submit" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white shadow-xs hover:opacity-90 cursor-pointer" style="background-color: ${theme.primary}">Add</button>
+          <!-- Mode Switcher: Auto Generate vs Manual -->
+          <div class="p-1 bg-slate-100 rounded-xl flex items-center gap-1 border border-slate-200/80">
+            <button id="btn-slot-mode-auto" type="button" class="flex-1 py-1 px-2 rounded-lg text-xs font-bold transition-all shadow-xs bg-white text-slate-800 cursor-pointer">
+              Auto Generate
+            </button>
+            <button id="btn-slot-mode-manual" type="button" class="flex-1 py-1 px-2 rounded-lg text-xs font-semibold text-slate-500 hover:text-slate-800 transition-all cursor-pointer">
+              Manual
+            </button>
+          </div>
+
+          <!-- Section: Auto Generator -->
+          <div id="slot-section-auto" class="space-y-3">
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <label class="text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Generator Setup</label>
+                <span class="text-[10px] text-slate-400">Class schedule generator</span>
+              </div>
+
+              <!-- Start Time -->
+              <div>
+                <label class="block text-[11px] font-medium text-slate-600 mb-1">Class Start Time</label>
+                <input id="gen-start-time" type="time" value="08:00" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400" />
+              </div>
+
+              <!-- Duration per Class -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="text-[11px] font-medium text-slate-600">Class Duration</label>
+                  <span id="gen-duration-label" class="text-[10px] font-bold text-slate-700">1h 30m (90 min)</span>
+                </div>
+                <select id="gen-duration-select" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400 cursor-pointer">
+                  <option value="50">50 mins</option>
+                  <option value="60">1 hr (60 mins)</option>
+                  <option value="75">1 hr 15 mins (75 mins)</option>
+                  <option value="90" selected>1 hr 30 mins (90 mins)</option>
+                  <option value="100">1 hr 40 mins (100 mins)</option>
+                  <option value="120">2 hrs (120 mins)</option>
+                  <option value="custom">Custom minutes...</option>
+                </select>
+                <div id="gen-duration-custom-wrap" class="hidden mt-1.5">
+                  <input id="gen-duration-custom" type="number" min="10" max="360" step="5" placeholder="Enter minutes (e.g. 80)" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800" />
+                </div>
+              </div>
+
+              <!-- Gap Between Classes -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="text-[11px] font-medium text-slate-600">Break / Gap Between Classes</label>
+                  <span id="gen-gap-label" class="text-[10px] font-bold text-slate-700">10 min gap</span>
+                </div>
+                <select id="gen-gap-select" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-1 focus:ring-slate-400 cursor-pointer">
+                  <option value="0">0 mins (No gap / back-to-back)</option>
+                  <option value="5">5 mins</option>
+                  <option value="10" selected>10 mins</option>
+                  <option value="15">15 mins</option>
+                  <option value="20">20 mins</option>
+                  <option value="30">30 mins</option>
+                  <option value="custom">Custom minutes...</option>
+                </select>
+                <div id="gen-gap-custom-wrap" class="hidden mt-1.5">
+                  <input id="gen-gap-custom" type="number" min="0" max="180" step="5" placeholder="Enter break minutes (e.g. 25)" class="w-full bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800" />
+                </div>
+              </div>
+
+              <!-- Total Number of Slots -->
+              <div>
+                <div class="flex items-center justify-between mb-1">
+                  <label class="text-[11px] font-medium text-slate-600">Total Number of Slots</label>
+                  <span id="gen-count-label" class="text-[10px] font-bold text-slate-700">7 slots</span>
+                </div>
+                <div class="flex items-center gap-2">
+                  <input id="gen-count-range" type="range" min="1" max="12" value="7" class="flex-1 accent-slate-800 cursor-pointer" />
+                  <input id="gen-count-number" type="number" min="1" max="15" value="7" class="w-14 bg-white border border-slate-200 rounded-lg px-2 py-1 text-xs text-center text-slate-800 font-bold" />
+                </div>
+              </div>
+
+              <!-- Live Slots Preview -->
+              <div class="pt-1 border-t border-slate-200/80">
+                <div class="flex items-center justify-between mb-1.5">
+                  <span class="text-[10.5px] font-semibold text-slate-500 uppercase tracking-wider">Preview Generated Slots</span>
+                  <span id="gen-preview-count" class="text-[10px] text-slate-400">7 slots</span>
+                </div>
+                <div id="gen-preview-container" class="max-h-32 overflow-y-auto space-y-1 pr-0.5">
+                  <!-- dynamic chips -->
+                </div>
+              </div>
+
+              <!-- Action buttons -->
+              <div class="pt-2 flex items-center gap-1.5">
+                <button id="btn-apply-replace-slots" type="button" class="flex-1 py-1.5 px-2 rounded-lg text-xs font-bold text-white shadow-xs hover:opacity-90 transition-opacity cursor-pointer text-center" style="background-color: ${theme.primary};">
+                  Replace All Slots
+                </button>
+                <button id="btn-apply-append-slots" type="button" class="py-1.5 px-2.5 rounded-lg text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-100 transition-colors cursor-pointer text-center" title="Append to existing slots without removing current ones">
+                  + Append
+                </button>
+              </div>
             </div>
           </div>
 
-          <div class="flex items-center justify-between pt-1">
-            <span class="text-xs font-bold text-slate-700">Active Slots (${routine.slots.length})</span>
-            <button id="btn-load-defaults" class="text-[11px] text-slate-500 hover:text-slate-800 font-medium underline cursor-pointer">Load NSU slots</button>
+          <!-- Section: Manual Single Slot Addition -->
+          <div id="slot-section-manual" class="hidden space-y-3">
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200/80 space-y-2">
+              <label class="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider">Add Single Slot</label>
+              <div class="flex items-center gap-1.5">
+                <input id="input-new-slot-start" type="time" class="flex-1 bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-800" />
+                <span class="text-xs text-slate-400">-</span>
+                <input id="input-new-slot-end" type="time" class="flex-1 bg-white border border-slate-200 rounded-lg px-2 py-1.5 text-xs text-slate-800" />
+                <button id="btn-add-slot-submit" type="button" class="px-3 py-1.5 rounded-lg text-xs font-bold text-white shadow-xs hover:opacity-90 cursor-pointer" style="background-color: ${theme.primary}">Add</button>
+              </div>
+              <p class="text-[10.5px] text-slate-500">Pick any custom start and end time to add an individual slot.</p>
+            </div>
           </div>
 
+          <!-- Active Slots Header & Load NSU Presets -->
+          <div class="flex items-center justify-between pt-1">
+            <span class="text-xs font-bold text-slate-700">Active Slots (${routine.slots.length})</span>
+            <button id="btn-load-defaults" type="button" class="text-[11px] text-slate-500 hover:text-slate-800 font-medium underline cursor-pointer">Load NSU slots</button>
+          </div>
+
+          <!-- Active Slots List -->
           <div class="space-y-1.5">
-            ${routine.slots
-              .map(
-                (s) => `
-              <div class="p-2 rounded-xl border border-slate-200/80 bg-white flex items-center justify-between text-xs">
-                <span class="font-bold text-slate-800">${s.label}</span>
-                <button data-remove-slot="${s.id}" class="text-[11px] text-slate-400 hover:text-rose-600 font-medium cursor-pointer">Remove</button>
-              </div>
-            `
-              )
-              .join('')}
+            ${
+              routine.slots.length === 0
+                ? `<div class="p-4 rounded-xl border border-dashed border-slate-200 text-center text-xs text-slate-400">No time slots yet. Use the auto generator above to create slots.</div>`
+                : routine.slots
+                    .map(
+                      (s) => `
+                <div class="p-2 rounded-xl border border-slate-200/80 bg-white flex items-center justify-between text-xs">
+                  <span class="font-bold text-slate-800">${s.label}</span>
+                  <button data-remove-slot="${s.id}" class="text-[11px] text-slate-400 hover:text-rose-600 font-medium cursor-pointer">Remove</button>
+                </div>
+              `
+                    )
+                    .join('')
+            }
           </div>
         </div>
 
@@ -542,7 +651,188 @@ export function renderSidebar(container: HTMLElement): void {
     });
   });
 
-  // Add Slot
+  // Slots Mode Switcher (Auto vs Manual)
+  const btnSlotModeAuto = container.querySelector('#btn-slot-mode-auto') as HTMLButtonElement | null;
+  const btnSlotModeManual = container.querySelector('#btn-slot-mode-manual') as HTMLButtonElement | null;
+  const slotSectionAuto = container.querySelector('#slot-section-auto') as HTMLElement | null;
+  const slotSectionManual = container.querySelector('#slot-section-manual') as HTMLElement | null;
+
+  btnSlotModeAuto?.addEventListener('click', () => {
+    slotSectionAuto?.classList.remove('hidden');
+    slotSectionManual?.classList.add('hidden');
+    btnSlotModeAuto.classList.add('shadow-xs', 'bg-white', 'text-slate-800');
+    btnSlotModeAuto.classList.remove('text-slate-500');
+    btnSlotModeManual?.classList.remove('shadow-xs', 'bg-white', 'text-slate-800');
+    btnSlotModeManual?.classList.add('text-slate-500');
+  });
+
+  btnSlotModeManual?.addEventListener('click', () => {
+    slotSectionManual?.classList.remove('hidden');
+    slotSectionAuto?.classList.add('hidden');
+    btnSlotModeManual.classList.add('shadow-xs', 'bg-white', 'text-slate-800');
+    btnSlotModeManual.classList.remove('text-slate-500');
+    btnSlotModeAuto?.classList.remove('shadow-xs', 'bg-white', 'text-slate-800');
+    btnSlotModeAuto?.classList.add('text-slate-500');
+  });
+
+  // Auto Generator Form Controls & Live Preview
+  const genStartTime = container.querySelector('#gen-start-time') as HTMLInputElement | null;
+  const genDurationSelect = container.querySelector('#gen-duration-select') as HTMLSelectElement | null;
+  const genDurationCustom = container.querySelector('#gen-duration-custom') as HTMLInputElement | null;
+  const genDurationCustomWrap = container.querySelector('#gen-duration-custom-wrap') as HTMLElement | null;
+  const genDurationLabel = container.querySelector('#gen-duration-label') as HTMLElement | null;
+
+  const genGapSelect = container.querySelector('#gen-gap-select') as HTMLSelectElement | null;
+  const genGapCustom = container.querySelector('#gen-gap-custom') as HTMLInputElement | null;
+  const genGapCustomWrap = container.querySelector('#gen-gap-custom-wrap') as HTMLElement | null;
+  const genGapLabel = container.querySelector('#gen-gap-label') as HTMLElement | null;
+
+  const genCountRange = container.querySelector('#gen-count-range') as HTMLInputElement | null;
+  const genCountNumber = container.querySelector('#gen-count-number') as HTMLInputElement | null;
+  const genCountLabel = container.querySelector('#gen-count-label') as HTMLElement | null;
+
+  const genPreviewContainer = container.querySelector('#gen-preview-container') as HTMLElement | null;
+  const genPreviewCount = container.querySelector('#gen-preview-count') as HTMLElement | null;
+
+  const getActiveDuration = (): number => {
+    if (!genDurationSelect) return 90;
+    if (genDurationSelect.value === 'custom') {
+      const val = parseInt(genDurationCustom?.value || '90', 10);
+      return isNaN(val) || val <= 0 ? 90 : val;
+    }
+    return parseInt(genDurationSelect.value, 10) || 90;
+  };
+
+  const getActiveGap = (): number => {
+    if (!genGapSelect) return 10;
+    if (genGapSelect.value === 'custom') {
+      const val = parseInt(genGapCustom?.value || '0', 10);
+      return isNaN(val) || val < 0 ? 0 : val;
+    }
+    return parseInt(genGapSelect.value, 10) ?? 10;
+  };
+
+  const getActiveCount = (): number => {
+    const val = parseInt(genCountNumber?.value || genCountRange?.value || '7', 10);
+    return isNaN(val) || val < 1 ? 1 : Math.min(15, val);
+  };
+
+  const updateSlotGeneratorPreview = () => {
+    if (!genStartTime || !genPreviewContainer) return;
+    const startTime = genStartTime.value || '08:00';
+    const duration = getActiveDuration();
+    const gap = getActiveGap();
+    const count = getActiveCount();
+
+    // Update labels
+    if (genDurationLabel) {
+      const hrs = Math.floor(duration / 60);
+      const mins = duration % 60;
+      const formatted = hrs > 0 ? `${hrs}h${mins > 0 ? ` ${mins}m` : ''}` : `${mins}m`;
+      genDurationLabel.textContent = `${formatted} (${duration} min)`;
+    }
+
+    if (genGapLabel) {
+      genGapLabel.textContent = gap === 0 ? 'No break (0 min)' : `${gap} min break`;
+    }
+
+    if (genCountLabel) {
+      genCountLabel.textContent = `${count} slot${count > 1 ? 's' : ''}`;
+    }
+
+    if (genPreviewCount) {
+      genPreviewCount.textContent = `${count} slot${count > 1 ? 's' : ''}`;
+    }
+
+    const previewSlots = generateTimeSlots({
+      startTime,
+      durationMinutes: duration,
+      gapMinutes: gap,
+      count,
+    });
+
+    genPreviewContainer.innerHTML = previewSlots
+      .map(
+        (slot, i) => `
+        <div class="px-2 py-1 rounded-lg bg-white border border-slate-200/90 flex items-center justify-between text-[11px] shadow-2xs">
+          <span class="font-bold text-slate-700">Slot ${i + 1}</span>
+          <span class="font-mono text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">${slot}</span>
+        </div>
+      `
+      )
+      .join('');
+  };
+
+  genStartTime?.addEventListener('input', updateSlotGeneratorPreview);
+
+  genDurationSelect?.addEventListener('change', () => {
+    if (genDurationSelect.value === 'custom') {
+      genDurationCustomWrap?.classList.remove('hidden');
+      if (!genDurationCustom?.value) genDurationCustom!.value = '80';
+    } else {
+      genDurationCustomWrap?.classList.add('hidden');
+    }
+    updateSlotGeneratorPreview();
+  });
+  genDurationCustom?.addEventListener('input', updateSlotGeneratorPreview);
+
+  genGapSelect?.addEventListener('change', () => {
+    if (genGapSelect.value === 'custom') {
+      genGapCustomWrap?.classList.remove('hidden');
+      if (!genGapCustom?.value) genGapCustom!.value = '15';
+    } else {
+      genGapCustomWrap?.classList.add('hidden');
+    }
+    updateSlotGeneratorPreview();
+  });
+  genGapCustom?.addEventListener('input', updateSlotGeneratorPreview);
+
+  genCountRange?.addEventListener('input', () => {
+    if (genCountNumber) genCountNumber.value = genCountRange.value;
+    updateSlotGeneratorPreview();
+  });
+  genCountNumber?.addEventListener('input', () => {
+    if (genCountRange) genCountRange.value = genCountNumber.value;
+    updateSlotGeneratorPreview();
+  });
+
+  // Initial preview render
+  updateSlotGeneratorPreview();
+
+  // Apply Auto-Generated Slots: Replace All
+  container.querySelector('#btn-apply-replace-slots')?.addEventListener('click', () => {
+    const startTime = genStartTime?.value || '08:00';
+    const duration = getActiveDuration();
+    const gap = getActiveGap();
+    const count = getActiveCount();
+
+    const slots = generateTimeSlots({ startTime, durationMinutes: duration, gapMinutes: gap, count });
+    if (slots.length === 0) return;
+
+    if (
+      routine.slots.length > 0 &&
+      !confirm(`Replace current ${routine.slots.length} slot(s) with ${slots.length} new generated slots? Current course slot assignments will be cleared.`)
+    ) {
+      return;
+    }
+
+    store.replaceSlots(slots);
+  });
+
+  // Apply Auto-Generated Slots: Append
+  container.querySelector('#btn-apply-append-slots')?.addEventListener('click', () => {
+    const startTime = genStartTime?.value || '08:00';
+    const duration = getActiveDuration();
+    const gap = getActiveGap();
+    const count = getActiveCount();
+
+    const slots = generateTimeSlots({ startTime, durationMinutes: duration, gapMinutes: gap, count });
+    if (slots.length === 0) return;
+
+    store.addSlots(slots);
+  });
+
+  // Add Slot (Manual)
   container.querySelector('#btn-add-slot-submit')?.addEventListener('click', () => {
     const start = (container.querySelector('#input-new-slot-start') as HTMLInputElement).value;
     const end = (container.querySelector('#input-new-slot-end') as HTMLInputElement).value;
@@ -570,3 +860,4 @@ export function renderSidebar(container: HTMLElement): void {
     }
   });
 }
+

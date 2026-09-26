@@ -4,6 +4,7 @@ import type { ThemeName, Routine } from '../types';
 import { exportVectorPDF, exportPNGImage, exportICSCalendar } from '../services/exportService';
 import { renderLogoSvg, renderBrandWordSvg } from './Logo';
 import { showToast, encodeToBase64Url, decodeFromBase64Url, escapeHtml } from '../services/utils';
+import { generateTimeSlots } from '../services/slotGenerator';
 
 export function renderHeader(container: HTMLElement): void {
   const state = store.getState();
@@ -89,6 +90,15 @@ export function renderHeader(container: HTMLElement): void {
                     <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
                   </svg>
                   <span>Shuffle Colors</span>
+                </div>
+              </button>
+              <button id="action-generate-slots" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center justify-between cursor-pointer">
+                <div class="flex items-center gap-2">
+                  <svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  <span>Auto Generate Slots</span>
                 </div>
               </button>
               <button id="action-load-nsu-slots" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center justify-between cursor-pointer">
@@ -353,6 +363,13 @@ export function renderHeader(container: HTMLElement): void {
                 <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
               </svg>
               <span>Shuffle Colors</span>
+            </button>
+            <button id="mobile-action-generate-slots" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer">
+              <svg class="w-4 h-4 text-sky-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              <span>Auto Generate Slots</span>
             </button>
             <button id="mobile-action-load-nsu-slots" class="w-full text-left px-3 py-2 text-slate-700 hover:bg-slate-50 flex items-center gap-2.5 cursor-pointer">
               <svg class="w-4 h-4 text-amber-500 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -910,6 +927,261 @@ export function renderHeader(container: HTMLElement): void {
     store.randomizeColors();
   };
 
+  const handleGenerateSlots = () => {
+    closeAllMenus();
+    const routine = store.getActiveRoutine();
+    if (!routine) return;
+
+    showModal(
+      `
+      <svg class="w-4.5 h-4.5 text-sky-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"></circle>
+        <polyline points="12 6 12 12 16 14"></polyline>
+      </svg>
+      <span>Auto Generate Time Slots</span>
+      `,
+      `
+      <p class="text-slate-600 text-xs leading-relaxed">
+        Automatically generate uniform class intervals based on start time, class duration, breaks, and slot count.
+      </p>
+
+      <div class="space-y-3 pt-1">
+        <!-- Start Time -->
+        <div>
+          <label class="block text-[11px] font-semibold text-slate-700 uppercase tracking-wider mb-1">Class Start Time</label>
+          <input id="modal-gen-start-time" type="time" value="08:00" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-400" />
+        </div>
+
+        <!-- Duration -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[11px] font-semibold text-slate-700 uppercase tracking-wider">Class Duration</label>
+            <span id="modal-gen-duration-label" class="text-[10px] font-bold text-slate-600">1h 30m (90 min)</span>
+          </div>
+          <select id="modal-gen-duration-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-400 cursor-pointer">
+            <option value="50">50 mins</option>
+            <option value="60">1 hr (60 mins)</option>
+            <option value="75">1 hr 15 mins (75 mins)</option>
+            <option value="90" selected>1 hr 30 mins (90 mins)</option>
+            <option value="100">1 hr 40 mins (100 mins)</option>
+            <option value="120">2 hrs (120 mins)</option>
+            <option value="custom">Custom minutes...</option>
+          </select>
+          <div id="modal-gen-duration-custom-wrap" class="hidden mt-1.5">
+            <input id="modal-gen-duration-custom" type="number" min="10" max="360" step="5" placeholder="Enter minutes (e.g. 80)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900" />
+          </div>
+        </div>
+
+        <!-- Gap -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[11px] font-semibold text-slate-700 uppercase tracking-wider">Break Between Classes</label>
+            <span id="modal-gen-gap-label" class="text-[10px] font-bold text-slate-600">10 min break</span>
+          </div>
+          <select id="modal-gen-gap-select" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs font-semibold text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-sky-400 cursor-pointer">
+            <option value="0">0 mins (No gap / back-to-back)</option>
+            <option value="5">5 mins</option>
+            <option value="10" selected>10 mins</option>
+            <option value="15">15 mins</option>
+            <option value="20">20 mins</option>
+            <option value="30">30 mins</option>
+            <option value="custom">Custom minutes...</option>
+          </select>
+          <div id="modal-gen-gap-custom-wrap" class="hidden mt-1.5">
+            <input id="modal-gen-gap-custom" type="number" min="0" max="180" step="5" placeholder="Enter break minutes (e.g. 25)" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 text-xs text-slate-900" />
+          </div>
+        </div>
+
+        <!-- Slot Count -->
+        <div>
+          <div class="flex items-center justify-between mb-1">
+            <label class="text-[11px] font-semibold text-slate-700 uppercase tracking-wider">Total Number of Slots</label>
+            <span id="modal-gen-count-label" class="text-[10px] font-bold text-slate-600">7 slots</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="modal-gen-count-range" type="range" min="1" max="12" value="7" class="flex-1 accent-sky-600 cursor-pointer" />
+            <input id="modal-gen-count-number" type="number" min="1" max="15" value="7" class="w-14 bg-slate-50 border border-slate-200 rounded-xl px-2 py-1.5 text-xs text-center text-slate-900 font-bold" />
+          </div>
+        </div>
+
+        <!-- Preview -->
+        <div class="pt-2 border-t border-slate-100">
+          <div class="flex items-center justify-between mb-1.5">
+            <span class="text-[10.5px] font-semibold text-slate-500 uppercase tracking-wider">Live Preview</span>
+            <span id="modal-gen-preview-count" class="text-[10px] text-slate-400">7 slots</span>
+          </div>
+          <div id="modal-gen-preview-container" class="max-h-28 overflow-y-auto space-y-1 p-1 bg-slate-50 rounded-xl border border-slate-200/80">
+          </div>
+        </div>
+
+        <div class="pt-2 flex items-center gap-2">
+          <button id="modal-btn-replace-slots" type="button" class="flex-1 py-2 px-3 rounded-xl text-xs font-bold text-white shadow-xs hover:opacity-90 transition-opacity cursor-pointer text-center" style="background-color: ${theme.primary}">
+            Replace All Slots
+          </button>
+          <button id="modal-btn-append-slots" type="button" class="py-2 px-3 rounded-xl text-xs font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors cursor-pointer text-center">
+            + Append
+          </button>
+        </div>
+      </div>
+      `
+    );
+
+    const mStartTime = document.getElementById('modal-gen-start-time') as HTMLInputElement | null;
+    const mDurationSelect = document.getElementById('modal-gen-duration-select') as HTMLSelectElement | null;
+    const mDurationCustom = document.getElementById('modal-gen-duration-custom') as HTMLInputElement | null;
+    const mDurationCustomWrap = document.getElementById('modal-gen-duration-custom-wrap') as HTMLElement | null;
+    const mDurationLabel = document.getElementById('modal-gen-duration-label') as HTMLElement | null;
+
+    const mGapSelect = document.getElementById('modal-gen-gap-select') as HTMLSelectElement | null;
+    const mGapCustom = document.getElementById('modal-gen-gap-custom') as HTMLInputElement | null;
+    const mGapCustomWrap = document.getElementById('modal-gen-gap-custom-wrap') as HTMLElement | null;
+    const mGapLabel = document.getElementById('modal-gen-gap-label') as HTMLElement | null;
+
+    const mCountRange = document.getElementById('modal-gen-count-range') as HTMLInputElement | null;
+    const mCountNumber = document.getElementById('modal-gen-count-number') as HTMLInputElement | null;
+    const mCountLabel = document.getElementById('modal-gen-count-label') as HTMLElement | null;
+
+    const mPreviewContainer = document.getElementById('modal-gen-preview-container') as HTMLElement | null;
+    const mPreviewCount = document.getElementById('modal-gen-preview-count') as HTMLElement | null;
+
+    const getMDuration = (): number => {
+      if (!mDurationSelect) return 90;
+      if (mDurationSelect.value === 'custom') {
+        const val = parseInt(mDurationCustom?.value || '90', 10);
+        return isNaN(val) || val <= 0 ? 90 : val;
+      }
+      return parseInt(mDurationSelect.value, 10) || 90;
+    };
+
+    const getMGap = (): number => {
+      if (!mGapSelect) return 10;
+      if (mGapSelect.value === 'custom') {
+        const val = parseInt(mGapCustom?.value || '0', 10);
+        return isNaN(val) || val < 0 ? 0 : val;
+      }
+      return parseInt(mGapSelect.value, 10) ?? 10;
+    };
+
+    const getMCount = (): number => {
+      const val = parseInt(mCountNumber?.value || mCountRange?.value || '7', 10);
+      return isNaN(val) || val < 1 ? 1 : Math.min(15, val);
+    };
+
+    const updateMPreview = () => {
+      if (!mStartTime || !mPreviewContainer) return;
+      const startTime = mStartTime.value || '08:00';
+      const duration = getMDuration();
+      const gap = getMGap();
+      const count = getMCount();
+
+      if (mDurationLabel) {
+        const hrs = Math.floor(duration / 60);
+        const mins = duration % 60;
+        const formatted = hrs > 0 ? `${hrs}h${mins > 0 ? ` ${mins}m` : ''}` : `${mins}m`;
+        mDurationLabel.textContent = `${formatted} (${duration} min)`;
+      }
+
+      if (mGapLabel) {
+        mGapLabel.textContent = gap === 0 ? 'No break (0 min)' : `${gap} min break`;
+      }
+
+      if (mCountLabel) {
+        mCountLabel.textContent = `${count} slot${count > 1 ? 's' : ''}`;
+      }
+
+      if (mPreviewCount) {
+        mPreviewCount.textContent = `${count} slot${count > 1 ? 's' : ''}`;
+      }
+
+      const slots = generateTimeSlots({ startTime, durationMinutes: duration, gapMinutes: gap, count });
+      mPreviewContainer.innerHTML = slots
+        .map(
+          (s, i) => `
+          <div class="px-2 py-1 rounded-lg bg-white border border-slate-200/90 flex items-center justify-between text-[11px] shadow-2xs">
+            <span class="font-bold text-slate-700">Slot ${i + 1}</span>
+            <span class="font-mono text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded text-[10px]">${s}</span>
+          </div>
+        `
+        )
+        .join('');
+    };
+
+    mStartTime?.addEventListener('input', updateMPreview);
+
+    mDurationSelect?.addEventListener('change', () => {
+      if (mDurationSelect.value === 'custom') {
+        mDurationCustomWrap?.classList.remove('hidden');
+        if (!mDurationCustom?.value) mDurationCustom!.value = '80';
+      } else {
+        mDurationCustomWrap?.classList.add('hidden');
+      }
+      updateMPreview();
+    });
+    mDurationCustom?.addEventListener('input', updateMPreview);
+
+    mGapSelect?.addEventListener('change', () => {
+      if (mGapSelect.value === 'custom') {
+        mGapCustomWrap?.classList.remove('hidden');
+        if (!mGapCustom?.value) mGapCustom!.value = '15';
+      } else {
+        mGapCustomWrap?.classList.add('hidden');
+      }
+      updateMPreview();
+    });
+    mGapCustom?.addEventListener('input', updateMPreview);
+
+    mCountRange?.addEventListener('input', () => {
+      if (mCountNumber) mCountNumber.value = mCountRange.value;
+      updateMPreview();
+    });
+    mCountNumber?.addEventListener('input', () => {
+      if (mCountRange) mCountRange.value = mCountNumber.value;
+      updateMPreview();
+    });
+
+    updateMPreview();
+
+    const closeModal = () => {
+      const backdrop = document.getElementById('scheduly-modal-backdrop');
+      backdrop?.remove();
+    };
+
+    document.getElementById('modal-btn-replace-slots')?.addEventListener('click', () => {
+      const startTime = mStartTime?.value || '08:00';
+      const duration = getMDuration();
+      const gap = getMGap();
+      const count = getMCount();
+
+      const slots = generateTimeSlots({ startTime, durationMinutes: duration, gapMinutes: gap, count });
+      if (slots.length === 0) return;
+
+      if (
+        routine.slots.length > 0 &&
+        !confirm(`Replace current ${routine.slots.length} slot(s) with ${slots.length} new generated slots? Current course slot assignments will be cleared.`)
+      ) {
+        return;
+      }
+
+      store.replaceSlots(slots);
+      closeModal();
+      showToast(`Generated ${slots.length} slots!`);
+    });
+
+    document.getElementById('modal-btn-append-slots')?.addEventListener('click', () => {
+      const startTime = mStartTime?.value || '08:00';
+      const duration = getMDuration();
+      const gap = getMGap();
+      const count = getMCount();
+
+      const slots = generateTimeSlots({ startTime, durationMinutes: duration, gapMinutes: gap, count });
+      if (slots.length === 0) return;
+
+      store.addSlots(slots);
+      closeModal();
+      showToast(`Appended ${slots.length} slots!`);
+    });
+  };
+
   const handleLoadNsuSlots = () => {
     closeAllMenus();
     if (confirm('Load North South University (NSU) academic time slots? This will reset routine slots.')) {
@@ -1053,6 +1325,9 @@ export function renderHeader(container: HTMLElement): void {
 
   container.querySelector('#action-random-colors')?.addEventListener('click', handleRandomColors);
   container.querySelector('#mobile-action-random-colors')?.addEventListener('click', handleRandomColors);
+
+  container.querySelector('#action-generate-slots')?.addEventListener('click', handleGenerateSlots);
+  container.querySelector('#mobile-action-generate-slots')?.addEventListener('click', handleGenerateSlots);
 
   container.querySelector('#action-load-nsu-slots')?.addEventListener('click', handleLoadNsuSlots);
   container.querySelector('#mobile-action-load-nsu-slots')?.addEventListener('click', handleLoadNsuSlots);

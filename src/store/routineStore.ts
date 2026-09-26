@@ -477,6 +477,34 @@ class Store {
     this.notify();
   }
 
+  public addSlots(labels: string[]): void {
+    const routine = this.getActiveRoutine();
+    if (!routine || labels.length === 0) return;
+    this.recordAction();
+    for (const label of labels) {
+      if (!routine.slots.some((s) => s.label === label)) {
+        routine.slots.push({ id: uid('slot'), label });
+      }
+    }
+    routine.slots.sort((a, b) => {
+      const [aStart] = a.label.split('-');
+      const [bStart] = b.label.split('-');
+      return aStart.localeCompare(bStart);
+    });
+    this.notify();
+  }
+
+  public replaceSlots(labels: string[]): void {
+    const routine = this.getActiveRoutine();
+    if (!routine) return;
+    this.recordAction();
+    routine.slots = labels.map((label) => ({ id: uid('slot'), label }));
+    for (const c of routine.courses) {
+      c.slotId = null;
+    }
+    this.notify();
+  }
+
   public removeSlot(id: string): void {
     const routine = this.getActiveRoutine();
     if (!routine) return;
