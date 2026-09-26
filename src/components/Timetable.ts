@@ -1,6 +1,7 @@
 import { store } from '../store/routineStore';
 import { DAYS_SHORT, DAYS_FULL, THEMES, PHILOSOPHICAL_QUOTES } from '../types/constants';
 import { escapeHtml, getContrastColor, hexToRgb } from '../services/utils';
+import { renderBrandWordSvg } from './Logo';
 
 let quoteIntervalTimer: number | null = null;
 let currentQuoteIndex = 0;
@@ -221,7 +222,9 @@ export function renderTimetable(container: HTMLElement): void {
                  </div>`
               : `<div></div>`
           }
-          <span class="font-bold leading-none tracking-tight inline-block -rotate-2 origin-left shrink-0 opacity-85 hover:opacity-100 transition-opacity select-none cursor-default pr-2 mr-1 pb-0.5" style="font-family: 'Caveat', cursive, ui-sans-serif, sans-serif; font-size: 1.15rem; color: ${theme.accent};">Scheduly</span>
+          <div class="shrink-0 opacity-85 hover:opacity-100 transition-opacity select-none cursor-default pb-0.5">
+            ${renderBrandWordSvg('h-4.5 w-auto', theme.accent, true)}
+          </div>
         </footer>
       </div>
     </div>

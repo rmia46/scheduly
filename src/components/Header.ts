@@ -2,7 +2,7 @@ import { store } from '../store/routineStore';
 import { THEMES, APP_VERSION } from '../types/constants';
 import type { ThemeName, Routine } from '../types';
 import { exportVectorPDF, exportPNGImage, exportICSCalendar } from '../services/exportService';
-import { renderLogoSvg } from './Logo';
+import { renderLogoSvg, renderBrandWordSvg } from './Logo';
 import { showToast, encodeToBase64Url, decodeFromBase64Url, escapeHtml } from '../services/utils';
 
 export function renderHeader(container: HTMLElement): void {
@@ -16,7 +16,7 @@ export function renderHeader(container: HTMLElement): void {
         <!-- App Branding -->
         <div class="flex items-center gap-2 pr-2 border-r border-slate-200">
           ${renderLogoSvg('w-6 h-6 select-none pointer-events-none transition-colors duration-300', theme.primary, theme.accent)}
-          <span class="font-bold leading-none select-none tracking-tight inline-block -rotate-2 hover:rotate-0 transition-all duration-200 origin-left" style="font-family: 'Caveat', cursive, ui-sans-serif, sans-serif; font-size: 1.45rem; color: ${theme.accent};">Scheduly</span>
+          ${renderBrandWordSvg('h-6 w-auto', theme.accent, true)}
         </div>
 
         <!-- Authentic Application Menu Bar (Desktop: md:flex) -->
